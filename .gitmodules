@@ -1,0 +1,6 @@
+[submodule "apps/EliteDriverBackendSoft"]
+	path = apps/EliteDriverBackendSoft
+	url = https://github.com/Luisnativii/EliteDriverBackendSoft.git
+[submodule "apps/EliteDriverFrontEndSoft"]
+	path = apps/EliteDriverFrontEndSoft
+	url = https://github.com/Luisnativii/EliteDriverFrontEndSoft.git

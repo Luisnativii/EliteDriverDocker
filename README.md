@@ -1,70 +1,56 @@
 # EliteDriver
 
-Proyecto dockerizado de EliteDriver con:
+Proyecto dockerizado de EliteDriver preparado para levantar el stack principal con Docker Compose:
 
-- Frontend en React + Vite
-- Backend en Spring Boot
+- Frontend en React + Vite, servido con Nginx
+- Backend/API en Spring Boot
 - Base de datos PostgreSQL
-- Administración web de base de datos con pgAdmin
 
 ## Requisitos
 
-- Docker Desktop instalado
+- Docker instalado
 - Docker Compose habilitado
+
+## Configuración
+
+Crea tu archivo local de variables desde el ejemplo:
+
+```bash
+cp .env.example .env
+```
+
+Ajusta como mínimo:
+
+- `POSTGRES_PASSWORD`
+- `SPRING_DATASOURCE_PASSWORD`
+- `JWT_SECRET`
+
+No subas `.env` al repositorio.
 
 ## Cómo correr el proyecto
 
-Desde la raíz del proyecto:
+Desde la raíz:
 
 ```bash
 docker compose up -d --build
 ```
 
-Esto levantará todos los servicios:
+Esto levantará:
 
 - `postgres`
-- `pgadmin`
 - `backend`
 - `frontend`
 
-## Cómo detener el proyecto
+PostgreSQL solo queda expuesto dentro de la red de Docker. Frontend y backend quedan publicados en `127.0.0.1` para uso local o para un reverse proxy/túnel del host.
 
-```bash
-docker compose down
-```
-
-Si además quieres eliminar volúmenes de la base de datos:
-
-```bash
-docker compose down -v
-```
-
-## Links locales del proyecto
+## Links locales
 
 - Frontend: [http://localhost:5173](http://localhost:5173)
-- Backend: [http://localhost:8080](http://localhost:8080)
-- Endpoint de prueba backend: [http://localhost:8080/api/vehicles](http://localhost:8080/api/vehicles)
-- pgAdmin: [http://localhost:5050](http://localhost:5050)
+- Backend health: [http://localhost:8080/health](http://localhost:8080/health)
+- API vía frontend proxy: [http://localhost:5173/api/vehicles](http://localhost:5173/api/vehicles)
+- API directa local: [http://localhost:8080/api/vehicles](http://localhost:8080/api/vehicles)
 
-## Credenciales de testing
-
-### PostgreSQL
-
-- Host: `localhost`
-- Puerto: `5432`
-- Base de datos: `elitedriver`
-- Usuario: `postgres`
-- Password: `postgres`
-
-### pgAdmin
-
-- URL: [http://localhost:5050](http://localhost:5050)
-- Email: `admin@elitedriver.com`
-- Password: `admin123`
-
-Nota: el servidor de PostgreSQL ya queda preconfigurado dentro de pgAdmin.
-
-### Usuario administrador sembrado por el backend
+## Usuario administrador sembrado
 
 Al iniciar por primera vez, el backend crea un usuario administrador de prueba:
 
@@ -74,25 +60,15 @@ Al iniciar por primera vez, el backend crea un usuario administrador de prueba:
 
 ## Comandos útiles
 
-Ver estado de los contenedores:
-
 ```bash
+docker compose config
+docker compose build
+docker compose up -d
 docker compose ps
-```
-
-Ver logs de todos los servicios:
-
-```bash
 docker compose logs -f
-```
-
-Ver logs de un servicio específico:
-
-```bash
 docker compose logs -f backend
 docker compose logs -f frontend
 docker compose logs -f postgres
-docker compose logs -f pgadmin
 ```
 
 Reconstruir todo desde cero:
@@ -102,15 +78,20 @@ docker compose down
 docker compose up -d --build
 ```
 
-## Estructura de servicios
+Eliminar también la base local:
 
-- `frontend`: interfaz web de EliteDriver
-- `backend`: API REST y lógica de negocio
-- `postgres`: base de datos principal
-- `pgadmin`: panel web para administrar PostgreSQL
+```bash
+docker compose down -v
+```
+
+## Arquitectura
+
+- `frontend`: Nginx sirve los assets compilados de React/Vite y proxifica `/api` hacia `backend:8080`.
+- `backend`: Spring Boot expone la API REST y conecta a PostgreSQL por la red interna de Docker.
+- `postgres`: PostgreSQL 16 Alpine con volumen persistente `postgres_data`.
 
 ## Notas
 
-- El frontend consume el backend por proxy interno Docker, por lo que no hace falta configurar nada manualmente para desarrollo local.
-- El backend ya está configurado para conectarse automáticamente a PostgreSQL dentro de Docker.
-- Las variables de entorno principales están centralizadas en el archivo `.env`.
+- El endpoint `/health` del backend consulta PostgreSQL con `SELECT 1`.
+- Las variables principales están documentadas en `.env.example`.
+- Para producción, usa secretos fuertes y apunta Cloudflare Tunnel al puerto local del frontend.
