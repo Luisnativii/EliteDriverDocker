@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap');
+@import "tw-animate-css";
+@import "tailwindcss";
+
+
+
+:root {
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 25px;
+
+  --font-family-base: "Montserrat", sans-serif;
+  --font-family-prueba: "Playfair Display", serif;
+  --h1: 20px;
+  --h2: 16px;
+  --h3: 16px;
+  --h4: 12px;
+  --txt: 12px;
+  --txt-sm: 10px;
+
+  
+  --sidebar-width: 240px;
+  --header-height: 60px;
+  --card-padding: 1rem;
+
+}
+
+/* Toast personalizado estilo glass */
+.toast-glass {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 30px rgba(103, 102, 102, 0.5);
+  border-radius: 16px;
+  color: #fff;
+  padding: 12px;
+}
+
+
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE y Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar-x {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE y Edge */
+  }
+
+  .hide-scrollbar-x::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+html, body {
+  font-family: var(--font-family-base);
+  width:100%;
+  overflow-x: hidden;
+  background-color: #525252;
+}
+
+/* Estilizar el icono nativo del input date (ponerlo blanco) */
+.date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);   /* negro → blanco sobre fondo oscuro */
+  cursor: pointer;     /* manito al pasar sobre el icono */
+}
+
+

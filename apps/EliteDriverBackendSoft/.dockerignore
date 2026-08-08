@@ -1,0 +1,14 @@
+.git
+.github
+.idea
+.vscode
+target
+build
+HELP.md
+*.iml
+*.log
+.env
+.env.*
+Dockerfile
+README.md
+INSOMNIA_COLLECTION.md
