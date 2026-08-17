@@ -5,20 +5,6 @@ import { useReservation }  from '../../hooks/useReservations'
 import VehicleFactDetail from '../../components/customer/VehicleFactDetail';
 import FacturationDetail from '../../components/customer/FacturationDetail';
 
-const getBase64ImageSrc = (base64) => {
-    if (!base64) return "/images/vehicle-placeholder.jpg";
-
-    const clean = base64.trim().replace(/\\n/g, "").replace(/\s/g, "");
-
-    const mimeType =
-        clean.startsWith("/") ? "image/jpeg" :
-        clean.startsWith("iVBOR") ? "image/png" :
-        clean.startsWith("UklGR") ? "image/webp" :
-        "image/jpeg";
-
-    return `data:${mimeType};base64,${clean}`;
-};
-
 const ReservationPage = () => {
     const { vehicleId } = useParams();
     const { vehicle: selectedVehicle, loading, error } = useVehicle(vehicleId);
@@ -59,9 +45,9 @@ const ReservationPage = () => {
 
     const vehicleWithDecodedImages = {
         ...selectedVehicle,
-        mainImageDecoded: getBase64ImageSrc(selectedVehicle.mainImageBase64),
-        listImagesDecoded: Array.isArray(selectedVehicle.listImagesBase64)
-            ? selectedVehicle.listImagesBase64.map(getBase64ImageSrc)
+        mainImageUrl: selectedVehicle.mainImageUrl || "/images/vehicle-placeholder.jpg",
+        listImageUrls: Array.isArray(selectedVehicle.listImageUrls)
+            ? selectedVehicle.listImageUrls
             : []
     };
 

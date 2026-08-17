@@ -36,21 +36,6 @@ const VehicleCard = ({ vehicle, isFiltered = false, isReserved = false }) => {
         }
     };
 
-    // Detecta MIME y reconstruye el src base64
-    const getBase64ImageSrc = (base64) => {
-        if (!base64) return "/images/vehicle-placeholder.jpg";
-
-        const clean = base64.trim().replace(/\\n/g, "").replace(/\s/g, "");
-
-        const mimeType =
-            clean.startsWith("/") ? "image/jpeg" :
-                clean.startsWith("iVBOR") ? "image/png" :
-                    clean.startsWith("UklGR") ? "image/webp" :
-                        "image/jpeg";
-
-        return `data:${mimeType};base64,${clean}`;
-    };
-
     const handleReservationClick = () => {
         // Bloquear si está reservado
         if (isReserved) {
@@ -85,10 +70,10 @@ const VehicleCard = ({ vehicle, isFiltered = false, isReserved = false }) => {
                 </div>
             )}
 
-            {/* IMAGEN BASE64 */}
+            {/* Imagen del vehículo */}
             <div className={`w-full h-40 bg-gray-200 rounded-lg mb-4 overflow-hidden relative ${isReserved ? 'opacity-75' : ''}`}>
                 <img
-                    src={getBase64ImageSrc(vehicle.mainImageBase64)}
+                    src={vehicle.mainImageUrl || "/images/vehicle-placeholder.jpg"}
                     alt={vehicle.name}
                     className="w-full h-full object-cover"
                     onError={(e) => e.target.src = "/images/vehicle-placeholder.jpg"}

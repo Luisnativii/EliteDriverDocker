@@ -114,7 +114,7 @@ public class ReservationController {
                         .brand(reservation.getVehicle().getBrand())
                         .model(reservation.getVehicle().getModel())
                         .capacity(reservation.getVehicle().getCapacity())
-                        .mainImageBase64(reservation.getVehicle().getMainImageBase64())
+                        .mainImageUrl(reservation.getVehicle().getMainImageUrl())
                         .vehicleType(reservation.getVehicle().getVehicleType().getType())
                         .pricePerDay(pricePerDay)
                         .build())

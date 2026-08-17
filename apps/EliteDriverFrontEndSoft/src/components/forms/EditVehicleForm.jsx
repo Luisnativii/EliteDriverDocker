@@ -25,48 +25,10 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
   } = useVehicleForm(vehicle, true); // true = modo edición
 
   const [currentImage, setCurrentImage] = React.useState(0);
-  const [mainImageFile, setMainImageFile] = React.useState(null);
-  const [secondaryImageFiles, setSecondaryImageFiles] = React.useState([]);
-  const MAX_SIZE_MB = 5;
-  const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-
-  /**
-   * Valida el archivo de imagen para asegurar que sea PNG o JPEG y no exceda el tamaño máximo permitido.
-   *
-   * @param {File} file - Archivo de imagen a validar.
-   * @returns {boolean} - Retorna `true` si el archivo es válido, de lo contrario, `false`.
-   */
-  const validateImageFile = (file) => {
-    // Validar tipo de archivo de forma estricta
-    const validMimeTypes = ['image/jpeg', 'image/png'];
-    const validExtensions = ['.jpg', '.jpeg', '.png'];
-    
-    // Verificar MIME type
-    if (!validMimeTypes.includes(file.type)) {
-      toast.error('Por favor, selecciona una imagen de tipo PNG o JPEG.');
-      return false;
-    }
-
-    // Verificar extensión del archivo
-    const fileName = file.name.toLowerCase();
-    const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
-    if (!validExtensions.includes(fileExtension)) {
-      toast.error('Por favor, selecciona una imagen de tipo PNG o JPEG.');
-      return false;
-    }
-
-    // Validar tamaño de archivo
-    if (file.size > MAX_SIZE_BYTES) {
-      toast.error(`La imagen supera el tamaño máximo de ${MAX_SIZE_MB} MB.`);
-      return false;
-    }
-
-    return true;
-  };
 
   const allImages = [
-    formData.mainImageBase64,
-    ...(formData.listImagesBase64 || [])
+    formData.mainImageUrl,
+    ...(formData.listImageUrls || [])
   ].filter(Boolean);
 
   const goNext = () => {
@@ -83,115 +45,31 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
 
   const removeImage = (index) => {
     if (index === 0) {
-      // borrar imagen principal
-      setFormData(prev => ({ ...prev, mainImageBase64: null }));
-      setMainImageFile(null);
-      // Limpiar el input de imagen principal
-      const mainInput = document.getElementById('mainImageInput');
-      if (mainInput) mainInput.value = '';
+      setFormData(prev => ({ ...prev, mainImageUrl: null }));
     } else {
-      // borrar de imágenes secundarias
       const secondaryIndex = index - 1;
       setFormData(prev => {
-        const newList = [...prev.listImagesBase64];
+        const newList = [...prev.listImageUrls];
         newList.splice(secondaryIndex, 1);
-        return { ...prev, listImagesBase64: newList };
+        return { ...prev, listImageUrls: newList };
       });
-      setSecondaryImageFiles(prev => {
-        const newFiles = [...prev];
-        newFiles.splice(secondaryIndex, 1);
-        return newFiles;
-      });
-      // Si no quedan imágenes secundarias, limpiar el input
-      if (formData.listImagesBase64.length === 1) {
-        const secondaryInput = document.getElementById('secondaryImages');
-        if (secondaryInput) secondaryInput.value = '';
-      }
     }
-    // Ajustar índice actual si es necesario
+
     if (currentImage >= allImages.length - 1 && currentImage > 0) {
       setCurrentImage(currentImage - 1);
     }
   };
 
-  /**
-   * Convierte un archivo en formato base64.
-   *
-   * @param {File} file - El archivo a convertir.
-   * @returns {Promise} - Una promesa que resuelve con el valor base64 del archivo.
-   */
+  const handleSecondaryImageUrlsChange = (e) => {
+    const urls = e.target.value
+      .split(/\r?\n/)
+      .map((url) => url.trim())
+      .filter(Boolean);
 
-  const toBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const base64 = reader.result.split(",")[1];
-        resolve(base64);
-      };
-      reader.onerror = reject;
-    });
-
-  const handleMainImageChange = async (e) => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    if (!validateImageFile(file)) {
-      e.target.value = ''; // Limpiar input
-      return;
-    }
-
-    try {
-      const base64 = await toBase64(file);
-      setFormData((prev) => ({
-        ...prev,
-        mainImageBase64: base64,
-      }));
-      setMainImageFile(file);
-      setCurrentImage(0);
-    } catch (error) {
-      toast.error('Error al procesar la imagen');
-      e.target.value = '';
-    }
-  };
-
-  const handleSecondaryImagesChange = async (e) => {
-    const files = e.target.files;
-
-    if (!files || files.length === 0) return;
-
-    try {
-      const validFiles = [];
-      const base64Array = [];
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-
-        if (!validateImageFile(file)) {
-          continue; // Saltar este archivo
-        }
-
-        validFiles.push(file);
-        const base64 = await toBase64(file);
-        base64Array.push(base64);
-      }
-
-      if (validFiles.length === 0) {
-        e.target.value = '';
-        return;
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        listImagesBase64: [...(prev.listImagesBase64 || []), ...base64Array],
-      }));
-
-      setSecondaryImageFiles((prev) => [...prev, ...validFiles]);
-    } catch (error) {
-      toast.error('Error al procesar las imágenes');
-      e.target.value = '';
-    }
+    setFormData((prev) => ({
+      ...prev,
+      listImageUrls: urls,
+    }));
   };
 
   const handleFeaturesChange = (e) => {
@@ -227,8 +105,8 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
         ? formData.featuresText.split(",").map(f => f.trim()).filter(f => f)
         : [],
 
-      mainImageBase64: formData.mainImageBase64 || null,
-      listImagesBase64: formData.listImagesBase64 || []
+      mainImageUrl: formData.mainImageUrl?.trim() || null,
+      listImageUrls: formData.listImageUrls || []
     };
 
     try {
@@ -301,9 +179,12 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
           <div className="carousel-container">
             {allImages.length > 0 ? (
               <img
-                src={`data:image/jpeg;base64,${allImages[currentImage]}`}
+                src={allImages[currentImage]}
                 className="carousel-slide"
                 alt="preview"
+                onError={(e) => {
+                  e.currentTarget.src = "/images/vehicle-placeholder.jpg";
+                }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-500">
@@ -349,12 +230,15 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
                   </button>
 
                   <img
-                    src={`data:image/jpeg;base64,${img}`}
+                    src={img}
                     className={`w-20 h-20 object-cover rounded cursor-pointer border ${
                       currentImage === index ? "border-red-500" : "border-gray-500"
                     }`}
                     onClick={() => setCurrentImage(index)}
                     alt={`Miniatura ${index + 1}`}
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/vehicle-placeholder.jpg";
+                    }}
                   />
                 </div>
               ))}
@@ -365,70 +249,38 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
         {/* Imagen principal */}
         <div>
           <label className="block text-sm font-medium text-gray-200 mb-1">
-            Imagen Principal
+            URL de Imagen Principal
           </label>
 
-          <div className="relative">
-            <input
-              id="mainImageInput"
-              type="file"
-              accept=".png,.jpg,.jpeg,image/png,image/jpeg"
-              onChange={handleMainImageChange}
-              className="hidden"
-            />
+          <input
+            type="url"
+            name="mainImageUrl"
+            value={formData.mainImageUrl || ""}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 border text-white/80 bg-neutral-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.mainImageUrl ? 'border-red-500' : 'border-gray-300'}`}
+            placeholder="https://ejemplo.com/vehiculo.jpg"
+          />
 
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={() => document.getElementById('mainImageInput').click()}
-                className="w-50 px-4 py-2 bg-red-600 text-white justify-center rounded-md hover:bg-red-700 text-left flex items-center justify-between"
-              >
-                <span className="text-sm font-semibold">Seleccionar imagen</span>
-              </button>
-              <span className="text-xs text-white pl-3 opacity-80 truncate">
-                {mainImageFile ? mainImageFile.name : 'No se ha seleccionado ninguna imagen'}
-              </span>
-            </div>
-          </div>
-
-          {errors.mainImageBase64 && (
-            <p className="text-red-500 text-sm mt-1">{errors.mainImageBase64}</p>
+          {errors.mainImageUrl && (
+            <p className="text-red-500 text-sm mt-1">{errors.mainImageUrl}</p>
           )}
         </div>
 
         {/* Imágenes secundarias */}
         <div>
           <label className="block text-sm font-medium text-gray-200 mb-1">
-            Imágenes Adicionales
+            URLs de Imágenes Adicionales
           </label>
 
-          <div className="relative">
-            <input
-              id="secondaryImages"
-              type="file"
-              accept=".png,.jpg,.jpeg,image/png,image/jpeg"
-              multiple
-              onChange={handleSecondaryImagesChange}
-              className="hidden"
-            />
-
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={() => document.getElementById('secondaryImages').click()}
-                className="w-50 px-4 py-2 bg-red-600 text-white justify-center rounded-md hover:bg-red-700 text-left flex items-center justify-between"
-              >
-                <span className="text-sm font-semibold">Seleccionar imágenes</span>
-              </button>
-              <span className="text-xs text-white pl-3 opacity-80">
-                {secondaryImageFiles.length > 0
-                  ? `${secondaryImageFiles.length} imagen${secondaryImageFiles.length !== 1 ? 'es' : ''} seleccionada${secondaryImageFiles.length !== 1 ? 's' : ''}`
-                  : 'No se ha seleccionado ninguna imagen'}
-              </span>
-            </div>
-          </div>
+          <textarea
+            value={(formData.listImageUrls || []).join("\n")}
+            onChange={handleSecondaryImageUrlsChange}
+            rows={4}
+            className="w-full px-3 py-2 border text-white/80 bg-neutral-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
+            placeholder={"https://ejemplo.com/interior.jpg\nhttps://ejemplo.com/lateral.jpg"}
+          />
         </div>
-        <span className="text-xs text-white opacity-80">Cada imagen debe pesar máximo 5 MB. Solo se aceptan formatos PNG, JPG y JPEG.</span>
+        <span className="text-xs text-white opacity-80">Pega URLs públicas de imágenes, una por línea para las adicionales.</span>
 
         {/* Información no editable */}
         <div className="p-4 rounded-lg mb-6">

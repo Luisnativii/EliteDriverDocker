@@ -61,8 +61,8 @@ const transformVehicleData = (apiVehicle) => {
     kilometers: apiVehicle.kilometers,
     kmForMaintenance: apiVehicle.kmForMaintenance || null,
     features: apiVehicle.features || [],
-    mainImageBase64: apiVehicle.mainImageBase64 || null,
-    listImagesBase64: apiVehicle.listImagesBase64 || [],
+    mainImageUrl: apiVehicle.mainImageUrl || null,
+    listImageUrls: apiVehicle.listImageUrls || [],
     status: apiVehicle.status || 'maintenanceCompleted',
     insurancePhone: apiVehicle.insurancePhone || '',
     createdAt: apiVehicle.createdAt ? new Date(apiVehicle.createdAt) : null,
@@ -111,9 +111,9 @@ const transformVehicleForAPI = (vehicleData) => {
     vehicleType: {
       type: vehicleType
     },
-    mainImageBase64: vehicleData.mainImageBase64 || null,
-    listImagesBase64: Array.isArray(vehicleData.listImagesBase64)
-      ? vehicleData.listImagesBase64
+    mainImageUrl: vehicleData.mainImageUrl || null,
+    listImageUrls: Array.isArray(vehicleData.listImageUrls)
+      ? vehicleData.listImageUrls
       : [],
 
     status: 'maintenanceCompleted'  // Asignar estado por defecto
@@ -164,13 +164,13 @@ const transformVehicleForUpdate = (vehicleData) => {
   }
 
   // Agregar imágenes si están presentes
-  if (vehicleData.hasOwnProperty("mainImageBase64")) {
-    updateData.mainImageBase64 = vehicleData.mainImageBase64 || null;
+  if (vehicleData.hasOwnProperty("mainImageUrl")) {
+    updateData.mainImageUrl = vehicleData.mainImageUrl || null;
   }
 
-  if (vehicleData.hasOwnProperty("listImagesBase64")) {
-    updateData.listImagesBase64 = Array.isArray(vehicleData.listImagesBase64)
-      ? vehicleData.listImagesBase64
+  if (vehicleData.hasOwnProperty("listImageUrls")) {
+    updateData.listImageUrls = Array.isArray(vehicleData.listImageUrls)
+      ? vehicleData.listImageUrls
       : [];
   }
 

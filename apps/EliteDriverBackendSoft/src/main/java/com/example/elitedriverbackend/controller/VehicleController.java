@@ -5,14 +5,15 @@ import com.example.elitedriverbackend.domain.dtos.UpdateVehicleDTO;
 import com.example.elitedriverbackend.domain.dtos.VehicleResponseDTO;
 import com.example.elitedriverbackend.domain.dtos.VehicleTypeDTO;
 import com.example.elitedriverbackend.services.VehicleService;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /*
@@ -36,6 +37,11 @@ public class VehicleController {
     public ResponseEntity<Void> addVehicle(@RequestBody CreateVehicleDTO dto) {
         vehicleService.addVehicle(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/import/carvi")
+    public ResponseEntity<Map<String, Object>> importCarviVehicles(@RequestBody JsonNode payload) {
+        return ResponseEntity.ok(vehicleService.importCarviVehicles(payload));
     }
 
     /*
@@ -113,25 +119,6 @@ public class VehicleController {
             @RequestParam Date endDate) {
         List<VehicleResponseDTO> list = vehicleService.getAvailableVehicles(startDate, endDate);
         return ResponseEntity.ok(list);
-    }
-
-    /*
-        Endpoint para subir imágenes asociadas a un vehículo.
-        Recibe el ID del vehículo en la URL, una imagen principal y una lista de imágenes adicionales.
-     */
-    @PostMapping(value = "/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadImages(
-            @PathVariable String id,
-            @RequestPart("mainImage") MultipartFile mainImage,
-            @RequestPart("listImages") List<MultipartFile> listImages
-    ) {
-        try {
-            vehicleService.saveImages(UUID.fromString(id), mainImage, listImages);
-            return ResponseEntity.ok("Images uploaded successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error uploading images: " + e.getMessage());
-        }
     }
 
 }

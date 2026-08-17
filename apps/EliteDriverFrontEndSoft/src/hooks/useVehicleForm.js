@@ -21,10 +21,10 @@ export const useVehicleForm = (initialData = {}, isEditMode = false) => {
         ? initialData.features.join(", ")
         : "",
 
-    // IMÁGENES (Nuevo formato Base64)
-    mainImageBase64: initialData.mainImageBase64 || null,
-    listImagesBase64: Array.isArray(initialData.listImagesBase64)
-      ? initialData.listImagesBase64
+    // Imágenes: se guardan como URLs públicas.
+    mainImageUrl: initialData.mainImageUrl || "",
+    listImageUrls: Array.isArray(initialData.listImageUrls)
+      ? initialData.listImageUrls
       : [],
 
     status: initialData.status || "maintenanceCompleted",
@@ -99,9 +99,9 @@ export const useVehicleForm = (initialData = {}, isEditMode = false) => {
     if (!formData.featuresText.trim())
       newErrors.features = "Debes incluir al menos una característica";
 
-    // VALIDACIÓN NUEVA PARA BASE64
-    if (!formData.mainImageBase64)
-      newErrors.mainImageBase64 = "La imagen principal es requerida";
+    if (!formData.mainImageUrl?.trim()) {
+      newErrors.mainImageUrl = "La URL de la imagen principal es requerida";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -134,9 +134,8 @@ export const useVehicleForm = (initialData = {}, isEditMode = false) => {
         .map((f) => f.trim())
         .filter((f) => f !== ""),
 
-      // IMÁGENES BASE64
-      mainImageBase64: formData.mainImageBase64,
-      listImagesBase64: formData.listImagesBase64,
+      mainImageUrl: formData.mainImageUrl.trim(),
+      listImageUrls: formData.listImageUrls,
     };
   }, [formData]);
 

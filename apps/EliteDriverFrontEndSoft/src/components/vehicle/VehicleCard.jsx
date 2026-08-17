@@ -34,34 +34,17 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  /**
-   * Convierte una imagen base64 a un enlace de imagen válido.
-   *
-   * @param {string} base64 - La imagen en formato base64.
-   * @returns {string|null} - Enlace de imagen en formato base64 o null si no hay imagen.
-   */
-
-  const getBase64ImageSrc = (base64) => {
-    if (!base64) return null;
-    const mimeType =
-      base64.trim().startsWith("/") ? "image/jpeg"
-        : base64.trim().startsWith("iVBOR") ? "image/png"
-          : base64.trim().startsWith("UklGR") ? "image/webp"
-            : "image/jpeg";
-    return `data:${mimeType};base64,${base64}`;
-  };
-
   const nextImage = () => {
-    if (!vehicle.listImagesBase64 || vehicle.listImagesBase64.length === 0) return;
+    if (!vehicle.listImageUrls || vehicle.listImageUrls.length === 0) return;
     setCurrentIndex((prev) =>
-      prev === vehicle.listImagesBase64.length - 1 ? 0 : prev + 1
+      prev === vehicle.listImageUrls.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = () => {
-    if (!vehicle.listImagesBase64 || vehicle.listImagesBase64.length === 0) return;
+    if (!vehicle.listImageUrls || vehicle.listImageUrls.length === 0) return;
     setCurrentIndex((prev) =>
-      prev === 0 ? vehicle.listImagesBase64.length - 1 : prev - 1
+      prev === 0 ? vehicle.listImageUrls.length - 1 : prev - 1
     );
   };
 
@@ -205,10 +188,10 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
 
         {/* Imagen principal con overlay gradient */}
         <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 h-56 overflow-hidden">
-          {vehicle.mainImageBase64 ? (
+          {vehicle.mainImageUrl ? (
             <>
               <img
-                src={getBase64ImageSrc(vehicle.mainImageBase64)}
+                src={vehicle.mainImageUrl}
                 alt={vehicle.name}
                 className="w-full h-full object-cover"
                 onError={(e) => (e.target.src = "/images/vehicle-placeholder.jpg")}
@@ -236,7 +219,7 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
           </div>
 
           {/* Slider secundario */}
-          {vehicle.listImagesBase64 && vehicle.listImagesBase64.length > 0 && (
+          {vehicle.listImageUrls && vehicle.listImageUrls.length > 0 && (
             <>
               <button
                 onClick={prevImage}
@@ -254,15 +237,16 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
 
               <div className="absolute bottom-4 right-4 w-24 h-20 rounded-xl overflow-hidden border-2 border-white shadow-2xl ring-2 ring-white/50 transition-transform duration-300 hover:scale-110">
                 <img
-                  src={getBase64ImageSrc(vehicle.listImagesBase64[currentIndex])}
+                  src={vehicle.listImageUrls[currentIndex]}
                   className="w-full h-full object-cover"
                   alt="preview"
+                  onError={(e) => (e.target.src = "/images/vehicle-placeholder.jpg")}
                 />
               </div>
 
               {/* Indicadores de posición */}
               <div className="absolute bottom-4 left-4 flex gap-1.5">
-                {vehicle.listImagesBase64.map((_, idx) => (
+                {vehicle.listImageUrls.map((_, idx) => (
                   <div
                     key={idx}
                     className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex

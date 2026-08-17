@@ -59,8 +59,10 @@ public class CreateVehicleDTO {
     @NotNull
     private Integer kmForMaintenance;
 
-    private String mainImageBase64;
-    private List<String> listImagesBase64;
+    @NotBlank(message = "La URL de la imagen principal es requerida")
+    private String mainImageUrl;
+
+    private List<String> listImageUrls;
 
     private String insurancePhone;
 

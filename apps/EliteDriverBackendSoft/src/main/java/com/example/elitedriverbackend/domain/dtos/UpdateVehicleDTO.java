@@ -1,7 +1,6 @@
 package com.example.elitedriverbackend.domain.dtos;
 
 import com.example.elitedriverbackend.domain.entity.VehicleStatus;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
@@ -27,8 +26,8 @@ public class UpdateVehicleDTO {
     private Integer kmForMaintenance;
     private VehicleStatus status;
 
-    private String mainImageBase64;
-    private List<String> listImagesBase64;
+    private String mainImageUrl;
+    private List<String> listImageUrls;
 
     private String insurancePhone;
 }

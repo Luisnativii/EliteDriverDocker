@@ -67,9 +67,8 @@ public class Vehicle {
     @Column(nullable = false)
     private VehicleStatus status;
 
-    @Lob
     @Column(name = "main_image")
-    private String mainImageBase64;
+    private String mainImageUrl;
 
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -77,9 +76,8 @@ public class Vehicle {
             name = "vehicle_image_list",
             joinColumns = @JoinColumn(name = "vehicle_image_id")
     )
-    @Lob
     @Column(name = "image")
-    private List<String> listImagesBase64 = new ArrayList<>();
+    private List<String> listImageUrls = new ArrayList<>();
 
     @OneToMany(
             mappedBy = "vehicle",

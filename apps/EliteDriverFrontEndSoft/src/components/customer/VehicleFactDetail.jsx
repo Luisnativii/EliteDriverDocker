@@ -9,8 +9,8 @@ const VehicleFactDetail = ({ vehicle }) => {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
             {/* Galería de imágenes con miniaturas */}
             <VehicleImageGallery
-                mainImage={vehicle.mainImageDecoded} 
-                imageUrls={vehicle.listImagesDecoded}
+                mainImage={vehicle.mainImageUrl} 
+                imageUrls={vehicle.listImageUrls}
             />
             {/* Información del vehículo */}
             <div className="p-6">
