@@ -39,6 +39,9 @@ jwt:
   exptime: ${JWT_EXPTIME:1296000000}
 
 app:
+  bootstrap-admin:
+    email: ${APP_BOOTSTRAP_ADMIN_EMAIL:}
+    password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
 
@@ -47,3 +50,12 @@ springdoc:
     enabled: ${SPRINGDOC_API_DOCS_ENABLED:false}
   swagger-ui:
     enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:false}
+
+wompi:
+  enabled: ${WOMPI_ENABLED:false}
+  allow-production: ${WOMPI_ALLOW_PRODUCTION:false}
+  app-id: ${WOMPI_APP_ID:}
+  api-secret: ${WOMPI_API_SECRET:}
+  redirect-url: ${WOMPI_REDIRECT_URL:}
+  webhook-url: ${WOMPI_WEBHOOK_URL:}
+  notification-emails: ${WOMPI_NOTIFICATION_EMAILS:}

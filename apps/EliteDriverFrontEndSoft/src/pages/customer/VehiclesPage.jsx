@@ -12,19 +12,73 @@ import {
     MapPin,
     UsersIcon,
     Calendar,
-    AlertCircle
+    AlertCircle,
+    ChevronLeft,
+    ChevronRight,
+    Images
 } from "lucide-react";
 
-const formatDateISO = (date) => new Date(date).toISOString().split('T')[0];
+const isValidImageUrl = (url) => (
+    typeof url === 'string' && /^https?:\/\//i.test(url.trim())
+);
+
+const getVehicleGalleryImages = (vehicle) => {
+    const rawImages = [
+        vehicle.mainImageUrl,
+        ...(Array.isArray(vehicle.listImageUrls) ? vehicle.listImageUrls : [])
+    ];
+
+    return [...new Set(rawImages.filter(isValidImageUrl))];
+};
 
 // Componente para cada tarjeta de vehículo
 const VehicleCard = ({ vehicle, isFiltered = false, isReserved = false }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { startDate, endDate } = useDateContext();
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     // Validar si el rango es de un solo día
     const isSameDayRange = startDate && endDate && startDate === endDate;
+    const galleryImages = useMemo(() => getVehicleGalleryImages(vehicle), [vehicle]);
+    const hasImages = galleryImages.length > 0;
+    const hasMultipleImages = galleryImages.length > 1;
+    const currentImage = galleryImages[currentImageIndex];
+    const previewImage = hasMultipleImages
+        ? galleryImages[(currentImageIndex + 1) % galleryImages.length]
+        : currentImage;
+
+    useEffect(() => {
+        setCurrentImageIndex(0);
+    }, [vehicle.id]);
+
+    useEffect(() => {
+        if (currentImageIndex >= galleryImages.length) {
+            setCurrentImageIndex(0);
+        }
+    }, [currentImageIndex, galleryImages.length]);
+
+    const showPreviousImage = (event) => {
+        event.stopPropagation();
+        if (!hasMultipleImages) return;
+
+        setCurrentImageIndex((prev) =>
+            prev === 0 ? galleryImages.length - 1 : prev - 1
+        );
+    };
+
+    const showNextImage = (event) => {
+        event.stopPropagation();
+        if (!hasMultipleImages) return;
+
+        setCurrentImageIndex((prev) =>
+            prev === galleryImages.length - 1 ? 0 : prev + 1
+        );
+    };
+
+    const hideBrokenImage = (event) => {
+        event.currentTarget.style.display = 'none';
+    };
 
     const proceedReservation = () => {
         if (!user) {
@@ -71,13 +125,99 @@ const VehicleCard = ({ vehicle, isFiltered = false, isReserved = false }) => {
             )}
 
             {/* Imagen del vehículo */}
-            <div className={`w-full h-40 bg-gray-200 rounded-lg mb-4 overflow-hidden relative ${isReserved ? 'opacity-75' : ''}`}>
-                <img
-                    src={vehicle.mainImageUrl || "/images/vehicle-placeholder.jpg"}
-                    alt={vehicle.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => e.target.src = "/images/vehicle-placeholder.jpg"}
-                />
+            <div className={`group w-full h-56 sm:h-60 lg:h-64 bg-neutral-950/80 rounded-xl mb-5 overflow-hidden relative border border-white/10 shadow-inner ${isReserved ? 'opacity-75' : ''}`}>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-neutral-800 to-neutral-950 text-white/35">
+                    <Images className="w-10 h-10" />
+                    <span className="text-xs font-medium">Sin imagen disponible</span>
+                </div>
+
+                {hasImages && (
+                    <img
+                        src={currentImage}
+                        alt={vehicle.name}
+                        className="relative z-0 w-full h-full object-contain"
+                        onLoad={(event) => {
+                            event.currentTarget.style.display = 'block';
+                        }}
+                        onError={hideBrokenImage}
+                    />
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20 pointer-events-none" />
+
+                {vehicle.type && (
+                    <div className="absolute top-3 left-3">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/95 text-neutral-900 shadow-lg">
+                            {vehicle.type}
+                        </span>
+                    </div>
+                )}
+
+                {hasMultipleImages && (
+                    <div className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-black/65 px-3 py-1 text-xs font-semibold text-white shadow-lg backdrop-blur-sm">
+                        <Images className="w-3.5 h-3.5" />
+                        +{galleryImages.length - 1} fotos
+                    </div>
+                )}
+
+                {hasMultipleImages && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={showPreviousImage}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-neutral-900 shadow-lg transition hover:bg-white sm:opacity-0 sm:group-hover:opacity-100"
+                            aria-label="Imagen anterior"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={showNextImage}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-neutral-900 shadow-lg transition hover:bg-white sm:opacity-0 sm:group-hover:opacity-100"
+                            aria-label="Imagen siguiente"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+
+                        <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+                            {galleryImages.map((_, index) => (
+                                <button
+                                    key={index}
+                                    type="button"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setCurrentImageIndex(index);
+                                    }}
+                                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                                        index === currentImageIndex
+                                            ? 'w-7 bg-white shadow-lg'
+                                            : 'w-1.5 bg-white/55 hover:bg-white/80'
+                                    }`}
+                                    aria-label={`Ver imagen ${index + 1}`}
+                                />
+                            ))}
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={showNextImage}
+                            className="absolute bottom-3 right-3 h-14 w-20 overflow-hidden rounded-lg border-2 border-white/90 bg-neutral-900 shadow-2xl ring-1 ring-white/35 transition hover:scale-105"
+                            aria-label="Ver siguiente imagen"
+                        >
+                            <img
+                                src={previewImage}
+                                alt=""
+                                className="h-full w-full object-cover"
+                                onLoad={(event) => {
+                                    event.currentTarget.style.display = 'block';
+                                }}
+                                onError={hideBrokenImage}
+                            />
+                        </button>
+                    </>
+                )}
+
                 {isReserved && (
                     <div className="absolute inset-0 bg-orange-500/20 backdrop-blur-[1px] flex items-center justify-center">
                         <div className="bg-orange-500/90 text-white px-4 py-2 rounded-lg font-semibold">

@@ -5,6 +5,7 @@ import com.example.elitedriverbackend.domain.entity.User;
 import com.example.elitedriverbackend.repositories.VehicleTypeRepository;
 import com.example.elitedriverbackend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,28 +26,38 @@ public class DataInitializer {
     private final VehicleTypeRepository vehicleTypeRepository; // ← inyectado
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${app.bootstrap-admin.email:}")
+    private String bootstrapAdminEmail;
+
+    @Value("${app.bootstrap-admin.password:}")
+    private String bootstrapAdminPassword;
+
     @Bean
     public CommandLineRunner initData() {
         return args -> {
-            // 1) Crear usuario ADMIN si no existe
-            String adminEmail = "admin@example.com";
-            userRepository.findByEmail(adminEmail).ifPresentOrElse(u -> {
-                System.out.println("✅ Admin ya existe");
-            }, () -> {
-                User admin = User.builder()
-                        // NO seteamos el ID, lo genera JPA
-                        .firstName("Admin")
-                        .lastName("Root")
-                        .birthDate("1990-01-01")
-                        .dui("00000000-0")
-                        .phoneNumber("7000-0000")
-                        .email(adminEmail)
-                        .password(passwordEncoder.encode("adminadmin"))
-                        .role("ADMIN")
-                        .build();
-                userRepository.save(admin);
-                System.out.println("✅ Admin creado");
-            });
+            // La creación inicial es opcional y nunca modifica cuentas existentes.
+            if (bootstrapAdminEmail != null && !bootstrapAdminEmail.isBlank()) {
+                userRepository.findByEmail(bootstrapAdminEmail).ifPresentOrElse(u -> {
+                    System.out.println("✅ Admin ya existe");
+                }, () -> {
+                    if (bootstrapAdminPassword == null || bootstrapAdminPassword.isBlank()) {
+                        System.out.println("Creación inicial de administrador omitida: falta contraseña configurada");
+                        return;
+                    }
+                    User admin = User.builder()
+                            .firstName("Admin")
+                            .lastName("Root")
+                            .birthDate("1990-01-01")
+                            .dui("00000000-0")
+                            .phoneNumber("7000-0000")
+                            .email(bootstrapAdminEmail)
+                            .password(passwordEncoder.encode(bootstrapAdminPassword))
+                            .role("ADMIN")
+                            .build();
+                    userRepository.save(admin);
+                    System.out.println("✅ Admin creado");
+                });
+            }
 
             // 2) Sembrar VehicleType: PickUp, Sedan, SUV, Microbus
 

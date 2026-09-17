@@ -4,6 +4,9 @@ import com.example.elitedriverbackend.domain.dtos.CreateReservationDTO;
 import com.example.elitedriverbackend.domain.dtos.ReservationResponseDTO;
 import com.example.elitedriverbackend.domain.entity.Reservation;
 import com.example.elitedriverbackend.services.ReservationService;
+import com.example.elitedriverbackend.services.PaymentService;
+import com.example.elitedriverbackend.services.ReservationPricing;
+import org.springframework.security.core.Authentication;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +34,15 @@ import java.util.stream.Collectors;
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final PaymentService paymentService;
 
     /*
         Endpoint para crear una nueva reserva.
         Recibe un DTO con los datos de la reserva y devuelve un DTO con los detalles de la reserva creada.
      */
     @PostMapping
-    public ResponseEntity<ReservationResponseDTO> addReservation(@Valid @RequestBody CreateReservationDTO dto) {
-        Reservation reservation = reservationService.addReservation(dto);
+    public ResponseEntity<ReservationResponseDTO> addReservation(@Valid @RequestBody CreateReservationDTO dto, Authentication authentication) {
+        Reservation reservation = reservationService.addReservation(dto, authentication);
         ReservationResponseDTO responseDTO = convertToDTO(reservation);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
@@ -50,10 +54,10 @@ public class ReservationController {
         Si no existe, lanza una excepción.
      */
     @GetMapping("{id}")
-    public ResponseEntity<Reservation> getReservation(@PathVariable String id) {
+    public ResponseEntity<ReservationResponseDTO> getReservation(@PathVariable String id) {
         UUID uuid = parseUUID(id);
         Reservation reservation = reservationService.getReservationById(uuid);
-        return new ResponseEntity<>(reservation, HttpStatus.OK);
+        return ResponseEntity.ok(convertToDTO(reservation));
 
     }
 
@@ -89,11 +93,10 @@ public class ReservationController {
             throw new EntityNotFoundException("Reservation con id " + reservation.getId() + " no tiene vehículo asociado");
         }
 
-        // ✅ Calcular totalPrice
-        long diffMillis = reservation.getEndDate().getTime() - reservation.getStartDate().getTime();
-        int days = (int) Math.ceil(diffMillis / (1000.0 * 60 * 60 * 24));
         double pricePerDay = reservation.getVehicle().getPricePerDay().doubleValue();
-        double totalPrice = days * pricePerDay;
+        double totalPrice = (reservation.getTotalPrice() != null ? reservation.getTotalPrice()
+                : ReservationPricing.total(reservation.getStartDate(), reservation.getEndDate(),
+                reservation.getVehicle().getPricePerDay())).doubleValue();
 
         return ReservationResponseDTO.builder()
                 .id(String.valueOf(reservation.getId()))
@@ -101,6 +104,7 @@ public class ReservationController {
                 .endDate(reservation.getEndDate())
                 .status("confirmado")
                 .totalPrice(totalPrice) // ✅ Usar el cálculo
+                .paymentStatus(reservation.getPaymentStatus() == null ? null : reservation.getPaymentStatus().name())
                 .user(ReservationResponseDTO.UserInfo.builder()
                         .id(String.valueOf(reservation.getUser().getId()))
                         .firstName(reservation.getUser().getFirstName())
@@ -179,9 +183,9 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation(@PathVariable String id) {
+    public ResponseEntity<Void> deleteReservation(@PathVariable String id, Authentication authentication) {
         UUID uuid = parseUUID(id);
-        reservationService.deleteReservation(uuid);
+        paymentService.cancel(uuid, authentication);
         return ResponseEntity.ok().build();
     }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDateContext } from '../../context/DateContext';
 import ReservationService from '../../services/reservationService';
+import PaymentService from '../../services/paymentService';
 import { useReservation } from '../../hooks/useReservations';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -17,16 +18,13 @@ const FacturationDetail = ({ vehicle }) => {
     const [totalDays, setTotalDays] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
     const [errors, setErrors] = useState([]);
+    const [createdReservationId, setCreatedReservationId] = useState(null);
+    const [paymentLoading, setPaymentLoading] = useState(false);
     const navigate = useNavigate();
-    //formato de fecha
-        const formatDateLocal = (dateString) => {
-            const date = new Date(dateString + 'T00:00'); // forzar 00:00 local
-            return date.toLocaleDateString('es-ES', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-            });
-        };
+
+    useEffect(() => {
+        setCreatedReservationId(null);
+    }, [vehicle?.id]);
 
 
 
@@ -38,7 +36,7 @@ const FacturationDetail = ({ vehicle }) => {
         if (contextEndDate && !endDate) {
             setLocalEndDate(contextEndDate);
         }
-    }, [contextStartDate, contextEndDate]);
+    }, [contextStartDate, contextEndDate, startDate, endDate]);
 
     // Actualizar fechas locales y contexto
     const handleStartDateChange = (newDate) => {
@@ -84,30 +82,30 @@ const FacturationDetail = ({ vehicle }) => {
         if (!validation.isValid) {
             setErrors(validation.errors);
             toast.warn('Verifica los campos del formulario');
-            setIsLoading(false);
             return;
         }
 
         try {
-            const result = await createReservation(reservationData);
-
-            if (result.success) {
-                toast.success('¡Reserva realizada con éxito!');
-                navigate('/customer/my-reservations');
-                return; // Detener ejecución después de redirigir
-            } else {
-                setErrors([result.error || 'Error desconocido al crear la reserva']);
+            setPaymentLoading(true);
+            let reservationId = createdReservationId;
+            if (!reservationId) {
+                const result = await createReservation(reservationData);
+                if (!result.success) {
+                    setErrors([result.error || 'Error al crear la reserva']);
+                    return;
+                }
+                reservationId = result.data.id;
+                setCreatedReservationId(reservationId);
             }
+
+            const payment = await PaymentService.createLink(reservationId);
+            PaymentService.openLink(payment);
         } catch (error) {
-            const raw = error.message || '';
-            const match = raw.match(/"([^"]+)"/); // busca el texto dentro de comillas
-
-            const cleanMessage = match && match[1]
-                ? match[1] // extrae solo el mensaje real, sin códigos
-                : '❌ Error al crear la reserva.';
-
+            const cleanMessage = error.message || 'No se pudo iniciar el pago.';
             setErrors([cleanMessage]);
             toast.error(cleanMessage);
+        } finally {
+            setPaymentLoading(false);
         }
     };
 
@@ -159,6 +157,7 @@ const FacturationDetail = ({ vehicle }) => {
                         type="date"
                         id="startDate"
                         value={startDate}
+                        disabled={!!createdReservationId || paymentLoading || isLoading}
                         onChange={(e) => handleStartDateChange(e.target.value)}
                         min={new Date().toISOString().split('T')[0]}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -174,6 +173,7 @@ const FacturationDetail = ({ vehicle }) => {
                         type="date"
                         id="endDate"
                         value={endDate}
+                        disabled={!!createdReservationId || paymentLoading || isLoading}
                         onChange={(e) => handleEndDateChange(e.target.value)}
                         min={startDate || new Date().toISOString().split('T')[0]}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -206,15 +206,21 @@ const FacturationDetail = ({ vehicle }) => {
                 {/* Botón de alquilar */}
                 <button
                     onClick={handleReservation}
-                    disabled={!startDate || !endDate || totalDays <= 0 || isLoading}
+                    disabled={!startDate || !endDate || totalDays <= 0 || isLoading || paymentLoading}
                     className="w-full cursor-pointer bg-red-600 text-white py-3 px-4 rounded-md font-semibold text-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
-                    {isLoading ? 'Procesando...' : 'Alquilar Vehículo'}
+                    {isLoading || paymentLoading ? 'Procesando...' : createdReservationId ? 'Retomar pago con Wompi' : 'Reservar y pagar con Wompi'}
                 </button>
+                {createdReservationId && (
+                    <button onClick={() => navigate('/customer/my-reservations')} className="w-full underline text-gray-700">
+                        Tu reserva está guardada. Ver mis reservas
+                    </button>
+                )}
 
                 {/* Información adicional */}
                 <div className="text-sm text-gray-600 mt-4">
-                    <p>• Las reservas se confirman inmediatamente</p>
+                    <p>• El total se calcula según los días de alquiler.</p>
+                    <p>• Completa el pago en la pantalla segura de Wompi.</p>
                 </div>
             </div>
         </div>

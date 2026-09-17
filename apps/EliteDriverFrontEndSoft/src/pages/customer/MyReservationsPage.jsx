@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useReservation } from '../../hooks/useReservations';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
+import ReservationPayment from '../../components/reservation/ReservationPayment';
 
 
 
@@ -12,13 +13,8 @@ const MyReservationPage = () => {
     const { cancelReservation } = useReservation();
 
     const formatDateLocal = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            timeZone: 'America/El_Salvador', // O ajustá según tu zona
-        });
+        const [year, month, day] = dateString.slice(0, 10).split('-');
+        return `${day}/${month}/${year}`;
     };
 
 
@@ -69,15 +65,15 @@ const MyReservationPage = () => {
         if (user?.id) {
             getReservationsByUser(user.id).then(setReservations);
         }
-    }, [user]);
+    }, [user?.id, getReservationsByUser]);
 
     if (isLoading) return <p className="text-white">Cargando reservas...</p>;
     if (error) return <p className="text-red-500">Error: {error}</p>;
 
     const getDerivedStatus = (reservation) => {
         const now = new Date();
-        const start = new Date(reservation.startDate);
-        const end = new Date(reservation.endDate);
+        const start = new Date(`${reservation.startDate.slice(0, 10)}T00:00:00`);
+        const end = new Date(`${reservation.endDate.slice(0, 10)}T23:59:59`);
 
         if (start > now) return 'Próxima';
         if (start <= now && end >= now) return 'Activa';
@@ -139,6 +135,7 @@ const MyReservationPage = () => {
                                     )}
                                 </div>
                             </div>
+                            <ReservationPayment reservationId={res.id} initialStatus={res.paymentStatus} />
                         </div>
                     ))}
                 </div>

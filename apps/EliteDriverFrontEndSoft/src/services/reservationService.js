@@ -123,16 +123,16 @@ class ReservationService {
 
     // Calcular precio total
     static calculateTotalPrice(startDate, endDate, pricePerDay) {
-        if (!startDate || !endDate || !pricePerDay) return 0;
+        if (!startDate || !endDate || !pricePerDay) return { days: 0, totalPrice: 0 };
 
         const start = new Date(startDate);
         const end = new Date(endDate);
-        const diffTime = Math.abs(end - start);
+        const diffTime = end - start;
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         return {
             days: diffDays > 0 ? diffDays : 0,
-            totalPrice: diffDays > 0 ? diffDays * pricePerDay : 0
+            totalPrice: diffDays > 0 ? Math.round((diffDays * pricePerDay + Number.EPSILON) * 100) / 100 : 0
         };
     }
 
@@ -180,7 +180,7 @@ class ReservationService {
 
                 return currentDate >= startDate && currentDate <= endDate;
             });
-        } catch (error) {
+        } catch {
             // console.error('Error al obtener reservaciones de hoy:', error);
             return [];
         }
@@ -195,7 +195,7 @@ class ReservationService {
                 reservation.vehicleId === vehicleId ||
                 reservation.vehicle_id === vehicleId
             );
-        } catch (error) {
+        } catch {
             // console.error('Error al verificar reservación del vehículo:', error);
             return false;
         }
@@ -210,7 +210,7 @@ class ReservationService {
                     reservation.vehicleId ||
                     reservation.vehicle_id)
                 .filter(Boolean); // Filtrar valores null/undefined
-        } catch (error) {
+        } catch {
             // console.error('Error al obtener IDs de vehículos reservados:', error);
             return [];
         }
@@ -230,7 +230,7 @@ class ReservationService {
             const uniqueReservedIds = [...new Set(reservedIds)];
 
             return uniqueReservedIds;
-        } catch (error) {
+        } catch {
             //console.error('❌ Error al obtener vehículos reservados en el rango:', error);
             return [];
         }

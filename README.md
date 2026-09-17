@@ -92,6 +92,8 @@ docker compose down -v
 
 ## Notas
 
+- La integración de Wompi El Salvador y las pruebas locales se explican en [docs/WOMPI.md](docs/WOMPI.md).
+
 - El endpoint `/health` del backend consulta PostgreSQL con `SELECT 1`.
 - Las variables principales están documentadas en `.env.example`.
 - Para producción, usa secretos fuertes y apunta Cloudflare Tunnel al puerto local del frontend.

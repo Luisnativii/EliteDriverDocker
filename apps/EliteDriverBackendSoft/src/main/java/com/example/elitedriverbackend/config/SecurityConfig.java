@@ -48,6 +48,7 @@ public class SecurityConfig {
                         // Endpoints públicos
                         .requestMatchers("/health").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/payments/wompi/webhook").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/vehicles").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reservations").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reservations/date").permitAll()

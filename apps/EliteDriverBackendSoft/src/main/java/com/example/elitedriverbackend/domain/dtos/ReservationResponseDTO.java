@@ -16,6 +16,7 @@ public class ReservationResponseDTO {
     private Date endDate;
     private String status;
     private Double totalPrice;
+    private String paymentStatus;
 
     private UserInfo user;
 

@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.web.server.ResponseStatusException;
 
 /*
     Manejo global de excepciones para la aplicación.
@@ -21,6 +22,11 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleResponseStatus(ResponseStatusException ex) {
+        return buildError(HttpStatus.valueOf(ex.getStatusCode().value()), ex.getReason());
+    }
 
     // 🔒 Error: correo no registrado
     @ExceptionHandler(UsernameNotFoundException.class)

@@ -1,5 +1,5 @@
 // hooks/useReservations.js
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import ReservationService from '../services/reservationService';
 
 export const useReservation = () => {
@@ -44,7 +44,7 @@ export const useReservation = () => {
         }
     };
 
-    const getReservationsByUser = async (userId) => {
+    const getReservationsByUser = useCallback(async (userId) => {
         setIsLoading(true);
         setError(null);
         try {
@@ -57,7 +57,7 @@ export const useReservation = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
     const calculatePrice = (startDate, endDate, pricePerDay) => {
         return ReservationService.calculateTotalPrice(startDate, endDate, pricePerDay);

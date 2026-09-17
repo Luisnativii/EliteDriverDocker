@@ -2,6 +2,7 @@ package com.example.elitedriverbackend.services;
 
 import com.example.elitedriverbackend.domain.dtos.CreateReservationDTO;
 import com.example.elitedriverbackend.domain.entity.Reservation;
+import com.example.elitedriverbackend.domain.entity.PaymentStatus;
 import com.example.elitedriverbackend.domain.entity.User;
 import com.example.elitedriverbackend.domain.entity.Vehicle;
 import com.example.elitedriverbackend.domain.entity.VehicleType;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -46,16 +49,24 @@ public class ReservationService {
         Retorna la reserva creada.
         Si el vehículo ya está reservado en ese rango, lanza una excepción.
      */
-    public Reservation addReservation(CreateReservationDTO createReservationDTO) {
+    @Transactional
+    public Reservation addReservation(CreateReservationDTO createReservationDTO, Authentication authentication) {
 
         User user = userRepository.findById(UUID.fromString(createReservationDTO.getUserId()))
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        boolean admin = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (authentication == null || (!admin && !user.getEmail().equalsIgnoreCase(authentication.getName()))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes crear una reserva para otro usuario.");
+        }
 
         Vehicle vehicle = vehicleRepository.findById(UUID.fromString(createReservationDTO.getVehicleId()))
                 .orElseThrow(() -> new RuntimeException("Vehiculo no encontrado"));
         // Convertir LocalDate a java.sql.Date (sin hora ni desfase)
         LocalDate start = createReservationDTO.getStartDate();
         LocalDate end = createReservationDTO.getEndDate();
+        var totalPrice = ReservationPricing.total(start, end, vehicle.getPricePerDay());
 
         Date startDate = java.sql.Date.valueOf(start);
         Date endDate = java.sql.Date.valueOf(end);
@@ -79,18 +90,9 @@ public class ReservationService {
         newReservation.setEndDate(endDate);
         newReservation.setUser(user);
         newReservation.setVehicle(vehicle);
+        newReservation.setTotalPrice(totalPrice);
+        newReservation.setPaymentStatus(PaymentStatus.PENDING);
         return reservationRepository.save(newReservation);
-    }
-
-    /*
-        Elimina una reserva por su ID.
-        Si la reserva no existe, lanza una excepción.
-     */
-    public void deleteReservation(UUID id) {
-        if (!reservationRepository.existsById(id)) {
-            throw new RuntimeException("Reserva con id " + id + " no encontrada");
-        }
-        reservationRepository.deleteById(id);
     }
 
     /*
@@ -100,7 +102,8 @@ public class ReservationService {
     public List<Reservation> getAllReservations() {
         try{
             log.info("Obteniendo todas las reservas");
-            List<Reservation> reservations = reservationRepository.findAll();
+            List<Reservation> reservations = reservationRepository.findAll().stream()
+                    .filter(r -> r.getPaymentStatus() != PaymentStatus.CANCELLED).toList();
 
             log.info("Total de Reservas encontradas: {}", reservations.size());
 
@@ -142,7 +145,8 @@ public class ReservationService {
      */
     public List<Reservation> getReservationByRange(Date startDate, Date endDate) {
         try {
-            return reservationRepository.findByStartDateBetween(startDate, endDate);
+            return reservationRepository.findByStartDateBetween(startDate, endDate).stream()
+                    .filter(r -> r.getPaymentStatus() != PaymentStatus.CANCELLED).toList();
         }catch (Exception e){
             throw new RuntimeException("Error obteniendo reservas: " + e.getMessage(), e);
         }
@@ -155,7 +159,7 @@ public class ReservationService {
     public List<Reservation> getReservationByUser(UUID user) {
         try {
             return reservationRepository.findAll().stream()
-                    .filter(reservation -> reservation.getUser().getId().equals(user))
+                    .filter(reservation -> reservation.getUser().getId().equals(user) && reservation.getPaymentStatus() != PaymentStatus.CANCELLED)
                     .toList();
         } catch (Exception e) {
             throw new RuntimeException("Error obteniendo reservas por usuario: " + e.getMessage(), e);
