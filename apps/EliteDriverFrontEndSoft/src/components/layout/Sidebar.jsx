@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { createContext, useState, useEffect } from "react";
+import { createContext } from "react";
 import { dbRoleToMenu } from "../../utils/roleMapping";
 import { useMemo } from "react";
 
@@ -92,7 +92,7 @@ const Sidebar = ({ toggleSidebar, isMobile }) => {
 if (!user || !user.isAuthenticated) {
   return (
     <aside className="h-full">
-      <nav className="h-full flex flex-col bg-black backdrop-blur-md border-r border-white/20 shadow-2xl min-w-64 relative">
+      <nav id="app-navigation" className="h-full overflow-y-auto flex flex-col bg-black backdrop-blur-md border-r border-white/20 shadow-2xl min-w-64 relative">
         {/* Header con logo y hamburger */}
         <div className="relative px-6 pt-8 pb-6 flex justify-between items-center">
           <div className="flex flex-col">
@@ -104,8 +104,8 @@ if (!user || !user.isAuthenticated) {
           </div>
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-xl border-none hover:bg-white/10 transition-all duration-300 backdrop-blur-sm border border-white/10"
-            title={isMobile ? "Cerrar sidebar" : "Colapsar sidebar"}
+            className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-xl border-none hover:bg-white/10 transition-all duration-300 backdrop-blur-sm border border-white/10"
+            aria-label={isMobile ? "Cerrar menú" : "Contraer menú"}
           >
             <ChevronLeft size={20} className="text-slate-300" />
           </button>
@@ -178,7 +178,7 @@ if (!user || !user.isAuthenticated) {
 
   return (
     <aside className="h-full">
-      <nav className="h-full flex flex-col bg-black border-r border-gray-700/50 shadow-2xl min-w-64 relative">
+      <nav id="app-navigation" className="h-full overflow-y-auto flex flex-col bg-black border-r border-gray-700/50 shadow-2xl min-w-64 relative">
         
         {/* Header del Sidebar */}
         <div className="relative px-6 pt-8 pb-6 flex justify-between items-center">
@@ -190,8 +190,8 @@ if (!user || !user.isAuthenticated) {
           </div>
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-xl border-none hover:bg-white/10 transition-all duration-300 backdrop-blur-sm border border-white/10"
-            title={isMobile ? "Cerrar sidebar" : "Colapsar sidebar"}
+            className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-xl border-none hover:bg-white/10 transition-all duration-300 backdrop-blur-sm border border-white/10"
+            aria-label={isMobile ? "Cerrar menú" : "Contraer menú"}
           >
             <ChevronLeft size={20} className="text-slate-300" />
           </button>

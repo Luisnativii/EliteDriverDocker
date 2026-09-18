@@ -95,38 +95,9 @@ public class ReservationService {
         return reservationRepository.save(newReservation);
     }
 
-    /*
-        Obtiene todas las reservas y las registra en el log.
-        Retorna la lista de reservas.
-     */
     public List<Reservation> getAllReservations() {
-        try{
-            log.info("Obteniendo todas las reservas");
-            List<Reservation> reservations = reservationRepository.findAll().stream()
-                    .filter(r -> r.getPaymentStatus() != PaymentStatus.CANCELLED).toList();
-
-            log.info("Total de Reservas encontradas: {}", reservations.size());
-
-            for (Reservation r : reservations) {
-                try{
-                    log.info("Reserva ID: {}", r.getId());
-                    log.info("Usuario: {}", r.getUser().getFirstName() + " " + r.getUser().getLastName());
-                    log.info("Vehículo: {}", r.getVehicle().getName());
-                    log.info("Tipo de vehículo: {}", r.getVehicle().getVehicleType() != null ? r.getVehicle().getVehicleType().getType() : "N/A");
-                    log.info("DUI del usuario: {}", r.getUser().getDui());
-                    log.info("Correo del usuario: {}", r.getUser().getEmail());
-                    log.info("Fecha de inicio: {}", r.getStartDate());
-                    log.info("Fecha de fin: {}", r.getEndDate());
-                } catch (Exception innerEx) {
-                    log.error("❌ Error procesando reserva con ID: {}", r.getId(), innerEx);
-                }
-            }
-            return reservations;
-        } catch (Exception e){
-            log.error("❌ Error obteniendo reservas: ", e);
-            throw new RuntimeException("Error obteniendo reservas: " + e.getMessage(), e);
-
-        }
+        return reservationRepository.findAll().stream()
+                .filter(r -> r.getPaymentStatus() != PaymentStatus.CANCELLED).toList();
     }
 
     /*

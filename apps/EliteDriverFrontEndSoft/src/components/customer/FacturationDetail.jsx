@@ -115,7 +115,7 @@ const FacturationDetail = ({ vehicle }) => {
 
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-6">Detalles de la Reserva</h3>
 
             <div className="space-y-6">
@@ -160,7 +160,7 @@ const FacturationDetail = ({ vehicle }) => {
                         disabled={!!createdReservationId || paymentLoading || isLoading}
                         onChange={(e) => handleStartDateChange(e.target.value)}
                         min={new Date().toISOString().split('T')[0]}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full min-h-11 min-w-0 text-base px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
 
@@ -176,7 +176,7 @@ const FacturationDetail = ({ vehicle }) => {
                         disabled={!!createdReservationId || paymentLoading || isLoading}
                         onChange={(e) => handleEndDateChange(e.target.value)}
                         min={startDate || new Date().toISOString().split('T')[0]}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full min-h-11 min-w-0 text-base px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
 
@@ -191,12 +191,12 @@ const FacturationDetail = ({ vehicle }) => {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Precio por día:</span>
-                                <span className="font-medium">${vehicle.price}</span>
+                                <span className="font-medium">${Number(vehicle.price || 0).toFixed(2)}</span>
                             </div>
                             <div className="border-t pt-2 mt-2">
                                 <div className="flex justify-between">
                                     <span className="text-lg font-semibold text-gray-900">Total:</span>
-                                    <span className="text-2xl font-bold text-stone-900">${totalPrice}</span>
+                                    <span className="text-2xl font-bold text-stone-900">${Number(totalPrice).toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
@@ -212,15 +212,15 @@ const FacturationDetail = ({ vehicle }) => {
                     {isLoading || paymentLoading ? 'Procesando...' : createdReservationId ? 'Retomar pago con Wompi' : 'Reservar y pagar con Wompi'}
                 </button>
                 {createdReservationId && (
-                    <button onClick={() => navigate('/customer/my-reservations')} className="w-full underline text-gray-700">
-                        Tu reserva está guardada. Ver mis reservas
+                    <button onClick={() => navigate('/customer/my-reservations')} className="w-full min-h-11 underline text-gray-700">
+                        Reserva pendiente de pago. Ver mis reservas
                     </button>
                 )}
 
                 {/* Información adicional */}
                 <div className="text-sm text-gray-600 mt-4">
                     <p>• El total se calcula según los días de alquiler.</p>
-                    <p>• Completa el pago en la pantalla segura de Wompi.</p>
+                    <p>• Tu reserva se confirma cuando Wompi aprueba el pago.</p>
                 </div>
             </div>
         </div>

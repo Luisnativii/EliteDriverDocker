@@ -3,6 +3,7 @@ package com.example.elitedriverbackend.controller;
 import com.example.elitedriverbackend.domain.dtos.CreateReservationDTO;
 import com.example.elitedriverbackend.domain.dtos.ReservationResponseDTO;
 import com.example.elitedriverbackend.domain.entity.Reservation;
+import com.example.elitedriverbackend.domain.entity.PaymentStatus;
 import com.example.elitedriverbackend.services.ReservationService;
 import com.example.elitedriverbackend.services.PaymentService;
 import com.example.elitedriverbackend.services.ReservationPricing;
@@ -102,9 +103,11 @@ public class ReservationController {
                 .id(String.valueOf(reservation.getId()))
                 .startDate(reservation.getStartDate())
                 .endDate(reservation.getEndDate())
-                .status("confirmado")
+                .status(reservation.getPaymentStatus() == PaymentStatus.PAID ? "confirmado"
+                        : reservation.getPaymentStatus() == PaymentStatus.PAID_TEST ? "prueba_aprobada"
+                        : reservation.getPaymentStatus() == PaymentStatus.CANCELLED ? "cancelado" : "pendiente_pago")
                 .totalPrice(totalPrice) // ✅ Usar el cálculo
-                .paymentStatus(reservation.getPaymentStatus() == null ? null : reservation.getPaymentStatus().name())
+                .paymentStatus(reservation.getPaymentStatus() == null ? PaymentStatus.PENDING.name() : reservation.getPaymentStatus().name())
                 .user(ReservationResponseDTO.UserInfo.builder()
                         .id(String.valueOf(reservation.getUser().getId()))
                         .firstName(reservation.getUser().getFirstName())

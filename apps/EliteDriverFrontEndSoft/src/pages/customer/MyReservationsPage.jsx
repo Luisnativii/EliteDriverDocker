@@ -1,147 +1,95 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Car } from 'lucide-react';
 import { useReservation } from '../../hooks/useReservations';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 import ReservationPayment from '../../components/reservation/ReservationPayment';
+import { reservationStatus, paymentStatus, statusLabels } from '../../utils/reservationStatus';
+import { returningReservation } from '../../utils/paymentReturn';
 
-
-
-const MyReservationPage = () => {
+export default function MyReservationPage() {
     const { user } = useAuth();
     const { getReservationsByUser, isLoading, error } = useReservation();
-    const [reservations, setReservations] = useState([]);
     const { cancelReservation } = useReservation();
-
-    const formatDateLocal = (dateString) => {
-        const [year, month, day] = dateString.slice(0, 10).split('-');
-        return `${day}/${month}/${year}`;
-    };
-
-
-
-
-
-
-    const handleCancelReservation = (id) => {
-        toast.info(
-            ({ closeToast }) => (
-                <div className="flex flex-col gap-2">
-                    <p className="font-medium">¿Deseas cancelar esta reserva?</p>
-                    <div className="flex justify-end gap-2">
-                        <button
-                            onClick={async () => {
-                                const result = await cancelReservation(id);
-                                closeToast();
-
-                                if (result.success) {
-                                    toast.success(" Reserva cancelada");
-                                    setReservations((prev) =>
-                                        prev.filter((r) => r.id !== id)
-                                    );
-                                } else {
-                                    toast.error(" Error al cancelar la reserva: " + result.error);
-                                }
-                            }}
-                            className="cursor-pointer px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
-                        >
-                            Sí, cancelar
-                        </button>
-                        <button
-                            onClick={closeToast}
-                            className="cursor-pointer px-3 py-1 text-sm bg-gray-300 text-black rounded hover:bg-gray-400"
-                        >
-                            No
-                        </button>
-                    </div>
-                </div>
-            ),
-            { autoClose: false, closeOnClick: false }
-        );
-    };
-
-
-
-    useEffect(() => {
-        if (user?.id) {
-            getReservationsByUser(user.id).then(setReservations);
-        }
+    const [reservations, setReservations] = useState([]);
+    const [cancelling, setCancelling] = useState(null);
+    const [returnedId] = useState(() => returningReservation(window.location.search, sessionStorage));
+    const updatePayment = useCallback((id, data) => {
+        setReservations(prev => prev.map(r => r.id === id ? { ...r, paymentStatus: data.paymentStatus || r.paymentStatus } : r));
+    }, []);
+    const reload = useCallback(() => {
+        if (user?.id) void getReservationsByUser(user.id).then(setReservations);
     }, [user?.id, getReservationsByUser]);
+    useEffect(reload, [reload]);
+    const formatDate = value => String(value).slice(0, 10).split('-').reverse().join('/');
 
-    if (isLoading) return <p className="text-white">Cargando reservas...</p>;
-    if (error) return <p className="text-red-500">Error: {error}</p>;
-
-    const getDerivedStatus = (reservation) => {
-        const now = new Date();
-        const start = new Date(`${reservation.startDate.slice(0, 10)}T00:00:00`);
-        const end = new Date(`${reservation.endDate.slice(0, 10)}T23:59:59`);
-
-        if (start > now) return 'Próxima';
-        if (start <= now && end >= now) return 'Activa';
-        if (end < now) return 'Completada';
-        return 'Desconocida';
+    const requestCancel = id => {
+        toast.info(({ closeToast }) => (
+            <div className="space-y-3">
+                <p>¿Deseas cancelar esta reserva pendiente de pago?</p>
+                <div className="flex gap-2">
+                    <button onClick={async () => {
+                        closeToast(); setCancelling(id);
+                        const result = await cancelReservation(id);
+                        setCancelling(null);
+                        if (result.success) {
+                            toast.success('Reserva cancelada');
+                            setReservations(prev => prev.filter(r => r.id !== id));
+                        } else {
+                            toast.error(result.error);
+                            reload();
+                        }
+                    }} className="min-h-11 px-4 rounded-lg bg-red-600 text-white">Sí, cancelar</button>
+                    <button onClick={closeToast} className="min-h-11 px-4 rounded-lg bg-gray-200 text-black">Mantener</button>
+                </div>
+            </div>
+        ), { autoClose: false, closeOnClick: false });
     };
 
     return (
-        <div className="py-25 px-10 text-white">
-            <h1 className="text-2xl font-bold mb-4">Mis Reservas</h1>
-
-            {reservations.length === 0 ? (
-                <p>No tienes reservas registradas.</p>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {reservations.map((res) => (
-                        <div
-                            key={res.id}
-                            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 shadow-xl transition-all duration-300 hover:scale-105 hover:bg-white/15"
-                        >
-                            <div
-                                className="w-full h-40 overflow-hidden rounded-md mb-3"
-                            >
-                                <img
-                                    src={res.vehicle.mainImageUrl || '/images/vehicle-placeholder.jpg'}
-                                    alt={res.vehicle.name}
-                                    className="h-full w-full object-cover"
-                                    onError={(e) => {
-                                        e.target.src = '/images/vehicle-placeholder.jpg';
-                                    }}
-                                />
-
-                            </div>
-
-
-                            <h2 className="text-lg font-semibold">{res.vehicle.brand} {res.vehicle.name}</h2>
-                            <p className="text-sm text-gray-300 mb-1">Precio por día: ${res.vehicle.pricePerDay.toFixed(2)}</p>
-
-                            <div className="text-sm mt-2 space-y-1">
-                                <p><strong>Inicio:</strong> {formatDateLocal(res.startDate)}</p>
-                                <p><strong>Fin:</strong> {formatDateLocal(res.endDate)}</p>
-
-                                <div className="flex items-center justify-between mt-2">
-                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getDerivedStatus(res) === 'Activa' ? 'bg-green-500 text-white' :
-                                        getDerivedStatus(res) === 'Próxima' ? 'bg-yellow-500 text-black' :
-                                            getDerivedStatus(res) === 'Completada' ? 'bg-blue-500 text-white' :
-                                                'bg-gray-500 text-white'
-                                        }`}>
-                                        {getDerivedStatus(res)}
-                                    </span>
-                                    {/* Botón cancelar */}
-                                    {['Activa', 'Próxima'].includes(getDerivedStatus(res)) && (
-                                        <button
-                                            onClick={() => handleCancelReservation(res.id)}
-                                            className="cursor-pointer ml-2 px-3 py-1 text-sm bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
-                                        >
-                                            Cancelar
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                            <ReservationPayment reservationId={res.id} initialStatus={res.paymentStatus} />
-                        </div>
-                    ))}
+        <div className="pt-25 pb-10 px-4 sm:px-6 lg:px-8 text-white max-w-7xl mx-auto">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Mis reservas</h1>
+            <p className="text-gray-300 mb-6">Consulta tus fechas y el estado de tu pago.</p>
+            {isLoading ? <p role="status">Cargando reservas…</p> : error ? (
+                <div role="alert" className="rounded-xl bg-red-500/10 border border-red-400/30 p-4 space-y-3">
+                    <p>{error}</p><button onClick={reload} className="min-h-11 px-4 rounded-lg border border-white/30">Volver a intentar</button>
                 </div>
-            )}
+            ) : reservations.length === 0 ? (
+                <div className="rounded-2xl border border-white/20 bg-white/5 p-6 text-center space-y-4">
+                    <p>Aún no tienes reservas.</p>
+                    <Link to="/customer/vehicles" className="inline-flex min-h-11 items-center px-5 rounded-lg bg-red-600">Ver vehículos</Link>
+                </div>
+            ) : <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {[...reservations].sort((a, b) => Number(b.id === returnedId) - Number(a.id === returnedId)).map(res => {
+                    const vehicle = res.vehicle || {};
+                    const status = reservationStatus(res);
+                    const isReturning = res.id === returnedId;
+                    return <article key={res.id} className={`min-w-0 bg-white/10 border rounded-2xl p-4 shadow-lg ${isReturning ? 'border-red-400/70' : 'border-white/20'}`}>
+                        {isReturning && <p className="text-sm text-red-200 mb-3">Seguimiento de tu pago en Wompi</p>}
+                        <div className="relative w-full h-40 overflow-hidden rounded-xl mb-4 bg-neutral-800">
+                            <Car className="absolute inset-0 m-auto w-16 h-16 text-neutral-600" aria-hidden="true" />
+                            {vehicle.mainImageUrl && <img src={vehicle.mainImageUrl} alt={vehicle.name || 'Vehículo'}
+                                className="relative h-full w-full object-cover" onError={e => { e.currentTarget.style.display = 'none'; }} />}
+                        </div>
+                        <h2 className="text-lg font-semibold break-words">{vehicle.brand} {vehicle.name}</h2>
+                        <p className="text-sm text-gray-300 mt-1">Precio por día: ${Number(vehicle.pricePerDay || 0).toFixed(2)}</p>
+                        <dl className="grid grid-cols-2 gap-3 mt-4 text-sm">
+                            <div><dt className="text-gray-400">Inicio</dt><dd className="font-medium mt-1">{formatDate(res.startDate)}</dd></div>
+                            <div><dt className="text-gray-400">Fin</dt><dd className="font-medium mt-1">{formatDate(res.endDate)}</dd></div>
+                        </dl>
+                        <p className={`mt-4 inline-block px-3 py-1.5 rounded-full text-xs font-semibold ${status === 'activa' ? 'bg-green-500/20 text-green-200' : status === 'prueba' ? 'bg-purple-500/20 text-purple-200' : 'bg-white/10 text-gray-200'}`}>
+                            {statusLabels[status]}
+                        </p>
+                        <ReservationPayment reservationId={res.id} initialStatus={res.paymentStatus}
+                            initialAmount={res.totalPrice} autoVerify={isReturning} onPaymentUpdate={updatePayment} />
+                        {paymentStatus(res) === 'PENDING' && <button disabled={cancelling !== null}
+                            onClick={() => requestCancel(res.id)} className="mt-4 w-full min-h-11 text-sm underline text-gray-300 hover:text-white disabled:opacity-50">
+                            {cancelling === res.id ? 'Cancelando…' : 'Cancelar reserva pendiente'}
+                        </button>}
+                    </article>;
+                })}
+            </div>}
         </div>
     );
 }
-
-export default MyReservationPage;

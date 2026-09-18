@@ -64,9 +64,26 @@ class PaymentServiceTest {
         assertThat((Map<String, Object>) payload.get("configuracion"))
                 .containsEntry("esMontoEditable", false).containsEntry("esCantidadEditable", false)
                 .containsEntry("cantidadPorDefecto", 1).containsEntry("urlWebhook", properties.getWebhookUrl());
+        assertThat((Map<String, Object>) payload.get("configuracion"))
+                .containsEntry("urlRedirect", properties.getRedirectUrl() + "?reservation=" + reservation.getId() + "&payment_return=1")
+                .containsEntry("urlRetorno", properties.getRedirectUrl() + "?reservation=" + reservation.getId() + "&payment_return=1");
         assertThat((Map<String, Object>) payload.get("limitesDeUso")).containsEntry("cantidadMaximaPagosExitosos", 1);
         assertThat(result.amount()).isEqualByComparingTo("59.97");
         assertThat(result.production()).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void returnUrlPreservesExistingParametersAndReplacesStaleReservation() {
+        properties.setRedirectUrl("https://example.com/customer/my-reservations?source=wompi&reservation=old&payment_return=0");
+        service.createLink(reservation.getId(), owner);
+        var captor = org.mockito.ArgumentCaptor.forClass(Map.class);
+        verify(client).createLink(captor.capture());
+        var config = (Map<String, Object>) captor.getValue().get("configuracion");
+        assertThat(config.get("urlRedirect")).isEqualTo("https://example.com/customer/my-reservations?source=wompi&reservation="
+                + reservation.getId() + "&payment_return=1");
+        assertThat(config.get("urlRetorno")).isEqualTo(config.get("urlRedirect"));
+        assertThat(reservation.getPaymentStatus()).isEqualTo(PaymentStatus.PENDING);
     }
 
     @Test

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDateContext } from '../../context/DateContext';
 
 const DateForm = ({ variant = 'default', onSearch }) => {
   const navigate = useNavigate();
+  const fieldId = useId();
   const { startDate, endDate, setStartDate, setEndDate } = useDateContext();
 
   const handleSearch = () => {
@@ -51,7 +52,7 @@ const DateForm = ({ variant = 'default', onSearch }) => {
     input: `
       date-input
       w-full bg-white/20 backdrop-blur-sm border border-white/30 
-      rounded-lg px-1 py-2.5 text-white placeholder-white/60 text-sm
+      rounded-lg px-1 py-2.5 min-h-11 text-white placeholder-white/60 text-base
       focus:outline-none focus:ring-2 focus:ring-white/50 
       focus:border-transparent transition-all duration-200
       hover:bg-white/25
@@ -59,7 +60,7 @@ const DateForm = ({ variant = 'default', onSearch }) => {
     button: `
       w-full bg-gradient-to-r from-black to-neutral-700 
       hover:from-black hover:to-white
-      text-white font-semibold py-2.5 px-5 rounded-lg text-sm
+      text-white font-semibold py-2.5 px-5 min-h-11 rounded-lg text-sm
       transition-all duración-200 transform active:scale-95
       shadow-lg hover:shadow-xl
       focus:outline-none focus:ring-2 focus:ring-white/50
@@ -67,15 +68,15 @@ const DateForm = ({ variant = 'default', onSearch }) => {
   };
 
   const vehiclesStyles = {
-    container: 'flex items-center gap-4',
+    container: 'grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 w-full md:flex md:items-center md:gap-4 md:w-auto',
     title: 'text-white text-sm font-medium',
     label: 'text-white font-medium text-xs block mb-1',
     input: `
       date-input
-      border border-gray-300 rounded-lg px-3 py-2 text-sm
+      border border-gray-300 rounded-lg px-3 py-2 text-base min-h-11
       focus:outline-none focus:ring-2 focus:ring-neutral-500 
       focus:border-transparent transition-all duration-200
-      w-38 cursor-pointer
+      w-full min-w-0 md:w-38 cursor-pointer
     `,
     button: `
       bg-neutral-800 hover:bg-neutral-600
@@ -103,9 +104,10 @@ const DateForm = ({ variant = 'default', onSearch }) => {
   if (variant === 'vehicles') {
     return (
       <div className={styles.container}>
-        <div>
-          <label className={styles.label}>Desde:</label>
+        <div className="min-w-0">
+          <label htmlFor={`${fieldId}-start`} className={styles.label}>Desde:</label>
           <input
+            id={`${fieldId}-start`}
             type="date"
             value={startDate || ''}
             onChange={(e) => setStartDate(e.target.value)}
@@ -116,9 +118,10 @@ const DateForm = ({ variant = 'default', onSearch }) => {
           />
         </div>
 
-        <div>
-          <label className={styles.label}>Hasta:</label>
+        <div className="min-w-0">
+          <label htmlFor={`${fieldId}-end`} className={styles.label}>Hasta:</label>
           <input
+            id={`${fieldId}-end`}
             type="date"
             value={endDate || ''}
             onChange={(e) => setEndDate(e.target.value)}
@@ -146,8 +149,9 @@ const DateForm = ({ variant = 'default', onSearch }) => {
           }
         >
           <div className="flex-1 w-full">
-            <label className={styles.label}>Desde:</label>
+            <label htmlFor={`${fieldId}-start`} className={styles.label}>Desde:</label>
             <input
+              id={`${fieldId}-start`}
               type="date"
               value={startDate || ''}
               onChange={(e) => setStartDate(e.target.value)}
@@ -159,8 +163,9 @@ const DateForm = ({ variant = 'default', onSearch }) => {
           </div>
 
           <div className="flex-1 w-full">
-            <label className={styles.label}>Hasta:</label>
+            <label htmlFor={`${fieldId}-end`} className={styles.label}>Hasta:</label>
             <input
+              id={`${fieldId}-end`}
               type="date"
               value={endDate || ''}
               onChange={(e) => setEndDate(e.target.value)}

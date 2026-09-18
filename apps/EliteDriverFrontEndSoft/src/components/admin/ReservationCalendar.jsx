@@ -5,11 +5,8 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { useReservationManagement } from '../../hooks/useReservationManagement';
+import { localReservationDate, reservationStatus } from '../../utils/reservationStatus';
 import ReservationDetailModal from '../reservation/ReservationDetailModal';
-
-const locales = {
-    es: es,
-};
 
 // Configuración del localizador para la fecha (usando date-fns)
 const localizer = dateFnsLocalizer({
@@ -35,39 +32,17 @@ const ReservationCalendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [currentView, setCurrentView] = useState('month');
 
-    const events = useMemo(() => {
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-        return reservations.map(r => {
-            const startDate = new Date(r.startDate);
-            const endDate = new Date(r.endDate);
-            endDate.setDate(endDate.getDate() + 1); // 👈 corregimos el rango para react-big-calendar
-
-            const startDateOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-            const endDateOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-
-            let status = 'upcoming';
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-            if (endDateOnly < today) {
-                status = 'completed';
-            } else if (startDateOnly <= today && endDateOnly >= today) {
-                status = 'active';
-            }
-
-            return {
-                id: r.id,
-                title: `${r.vehicle?.name || 'Vehículo reservado'} — ${r.user?.name || ''} `,
-                start: startDate,
-                end: endDate,
-                allDay: true,
-                reservation: r,
-                status: status,
-            };
-        });
-    }, [reservations]);
+    const events = useMemo(() => reservations.map(r => {
+        const start = localReservationDate(r.startDate);
+        const end = localReservationDate(r.endDate);
+        end.setDate(end.getDate() + 1);
+        return {
+            id: r.id,
+            title: `${r.vehicle?.name || 'Vehículo reservado'} — ${r.user?.name || ''}`,
+            start, end, allDay: true, reservation: r,
+            status: ({ activa: 'active', próxima: 'upcoming', completada: 'completed' })[reservationStatus(r)],
+        };
+    }), [reservations]);
 
     /**
      * Componente personalizado para los eventos en el calendario.
@@ -112,33 +87,35 @@ const ReservationCalendar = () => {
 
     // Componente personalizado para la barra de herramientas
     const CustomToolbar = ({ label, onNavigate, onView }) => (
-        <div className="flex items-center justify-between mb-6 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg">
             <div className="flex items-center space-x-3">
                 <div className="p-2 bg-red-600/20 rounded-lg">
                     <CalendarDays className="w-5 h-5 text-red-400" />
                 </div>
-                <h2 className="text-xl font-semibold text-white">{label}</h2>
+                <h2 className="text-base sm:text-xl font-semibold text-white">{label}</h2>
             </div>
 
             <div className="flex items-center space-x-2">
                 {/* Botones de navegación */}
                 <button
+                    aria-label="Mes o semana anterior"
                     onClick={() => onNavigate('PREV')}
-                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 border border-white/20"
+                    className="min-h-11 min-w-11 flex items-center justify-center p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 border border-white/20"
                 >
                     <ChevronLeft className="w-5 h-5" />
                 </button>
 
                 <button
                     onClick={() => onNavigate('TODAY')}
-                    className="px-4 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 border border-white/20 text-sm font-medium"
+                    className="min-h-11 px-4 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 border border-white/20 text-sm font-medium"
                 >
                     Hoy
                 </button>
 
                 <button
+                    aria-label="Mes o semana siguiente"
                     onClick={() => onNavigate('NEXT')}
-                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 border border-white/20"
+                    className="min-h-11 min-w-11 flex items-center justify-center p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 border border-white/20"
                 >
                     <ChevronRight className="w-5 h-5" />
                 </button>
@@ -148,7 +125,7 @@ const ReservationCalendar = () => {
             <div className="flex items-center space-x-2">
                 <button
                     onClick={() => onView('month')}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${currentView === 'month'
+                    className={`min-h-11 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${currentView === 'month'
                         ? 'bg-red-500/30 text-red-300 border-red-400/50'
                         : 'text-white/70 hover:text-white hover:bg-white/10 border-white/20'
                         }`}
@@ -157,7 +134,7 @@ const ReservationCalendar = () => {
                 </button>
                 <button
                     onClick={() => onView('week')}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${currentView === 'week'
+                    className={`min-h-11 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${currentView === 'week'
                         ? 'bg-red-500/30 text-red-300 border-red-400/50'
                         : 'text-white/70 hover:text-white hover:bg-white/10 border-white/20'
                         }`}
@@ -188,11 +165,11 @@ const ReservationCalendar = () => {
     return (
         <div className="space-y-4">
             {/* Estadísticas rápidas */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                 <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 shadow-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-white/70 text-sm">Total Reservaciones</p>
+                            <p className="text-white/70 text-sm">Confirmadas</p>
                             <p className="text-2xl font-bold text-white">{reservations.length}</p>
                         </div>
                         <div className="p-2 bg-red-500/20 rounded-lg">
@@ -338,7 +315,7 @@ const ReservationCalendar = () => {
                     date={currentDate}
                     onNavigate={setCurrentDate}
                     popup={true}
-                    style={{ height: 800, padding: '2px' }}
+                    style={{ height: 'clamp(480px, 75dvh, 800px)', padding: '2px' }}
                     messages={{
                         next: 'Siguiente',
                         previous: 'Anterior',
@@ -364,7 +341,7 @@ const ReservationCalendar = () => {
                     isOpen={modalOpen}
                     onClose={() => setModalOpen(false)}
                     reservation={selectedReservation}
-                    formatDate={(date) => new Date(date).toLocaleDateString('es-ES')}
+                    formatDate={(date) => localReservationDate(date).toLocaleDateString('es-SV')}
                     formatPrice={(price) => `$${price?.toLocaleString('es-SV')}`}
                 />
             )}

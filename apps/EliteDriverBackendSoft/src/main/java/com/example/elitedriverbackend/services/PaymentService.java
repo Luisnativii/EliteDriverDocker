@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -70,8 +71,12 @@ public class PaymentService {
         config.put("notificarTransaccionCliente", true);
         if (!properties.getRedirectUrl().isBlank()) {
             validateUrl(properties.getRedirectUrl());
-            config.put("urlRedirect", properties.getRedirectUrl());
-            config.put("urlRetorno", properties.getRedirectUrl());
+            String returnUrl = UriComponentsBuilder.fromUriString(properties.getRedirectUrl())
+                    .replaceQueryParam("reservation", reservation.getId())
+                    .replaceQueryParam("payment_return", "1")
+                    .build().toUriString();
+            config.put("urlRedirect", returnUrl);
+            config.put("urlRetorno", returnUrl);
         }
         if (!properties.getWebhookUrl().isBlank()) {
             validateUrl(properties.getWebhookUrl());

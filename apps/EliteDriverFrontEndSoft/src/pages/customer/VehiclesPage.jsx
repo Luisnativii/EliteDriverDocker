@@ -4,6 +4,7 @@ import { useVehicles } from '../../hooks/useVehicles';
 import { useDateContext } from '../../context/DateContext';
 import DateForm from '../../components/forms/DateForm';
 import ReservationService from '../../services/reservationService';
+import { holdsReservationDates } from '../../utils/reservationStatus';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 import {
@@ -301,7 +302,7 @@ const VehiclesPage = () => {
                     id: reservation.id,
                     startDate: reservation.startDate,
                     endDate: reservation.endDate,
-                    status: reservation.status || 'active',
+                    paymentStatus: reservation.paymentStatus || 'PENDING',
                     vehicle: {
                         id: reservation.vehicle?.id || reservation.vehicleId,
                         name: reservation.vehicle?.name || 'Vehículo no disponible',
@@ -335,9 +336,8 @@ const VehiclesPage = () => {
         toDate.setHours(23, 59, 59, 999);
 
         const filteredReservations = reservations.filter(reservation => {
-            // Solo considerar reservas activas/confirmadas
-            if (reservation.status?.toLowerCase() !== 'active' &&
-                reservation.status?.toLowerCase() !== 'confirmado') {
+            // Las solicitudes pendientes siguen reteniendo fechas hasta cancelarlas.
+            if (!holdsReservationDates(reservation)) {
                 return false;
             }
 

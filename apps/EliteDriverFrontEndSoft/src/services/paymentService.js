@@ -1,11 +1,6 @@
 import { API_BASE_URL } from '../config/apiConfig';
-
-export const paymentLabels = {
-    PENDING: 'Pago pendiente',
-    PAID: 'Pagado',
-    PAID_TEST: 'Pago de prueba aprobado',
-    CANCELLED: 'Reserva cancelada',
-};
+import { rememberPayment } from '../utils/paymentReturn';
+export { paymentLabels } from '../utils/reservationStatus';
 
 export default class PaymentService {
     static async request(reservationId, suffix, method) {
@@ -28,8 +23,10 @@ export default class PaymentService {
     }
 
     static openLink(payment) {
+        if (payment.paymentStatus !== 'PENDING') return;
         const url = new URL(payment.paymentUrl);
         if (url.protocol !== 'https:') throw new Error('El enlace de pago recibido no es válido.');
+        rememberPayment(payment.reservationId, sessionStorage);
         window.location.assign(url.href);
     }
 }

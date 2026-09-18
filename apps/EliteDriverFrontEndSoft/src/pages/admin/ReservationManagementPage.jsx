@@ -19,6 +19,7 @@ import {
   ArrowUpDown
 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { reservationStatus, statusLabels, paymentStatus } from '../../utils/reservationStatus';
 
 const ReservationManagementPage = () => {
 
@@ -31,6 +32,9 @@ const ReservationManagementPage = () => {
     hasAdminRole,
     operationLoading,
     reservations,
+    paymentFilter,
+    setPaymentFilter,
+    viewTotal,
     searchTerm,
     filterStatus,
     filterVehicleType,
@@ -70,22 +74,11 @@ const ReservationManagementPage = () => {
     setShowDetailModal(true);
   };
 
-    const handleRefreshWithToast = async () => {
-    try {
-      const result = handleRefresh();
-
-      // Por si handleRefresh es async (devuelve una promesa)
-      if (result && typeof result.then === 'function') {
-        await result;
-      }
-
-      toast.success('Reservas actualizadas correctamente');
-    } catch (err) {
-      toast.error('Error al actualizar las reservas');
-      console.error(err);
-    }
+  const handleRefreshWithToast = async () => {
+    const success = await handleRefresh();
+    if (success) toast.success('Reservas actualizadas');
+    else toast.error('No se pudieron actualizar las reservas');
   };
-
 
   // Mostrar loading mientras se cargan auth y reservas
   if (loading || authLoading) {
@@ -154,37 +147,27 @@ const ReservationManagementPage = () => {
     }
   };
 
-  const getDerivedStatus = (reservation) => {
-    const now = new Date();
-    const start = new Date(reservation.startDate);
-    const end = new Date(reservation.endDate);
-
-    if (start > now) return 'Próxima';
-    if (start <= now && end >= now) return 'Activa';
-    if (end < now) return 'Completada';
-    return 'desconocida';
-  };
-
+  const getDerivedStatus = reservation => statusLabels[reservationStatus(reservation)];
 
   return (
     <div className="min-h-screen bg-neutral-900">
       <div className="max-w-7xl mt-18 mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                 Gestión de Reservas
               </h1>
               <p className="text-white/70">
-                Administra y supervisa todas las reservas del sistema
+                Las reservas se confirman al recibir el pago aprobado de Wompi.
               </p>
             </div>
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleRefreshWithToast}
                 disabled={operationLoading}
-                className="flex items-center  cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg transition-all duration-300 border border-white/20 disabled:opacity-50"
+                className="flex min-h-11 items-center cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg transition-all duration-300 border border-white/20 disabled:opacity-50"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${operationLoading ? 'animate-spin' : ''}`} />
                 Actualizar
@@ -194,18 +177,18 @@ const ReservationManagementPage = () => {
         </div>
 
         {/* Estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-6 mb-6">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/70 text-sm">Total Reservas</p>
+                <p className="text-white/70 text-sm">Confirmadas</p>
                 <p className="text-2xl font-bold text-white">{reservationStats.total}</p>
               </div>
               <Calendar className="w-8 h-8 text-blue-400" />
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm">Activas</p>
@@ -215,7 +198,7 @@ const ReservationManagementPage = () => {
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm">Próximas</p>
@@ -225,7 +208,7 @@ const ReservationManagementPage = () => {
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm">Completadas</p>
@@ -235,25 +218,45 @@ const ReservationManagementPage = () => {
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/70 text-sm">Ingresos Total</p>
-                <p className="text-2xl font-bold text-emerald-400">{formatPrice(reservationStats.totalRevenue)}</p>
+                <p className="text-white/70 text-sm">Ingresos recibidos</p>
+                <p className="text-xl sm:text-2xl font-bold text-emerald-400 break-all">{formatPrice(reservationStats.totalRevenue)}</p>
               </div>
             </div>
           </div>
         </div>
 
+        <div className="mb-6 space-y-3">
+          <div className="grid grid-cols-3 gap-2" role="group" aria-label="Estado del pago">
+            {[
+              ['PAID', 'Confirmadas', reservationStats.total],
+              ['PENDING', 'Pendientes de pago', reservationStats.pending],
+              ['PAID_TEST', 'Pruebas', reservationStats.test],
+            ].map(([value, label, count]) => <button key={value} onClick={() => setPaymentFilter(value)}
+              aria-pressed={paymentFilter === value}
+              className={`min-h-14 px-2 sm:px-4 py-3 rounded-xl border text-sm sm:text-base transition-colors ${paymentFilter === value ? 'border-red-400/60 bg-red-600/20 text-white' : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'}`}>
+              <span className="block">{label}</span><strong className="block mt-1">{count}</strong>
+            </button>)}
+          </div>
+          <p className="text-sm text-white/60">
+            {paymentFilter === 'PENDING' ? 'Estas solicitudes aún no están confirmadas ni se cuentan como reservas activas.'
+              : paymentFilter === 'PAID_TEST' ? 'Pagos aprobados en modo de pruebas. No representan cobros reales ni suman ingresos.'
+              : 'Solo reservas con pago real aprobado. El panel se actualiza automáticamente cada 30 segundos.'}
+          </p>
+        </div>
+
         {/* Filtros */}
-        <div className="mb-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-6">
+        <div className="mb-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-4 sm:p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4">
             {/* Búsqueda */}
             <div className="xl:col-span-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
                 <input
-                  type="text"
+                  type="search"
+                  aria-label="Buscar reservas"
                   placeholder="Buscar por usuario, vehículo, ID..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -267,6 +270,7 @@ const ReservationManagementPage = () => {
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
                 <select
+                  aria-label="Estado de la reserva"
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer"
@@ -286,6 +290,7 @@ const ReservationManagementPage = () => {
               <div className="relative">
                 <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
                 <select
+                  aria-label="Tipo de vehículo"
                   value={filterVehicleType}
                   onChange={(e) => setFilterVehicleType(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer"
@@ -303,6 +308,7 @@ const ReservationManagementPage = () => {
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
                 <select
+                  aria-label="Fechas de la reserva"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer"
@@ -336,8 +342,36 @@ const ReservationManagementPage = () => {
           </div>
         )}
 
+        <div className="lg:hidden space-y-4">
+          {reservations.length === 0 ? <p className="rounded-xl border border-white/20 bg-white/5 p-6 text-center text-white/70">
+            No hay reservas en esta vista. Puedes cambiar de pestaña o ajustar los filtros.
+          </p> : reservations.map(reservation => <article key={reservation.id}
+            className="min-w-0 rounded-2xl border border-white/20 bg-white/10 p-4 text-white space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-semibold break-words">{reservation.vehicle.name}</h2>
+              <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(getDerivedStatus(reservation))}`}>
+                {getDerivedStatus(reservation)}
+              </span>
+            </div>
+            <p className="text-sm text-white/80 break-words">{reservation.user.name}</p>
+            <p className="text-sm text-white/60 break-all">{reservation.user.email}</p>
+            <dl className="grid grid-cols-2 gap-3 text-sm">
+              <div><dt className="text-white/60">Inicio</dt><dd className="mt-1">{formatDate(reservation.startDate)}</dd></div>
+              <div><dt className="text-white/60">Fin</dt><dd className="mt-1">{formatDate(reservation.endDate)}</dd></div>
+            </dl>
+            <p className="font-semibold">{formatPrice(reservation.totalPrice)}</p>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => handleViewReservation(reservation)} className="min-h-11 px-4 rounded-lg bg-white/10 border border-white/20">
+                Ver detalles
+              </button>
+              {paymentStatus(reservation) === 'PENDING' && <button onClick={() => initiateCancel(reservation)} disabled={operationLoading}
+                className="min-h-11 px-4 rounded-lg border border-red-400/40 text-red-300 disabled:opacity-50">Cancelar pendiente</button>}
+            </div>
+          </article>)}
+        </div>
+
         {/* Tabla de Reservas */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+        <div className="hidden lg:block bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-white/5">
@@ -433,7 +467,7 @@ const ReservationManagementPage = () => {
                     <tr key={reservation.id} className="hover:bg-white/5 transition-colors duration-200">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-white">
-                          #{reservation.id}
+                          #{reservation.id.slice(0, 8)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -501,16 +535,16 @@ const ReservationManagementPage = () => {
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleViewReservation(reservation)}
-                            className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+                            className="min-h-11 min-w-11 flex items-center justify-center text-blue-400 hover:text-blue-300 transition-colors duration-200"
                             title="Ver detalles"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
-                          {['Activa', 'Próxima'].includes(getDerivedStatus(reservation)) && (
+                          {paymentStatus(reservation) === 'PENDING' && (
                             <button
                               onClick={() => initiateCancel(reservation)}
                               disabled={operationLoading}
-                              className="text-red-400 hover:text-red-300 transition-colors duration-200 disabled:opacity-50"
+                              className="min-h-11 min-w-11 flex items-center justify-center text-red-400 hover:text-red-300 transition-colors duration-200 disabled:opacity-50"
                               title="Cancelar reserva"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -528,9 +562,9 @@ const ReservationManagementPage = () => {
         </div>
 
         {/* Información de paginación */}
-        <div className="mt-6 flex items-center justify-between bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 px-6 py-4">
+        <div className="mt-6 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 px-6 py-4">
           <div className="text-sm text-white/70">
-            Mostrando {reservations.length} de {reservationStats.total} reservas
+            Mostrando {reservations.length} de {viewTotal} reservas en esta vista
           </div>
           <div className="text-sm text-white/70">
             Filtros aplicados: {[

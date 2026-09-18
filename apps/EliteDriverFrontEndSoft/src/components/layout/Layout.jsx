@@ -1,29 +1,28 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import { useLayout } from '../../hooks/useLayout';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
 const Layout = () => {
-  const { user } = useAuth();
   const { showSidebar, isMobile, toggleSidebar } = useLayout();
 
   return (
-    <div className="flex h-screen bg-neutral-900 w-screen overflow-hidden">
+    <div className="flex h-dvh bg-neutral-900 w-screen overflow-hidden">
       {/* Mobile sidebar overlay */}
       {isMobile && showSidebar && (
-        <div 
+        <button
+          aria-label="Cerrar menú de navegación"
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
           onClick={toggleSidebar}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`
+      <div inert={!showSidebar} aria-hidden={!showSidebar} className={`
         transition-all duration-300 ease-in-out
         ${isMobile 
-          ? `${showSidebar ? 'fixed translate-x-0' : 'fixed -translate-x-full'} top-0 left-0 h-screen z-50`
+          ? `${showSidebar ? 'fixed translate-x-0' : 'fixed -translate-x-full'} top-0 left-0 h-dvh z-50`
           : `${showSidebar ? 'w-64' : 'w-0'} relative overflow-hidden`
         }
       `}>
@@ -31,8 +30,8 @@ const Layout = () => {
       </div>
 
       {/* Main content area */}
-      <div className="bg-neutral-900 flex flex-col flex-1 overflow-hidden">
-        <Header toggleSidebar={toggleSidebar} showSidebar={showSidebar && !isMobile} />
+      <div className="bg-neutral-900 flex flex-col flex-1 min-w-0 overflow-hidden">
+        <Header toggleSidebar={toggleSidebar} showSidebar={showSidebar && !isMobile} menuOpen={showSidebar} />
         
         <main className="flex-1 overflow-auto transition-all duration-300 custom-scrollbar">
           <div className="min-h-full">

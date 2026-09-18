@@ -1,56 +1,91 @@
 import { useEffect, useState } from 'react';
 import PaymentService, { paymentLabels } from '../../services/paymentService';
+import { forgetPayment } from '../../utils/paymentReturn';
+import { watchPayment } from '../../utils/watchPayment';
 
-export default function ReservationPayment({ reservationId, initialStatus }) {
-    const [payment, setPayment] = useState({ paymentStatus: initialStatus });
+export default function ReservationPayment({ reservationId, initialStatus, initialAmount, autoVerify, onPaymentUpdate }) {
+    const [payment, setPayment] = useState({ paymentStatus: initialStatus || 'PENDING', amount: initialAmount });
     const [loading, setLoading] = useState(false);
+    const [checking, setChecking] = useState(false);
     const [error, setError] = useState('');
+    const [verification, setVerification] = useState(0);
 
     useEffect(() => {
-        let active = true;
-        if (initialStatus) {
-            PaymentService.getStatus(reservationId)
-                .then(data => { if (active) setPayment(data); })
-                .catch(err => { if (active) setError(err.message); });
+        if (initialStatus && initialStatus !== 'PENDING') {
+            forgetPayment(reservationId, sessionStorage);
+            return;
         }
-        return () => { active = false; };
-    }, [reservationId, initialStatus]);
+        if (loading) return;
+        const watcher = watchPayment({
+            read: () => PaymentService.getStatus(reservationId),
+            repeat: autoVerify || verification > 0,
+            onChecking: setChecking,
+            onError: err => setError(err.message),
+            onUpdate: data => {
+                setPayment(data);
+                setError('');
+                onPaymentUpdate(reservationId, data);
+                if (['PAID', 'PAID_TEST', 'CANCELLED'].includes(data.paymentStatus)) {
+                    forgetPayment(reservationId, sessionStorage);
+                }
+            },
+        });
+        const onFocus = () => { if (document.visibilityState === 'visible') void watcher.refresh(); };
+        window.addEventListener('focus', onFocus);
+        document.addEventListener('visibilitychange', onFocus);
+        return () => {
+            watcher.stop();
+            window.removeEventListener('focus', onFocus);
+            document.removeEventListener('visibilitychange', onFocus);
+        };
+    }, [reservationId, initialStatus, autoVerify, verification, onPaymentUpdate, loading]);
 
-    const handlePayment = async (open) => {
+    const handlePayment = async () => {
         setLoading(true);
         setError('');
         try {
-            const data = open ? await PaymentService.createLink(reservationId) : await PaymentService.getStatus(reservationId);
+            const data = await PaymentService.createLink(reservationId);
             setPayment(data);
-            if (open) PaymentService.openLink(data);
-            else if (data.paymentStatus === 'PENDING') setError('El pago aún no ha sido confirmado. Puedes volver a consultar en unos momentos.');
+            onPaymentUpdate(reservationId, data);
+            PaymentService.openLink(data);
         } catch (err) {
             setError(err.message);
+            setVerification(value => value + 1);
         } finally {
             setLoading(false);
         }
     };
 
-    if (!initialStatus) return null;
-
+    const status = payment.paymentStatus || 'PENDING';
     return (
-        <div className="mt-4 border-t border-white/20 pt-3 space-y-2">
-            <p className="font-medium">{paymentLabels[payment.paymentStatus] || 'Pago pendiente'}</p>
-            {payment.amount != null && <p>Total: ${Number(payment.amount).toFixed(2)} USD</p>}
-            {payment.production === false && <p className="text-sm text-amber-300">Modo de pruebas: no se realiza un cobro real.</p>}
-            {payment.paymentStatus === 'PENDING' && (
-                <div className="flex flex-wrap gap-2">
-                    <button disabled={loading} onClick={() => handlePayment(true)}
-                        className="cursor-pointer rounded-md bg-red-600 px-3 py-2 hover:bg-red-700 disabled:opacity-50">
-                        {loading ? 'Procesando...' : 'Pagar con Wompi'}
+        <div className="mt-4 border-t border-white/20 pt-4 space-y-3" aria-live="polite" aria-atomic="true">
+            <p className={`font-semibold ${status === 'PAID' ? 'text-green-300' : status === 'PAID_TEST' ? 'text-amber-300' : ''}`}>
+                {paymentLabels[status] || paymentLabels.PENDING}
+            </p>
+            {payment.amount != null && <p>Total: <strong>${Number(payment.amount).toFixed(2)} USD</strong></p>}
+            {status === 'PAID' && <p className="text-sm text-green-200">Pago recibido. Tu reserva está confirmada.</p>}
+            {(payment.production === false || status === 'PAID_TEST') &&
+                <p className="text-sm text-amber-200">Modo de pruebas: no se realiza un cobro real.</p>}
+            {status === 'PAID_TEST' && <p className="text-sm text-amber-200">El pago de prueba fue aprobado. Esta reserva es de prueba.</p>}
+            {status === 'PENDING' && <>
+                <p className="text-sm text-gray-300">
+                    {checking ? 'Consultando la confirmación de Wompi…' : 'Tu reserva quedará confirmada cuando Wompi apruebe el pago.'}
+                </p>
+                {autoVerify && !checking && !error && <p className="text-sm text-amber-200">
+                    Aún no recibimos la confirmación. Si ya pagaste, espera unos momentos y verifica nuevamente.
+                </p>}
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <button disabled={loading} onClick={handlePayment}
+                        className="min-h-11 cursor-pointer rounded-lg bg-red-600 px-4 py-3 font-medium hover:bg-red-700 disabled:opacity-50">
+                        {loading ? 'Abriendo Wompi…' : 'Pagar con Wompi'}
                     </button>
-                    <button disabled={loading} onClick={() => handlePayment(false)}
-                        className="cursor-pointer rounded-md border border-white/30 px-3 py-2 disabled:opacity-50">
-                        Verificar pago
+                    <button disabled={loading || checking} onClick={() => { setError(''); setVerification(v => v + 1); }}
+                        className="min-h-11 cursor-pointer rounded-lg border border-white/30 px-4 py-3 hover:bg-white/10 disabled:opacity-50">
+                        {checking ? 'Verificando…' : 'Verificar pago'}
                     </button>
                 </div>
-            )}
-            {error && <p role="alert" className="text-sm text-amber-200">{error}</p>}
+            </>}
+            {error && <p role="alert" className="text-sm text-amber-200 break-words">{error}</p>}
         </div>
     );
 }
