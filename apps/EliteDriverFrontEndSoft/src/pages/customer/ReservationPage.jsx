@@ -1,26 +1,13 @@
 import React from 'react';
-import {useParams} from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useVehicle } from '../../hooks/useVehicles';
-import { useReservation }  from '../../hooks/useReservations'
 import VehicleFactDetail from '../../components/customer/VehicleFactDetail';
 import FacturationDetail from '../../components/customer/FacturationDetail';
 
 const ReservationPage = () => {
     const { vehicleId } = useParams();
+    const navigate = useNavigate();
     const { vehicle: selectedVehicle, loading, error } = useVehicle(vehicleId);
-    const {createReservation, isLoading: reservationLoading} = useReservation();
-    //funcion del hook
-    const handleReservation = async (reservationData) => {
-        const result = await createReservation(reservationData);
-        
-        if (result.success) {
-            alert('¡Reserva realizada con éxito!');
-            // Opcional: redirigir a página de confirmación
-            // navigate('/reservation-confirmation', { state: { reservation: result.data } });
-        } else {
-            alert(`Error: ${result.error}`);
-        }
-    };
 
     if (loading) {
         return (
@@ -52,20 +39,22 @@ const ReservationPage = () => {
     };
 
     return (
-        <div className="min-h-screen py-20 px-5 bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Reservar Vehículo</h1>
+        <div className="min-h-screen pt-24 pb-10 px-4 sm:px-5 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8">
+                <button onClick={() => navigate('/customer/vehicles')} className="min-h-11 text-sm text-gray-600 hover:text-gray-900 mb-4">
+                    ← Volver a vehículos
+                </button>
+                <div className="mb-6">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Reservar Vehículo</h1>
+                    <p className="text-sm text-gray-600 mt-1">Elige fechas, revisa el total con IVA y paga en 1 clic con Wompi.</p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                     {/* Detalles del Vehículo - Lado Izquierdo */}
                     <VehicleFactDetail vehicle={vehicleWithDecodedImages} />
                     {/* Formulario de Reserva - Lado Derecho */}
-                    <FacturationDetail 
-                        vehicle={vehicleWithDecodedImages} 
-                        onReservation={handleReservation}
-                        isLoading={reservationLoading}
+                    <FacturationDetail
+                        vehicle={vehicleWithDecodedImages}
                     />
                     
                 </div>

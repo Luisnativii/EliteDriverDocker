@@ -100,6 +100,11 @@ public class ReservationService {
                 .filter(r -> r.getPaymentStatus() != PaymentStatus.CANCELLED).toList();
     }
 
+    public List<Reservation> getReservationsForAvailability(Date startDate, Date endDate) {
+        return reservationRepository.findByStartDateBetween(startDate, endDate).stream()
+                .filter(r -> r.getPaymentStatus() != PaymentStatus.CANCELLED).toList();
+    }
+
     /*
         Obtiene una reserva por su ID.
         Si la reserva no existe, lanza una excepción.
@@ -129,8 +134,8 @@ public class ReservationService {
      */
     public List<Reservation> getReservationByUser(UUID user) {
         try {
-            return reservationRepository.findAll().stream()
-                    .filter(reservation -> reservation.getUser().getId().equals(user) && reservation.getPaymentStatus() != PaymentStatus.CANCELLED)
+            return reservationRepository.findByUser_Id(user).stream()
+                    .filter(reservation -> reservation.getPaymentStatus() != PaymentStatus.CANCELLED)
                     .toList();
         } catch (Exception e) {
             throw new RuntimeException("Error obteniendo reservas por usuario: " + e.getMessage(), e);
@@ -143,9 +148,7 @@ public class ReservationService {
      */
     public List<Reservation> getReservationByVehicle(UUID vehicle) {
         try {
-            return reservationRepository.findAll().stream()
-                    .filter(reservation -> reservation.getVehicle().getId().equals(vehicle))
-                    .toList();
+            return reservationRepository.findByVehicle_Id(vehicle);
         } catch (Exception e) {
             throw new RuntimeException("Error obteniendo reservas por vehículo: " + e.getMessage(), e);
         }

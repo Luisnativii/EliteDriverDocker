@@ -14,25 +14,6 @@ import java.util.UUID;
 
 public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
 
-    List<Vehicle> findByVehicleType(VehicleType vehicleType); // Cambiado de findByCarType
-
-    List<Vehicle> findByCapacity(int capacity);
-
-    @Query("""
-        SELECT v.id, v.brand, v.capacity, v.features, v.kilometers, v.kmForMaintenance, v.model, v.name, v.pricePerDay, v.status
-        FROM Vehicle v
-        WHERE v.status = :status
-          AND v.id NOT IN (
-            SELECT r.vehicle.id
-            FROM Reservation r
-            WHERE r.startDate <= :endDate
-              AND r.endDate   >= :startDate
-          )
-        """)
-    List<Vehicle> findAvailableBetween(
-            @Param("status")     VehicleStatus status,
-            @Param("startDate")  Date startDate,
-            @Param("endDate") Date endDate
-    );
+    List<Vehicle> findByVehicleType(VehicleType vehicleType);
 
 }

@@ -22,7 +22,7 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
     validateForm,
     setFormData,
     setErrors
-  } = useVehicleForm(vehicle, true); // true = modo edición
+  } = useVehicleForm(vehicle); // modo edición
 
   const [currentImage, setCurrentImage] = React.useState(0);
 

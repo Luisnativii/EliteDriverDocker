@@ -7,6 +7,12 @@ const DateForm = ({ variant = 'default', onSearch }) => {
   const fieldId = useId();
   const { startDate, endDate, setStartDate, setEndDate } = useDateContext();
 
+  // Fecha local yyyy-MM-dd (no UTC: en SV UTC-6 el ISO bloqueaba "hoy")
+  const todayLocal = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
   const handleSearch = () => {
     if (onSearch) {
       onSearch({ startDate, endDate });
@@ -111,7 +117,7 @@ const DateForm = ({ variant = 'default', onSearch }) => {
             type="date"
             value={startDate || ''}
             onChange={(e) => setStartDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
+            min={todayLocal()}
             onKeyDown={preventTyping}
             onPaste={(e) => e.preventDefault()}
             className={styles.input}
@@ -125,7 +131,7 @@ const DateForm = ({ variant = 'default', onSearch }) => {
             type="date"
             value={endDate || ''}
             onChange={(e) => setEndDate(e.target.value)}
-            min={startDate || new Date().toISOString().split('T')[0]}
+            min={startDate || todayLocal()}
             onKeyDown={preventTyping}
             onPaste={(e) => e.preventDefault()}
             className={styles.input}
@@ -155,7 +161,7 @@ const DateForm = ({ variant = 'default', onSearch }) => {
               type="date"
               value={startDate || ''}
               onChange={(e) => setStartDate(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
+              min={todayLocal()}
               onKeyDown={preventTyping}
               onPaste={(e) => e.preventDefault()}
               className={styles.input}
@@ -169,7 +175,7 @@ const DateForm = ({ variant = 'default', onSearch }) => {
               type="date"
               value={endDate || ''}
               onChange={(e) => setEndDate(e.target.value)}
-              min={startDate || new Date().toISOString().split('T')[0]}
+              min={startDate || todayLocal()}
               onKeyDown={preventTyping}
               onPaste={(e) => e.preventDefault()}
               className={styles.input}
@@ -177,7 +183,7 @@ const DateForm = ({ variant = 'default', onSearch }) => {
           </div>
         </div>
 
-        <button onClick={handleSearch} className={styles.button}>
+        <button onClick={handleSearch} className={`${styles.button} min-h-11`}>
           Buscar Vehículos
         </button>
       </div>

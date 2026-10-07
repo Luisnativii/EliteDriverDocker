@@ -22,14 +22,13 @@ const CreateVehicleForm = ({ onSubmit, onCancel, submitLoading = false }) => {
     validateForm,
     setFormData,
     setErrors
-  } = useVehicleForm({}, false); // false = modo creación
+  } = useVehicleForm({}); // modo creación
 
   // Tipos de vehículos disponibles para seleccionar en el formulario.
   const vehicleTypes = [
     'Sedan',
     'SUV',
     'PickUp',
-    'Microbus',
   ];
 
   const [currentImage, setCurrentImage] = React.useState(0);

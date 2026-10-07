@@ -49,16 +49,20 @@ public class SecurityConfig {
                         .requestMatchers("/health").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments/wompi/webhook").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/vehicles").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reservations").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reservations/date").permitAll()
+                        // Catálogo público + disponibilidad sin PII (nuevo endpoint)
+                        .requestMatchers(HttpMethod.GET, "/api/vehicles", "/api/vehicles/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reservations/availability").permitAll()
                         // Validación de token
                         .requestMatchers("/api/auth/validate").authenticated()
                         // Operaciones de administración sobre vehículos
                         .requestMatchers(HttpMethod.POST,   "/api/vehicles").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/vehicles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/vehicles/**").hasRole("ADMIN")
+                        // Listado global de reservas solo ADMIN (antes era público y filtraba DUI)
+                        .requestMatchers(HttpMethod.GET, "/api/reservations").hasRole("ADMIN")
                         // Cualquier otra petición requiere autenticación
+                        // (GET /api/reservations/{id}, /date, /user, /vehicle, /vehicleType ahora exigen JWT
+                        // + chequeo dueño/ADMIN en el controlador)
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -74,8 +78,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
+        // No usar "*" con allowCredentials=true: el navegador lo rechaza y amplía superficie XSS
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "wompi_hash"));
+        configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

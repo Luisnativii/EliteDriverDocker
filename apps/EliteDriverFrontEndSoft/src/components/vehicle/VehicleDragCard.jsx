@@ -12,8 +12,6 @@ const VehicleDragCard = ({
     e.stopPropagation();
     onViewHistory(vehicle);
   };
-  const latestRecord = vehicle.maintenanceRecords[0];
-
 
   return (
     <div
@@ -59,7 +57,6 @@ const VehicleDragCard = ({
         </div>
 
         {/* Información adicional del último mantenimiento */}
-        {/* Información adicional del último mantenimiento */}
         {vehicle.maintenanceRecords?.length > 0 && (
           <div className="mt-3 pt-2 border-t border-white/20">
             <div className="flex items-center justify-between">
@@ -78,15 +75,6 @@ const VehicleDragCard = ({
 
       </div>
 
-      {vehicle.image && (
-        <div className="mt-3 rounded-lg overflow-hidden">
-          <img
-            src={vehicle.image}
-            alt={vehicle.name}
-            className="w-full h-24 object-cover"
-          />
-        </div>
-      )}
     </div>
   );
 };

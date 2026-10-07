@@ -30,6 +30,16 @@ public class JwtService {
     @Value("${jwt.exptime:86400000}") // por defecto 24h en ms
     private long expirationMs;
 
+    @jakarta.annotation.PostConstruct
+    void validateSecret() {
+        if (secret == null || secret.isBlank()
+                || secret.contains("change-me")
+                || secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException(
+                "JWT_SECRET débil o por defecto. Define un secreto aleatorio de al menos 32 caracteres.");
+        }
+    }
+
     /*
         Genera un token JWT para el email proporcionado.
      */

@@ -59,10 +59,21 @@ class ReservationService {
     }
 
 
-    //peticion de rango de fechas
+    // Backend espera dd-MM-yyyy, frontend usa yyyy-MM-dd (input date). Conversión centralizada.
+    static toBackendDate(isoDate) {
+        if (!isoDate) return '';
+        const s = String(isoDate).slice(0, 10);
+        const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+        return s;
+    }
+
+    //peticion de rango de fechas (requiere login tras parche seguridad; ADMIN ve PII, CUSTOMER ve ocupación sin usuario)
     static async getReservationsByDateRange(startDate, endDate) {
         const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-        const url = `${API_BASE_URL}/reservations/date?startDate=${startDate}&endDate=${endDate}`;
+        const s = this.toBackendDate(startDate);
+        const e = this.toBackendDate(endDate);
+        const url = `${API_BASE_URL}/reservations/date?startDate=${encodeURIComponent(s)}&endDate=${encodeURIComponent(e)}`;
         const response = await fetch(url,
             {
                 headers: {
@@ -80,6 +91,20 @@ class ReservationService {
         const text = await response.text();
         const data = text ? JSON.parse(text) : [];
         return data;
+    }
+
+    // Disponibilidad pública SIN PII (nuevo endpoint tras parche C1/C2). Usar en páginas públicas.
+    static async getAvailability(startDate, endDate) {
+        const s = this.toBackendDate(startDate);
+        const e = this.toBackendDate(endDate);
+        const url = `${API_BASE_URL}/reservations/availability?startDate=${encodeURIComponent(s)}&endDate=${encodeURIComponent(e)}`;
+        const response = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Error al obtener disponibilidad');
+        }
+        const text = await response.text();
+        return text ? JSON.parse(text) : [];
     }
 
     // Validar datos de reserva
@@ -121,19 +146,21 @@ class ReservationService {
         };
     }
 
-    // Calcular precio total
+    // Calcular precio total — base + IVA 13% (igual que backend ReservationPricing)
+    static IVA_RATE = 0.13;
     static calculateTotalPrice(startDate, endDate, pricePerDay) {
-        if (!startDate || !endDate || !pricePerDay) return { days: 0, totalPrice: 0 };
+        if (!startDate || !endDate || !pricePerDay) return { days: 0, subtotal: 0, iva: 0, totalPrice: 0 };
 
         const start = new Date(startDate);
         const end = new Date(endDate);
         const diffTime = end - start;
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        return {
-            days: diffDays > 0 ? diffDays : 0,
-            totalPrice: diffDays > 0 ? Math.round((diffDays * pricePerDay + Number.EPSILON) * 100) / 100 : 0
-        };
+        if (diffDays <= 0) return { days: 0, subtotal: 0, iva: 0, totalPrice: 0 };
+        const subtotal = Math.round((diffDays * pricePerDay + Number.EPSILON) * 100) / 100;
+        const iva = Math.round((subtotal * this.IVA_RATE + Number.EPSILON) * 100) / 100;
+        const totalPrice = Math.round((subtotal + iva + Number.EPSILON) * 100) / 100;
+        return { days: diffDays, subtotal, iva, totalPrice };
     }
 
     //obtener las reservaciones del usuario
@@ -158,82 +185,6 @@ class ReservationService {
         const text = await response.text();
         const data = text ? JSON.parse(text) : [];
         return { success: true, data };
-    }
-
-    // Función para obtener reservaciones activas de hoy
-    static async getTodayReservations() {
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-
-        try {
-            const reservations = await this.getReservationsByDateRange(todayStr, todayStr);
-            return reservations.filter(reservation => {
-                // Filtrar solo las reservaciones que están activas hoy
-                const startDate = new Date(reservation.startDate);
-                const endDate = new Date(reservation.endDate);
-                const currentDate = new Date();
-
-                // Normalizar las fechas para comparación (solo fecha, sin hora)
-                startDate.setHours(0, 0, 0, 0);
-                endDate.setHours(23, 59, 59, 999);
-                currentDate.setHours(0, 0, 0, 0);
-
-                return currentDate >= startDate && currentDate <= endDate;
-            });
-        } catch {
-            // console.error('Error al obtener reservaciones de hoy:', error);
-            return [];
-        }
-    }
-
-    // Función para verificar si un vehículo está reservado hoy
-    static async isVehicleReservedToday(vehicleId) {
-        try {
-            const todayReservations = await this.getTodayReservations();
-            return todayReservations.some(reservation =>
-                reservation.vehicle?.id === vehicleId ||
-                reservation.vehicleId === vehicleId ||
-                reservation.vehicle_id === vehicleId
-            );
-        } catch {
-            // console.error('Error al verificar reservación del vehículo:', error);
-            return false;
-        }
-    }
-
-    // Función para obtener todos los IDs de vehículos reservados hoy
-    static async getReservedVehicleIdsToday() {
-        try {
-            const todayReservations = await this.getTodayReservations();
-            return todayReservations
-                .map(reservation => reservation.vehicle?.id ||
-                    reservation.vehicleId ||
-                    reservation.vehicle_id)
-                .filter(Boolean); // Filtrar valores null/undefined
-        } catch {
-            // console.error('Error al obtener IDs de vehículos reservados:', error);
-            return [];
-        }
-    }
-
-    static async getReservedVehicleIdsInRange(startDate, endDate) {
-        try {
-            const activeReservations = await this.getActiveReservationsInRange(startDate, endDate);
-            const reservedIds = activeReservations
-                .map(reservation => {
-                    const vehicleId = reservation.vehicle?.id;
-                    return vehicleId;
-                })
-                .filter(Boolean);
-
-            // Eliminar duplicados si un vehículo tiene múltiples reservaciones
-            const uniqueReservedIds = [...new Set(reservedIds)];
-
-            return uniqueReservedIds;
-        } catch {
-            //console.error('❌ Error al obtener vehículos reservados en el rango:', error);
-            return [];
-        }
     }
 
     static async getAllReservations() {

@@ -36,16 +36,41 @@ public class AuthService {
         Registra un nuevo usuario en el sistema.
      */
     public String register(RegisterRequest request) {
+        // Verificar confirmación de contraseña (antes se ignoraba)
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("Las contraseñas no coinciden");
+        }
+        // Fortaleza mínima: backend no confiaba en frontend (solo pedía 6)
+        if (request.getPassword().length() < 10
+                || !request.getPassword().matches(".*[A-Za-z].*")
+                || !request.getPassword().matches(".*\\d.*")) {
+            throw new IllegalArgumentException("La contraseña debe tener al menos 10 caracteres, una letra y un número");
+        }
+        // Normalizar email para evitar duplicados por mayúsculas/espacios
+        String email = request.getEmail().trim().toLowerCase();
         // Verificar si el usuario ya existe
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(email).isPresent()) {
             throw new EntityExistsException("El email ya está registrado");
+        }
+        if (userRepository.existsByDui(request.getDui())) {
+            throw new EntityExistsException("El DUI ya está registrado");
+        }
+        // Validar fecha real y edad mínima 18 años (regla de negocio)
+        LocalDate birth;
+        try {
+            birth = LocalDate.parse(request.getBirthDate());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Fecha de nacimiento inválida");
+        }
+        if (birth.isAfter(LocalDate.now().minusYears(18))) {
+            throw new IllegalArgumentException("Debes tener al menos 18 años para registrarte");
         }
 
         // Crear nuevo usuario
         User user = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
+                .firstName(request.getFirstName().trim())
+                .lastName(request.getLastName().trim())
+                .email(email)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .birthDate(request.getBirthDate())
                 .dui(request.getDui())
@@ -62,31 +87,36 @@ public class AuthService {
         Si las credenciales son inválidas, lanza una excepción.
      */
     public AuthResponse login(AuthRequest request) {
-        log.info("Buscando usuario con email: {}", request.getEmail());
+        String email = request.getEmail() == null ? "" : request.getEmail().trim().toLowerCase();
 
         // Buscar usuario por email
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    log.warn("Usuario no encontrado: {}", request.getEmail());
                     return new EntityNotFoundException("Credenciales inválidas");
                 });
-
-        log.info("Usuario encontrado: {}", user.getEmail());
 
         // Verificar contraseña usando AuthenticationManager
         try {
             var auth = new UsernamePasswordAuthenticationToken(
-                    request.getEmail(), request.getPassword()
+                    email, request.getPassword()
             );
             authManager.authenticate(auth);
         } catch (Exception e) {
-            log.warn("Contraseña incorrecta para: {}", request.getEmail());
             throw new EntityNotFoundException("Credenciales inválidas");
         }
 
         // Generar token JWT
         String token = jwtService.generateToken(user.getEmail());
-        log.info("Token generado para: {}", user.getEmail());
+
+        // Crear respuesta: birthDate puede venir nulo/malformado en datos viejos o futuros logins Google
+        LocalDate birth = null;
+        try {
+            if (user.getBirthDate() != null && !user.getBirthDate().isBlank()) {
+                birth = LocalDate.parse(user.getBirthDate());
+            }
+        } catch (Exception ignored) {
+            birth = null;
+        }
 
         // Crear respuesta con UUID convertido a String si es necesario
         UserResponse userResponse = UserResponse.builder()
@@ -97,7 +127,7 @@ public class AuthService {
                 .role(user.getRole())
                 .phoneNumber(user.getPhoneNumber())
                 .dui(user.getDui())
-                .birthDate(LocalDate.parse(user.getBirthDate()))
+                .birthDate(birth)
                 .build();
 
         return AuthResponse.builder()

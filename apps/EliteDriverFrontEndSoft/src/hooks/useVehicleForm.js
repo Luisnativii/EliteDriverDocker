@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 
-export const useVehicleForm = (initialData = {}, isEditMode = false) => {
+export const useVehicleForm = (initialData = {}) => {
 
   const getInitialFormData = () => ({
     // Datos básicos
@@ -107,46 +107,12 @@ export const useVehicleForm = (initialData = {}, isEditMode = false) => {
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
-  // --------------------------------------------
-  // RESET FORM
-  // --------------------------------------------
-  const resetForm = useCallback(() => {
-    setFormData(getInitialFormData());
-    setErrors({});
-  }, []);
-
-  // --------------------------------------------
-  // CREACIÓN DE PAYLOAD LISTO PARA BACKEND
-  // --------------------------------------------
-  const getSubmissionData = useCallback(() => {
-    return {
-      name: formData.name.trim(),
-      brand: formData.brand.trim(),
-      model: formData.model.trim(),
-      vehicleType: formData.vehicleType,
-      capacity: parseInt(formData.capacity),
-      pricePerDay: parseFloat(formData.pricePerDay),
-      kilometers: parseInt(formData.kilometers),
-      kmForMaintenance: parseInt(formData.kmForMaintenance),
-      insurancePhone: formData.insurancePhone.trim(),
-      features: formData.featuresText
-        .split(",")
-        .map((f) => f.trim())
-        .filter((f) => f !== ""),
-
-      mainImageUrl: formData.mainImageUrl.trim(),
-      listImageUrls: formData.listImageUrls,
-    };
-  }, [formData]);
-
   return {
     formData,
     errors,
     handleChange,
     validateForm,
-    resetForm,
     setFormData,
     setErrors,
-    getSubmissionData,
   };
 };

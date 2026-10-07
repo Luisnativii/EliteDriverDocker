@@ -18,7 +18,6 @@ import java.util.Map;
     * Proporciona endpoints para el registro, inicio de sesión y validación de tokens.
  */
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"})
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

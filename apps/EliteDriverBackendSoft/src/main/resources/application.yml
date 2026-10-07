@@ -30,13 +30,14 @@ spring:
 
 logging:
   level:
-#    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    com.example.elitedriverbackend.services.VehicleService: DEBUG
+    root: INFO
+    com.example.elitedriverbackend: WARN
+    org.springframework.security: WARN
+    # No activar TRACE de BasicBinder en prod: vuelca DUI/teléfono/email en logs
 
 jwt:
   secret: ${JWT_SECRET:change-me-use-a-long-random-secret}
-  exptime: ${JWT_EXPTIME:1296000000}
+  exptime: ${JWT_EXPTIME:28800000}
 
 app:
   bootstrap-admin:

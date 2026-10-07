@@ -1,9 +1,11 @@
 package com.example.elitedriverbackend.controller;
 
 import com.example.elitedriverbackend.domain.dtos.CreateReservationDTO;
+import com.example.elitedriverbackend.domain.dtos.ReservationAvailabilityDTO;
 import com.example.elitedriverbackend.domain.dtos.ReservationResponseDTO;
 import com.example.elitedriverbackend.domain.entity.Reservation;
 import com.example.elitedriverbackend.domain.entity.PaymentStatus;
+import com.example.elitedriverbackend.repositories.UserRepository;
 import com.example.elitedriverbackend.services.ReservationService;
 import com.example.elitedriverbackend.services.PaymentService;
 import com.example.elitedriverbackend.services.ReservationPricing;
@@ -36,6 +38,22 @@ public class ReservationController {
 
     private final ReservationService reservationService;
     private final PaymentService paymentService;
+    private final UserRepository userRepository;
+
+    private static boolean isAdmin(Authentication authentication) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    private static void requireOwnerOrAdmin(Reservation reservation, Authentication authentication) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No autorizado.");
+        }
+        if (isAdmin(authentication)) return;
+        if (reservation.getUser() != null && reservation.getUser().getEmail() != null
+                && reservation.getUser().getEmail().equalsIgnoreCase(authentication.getName())) return;
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes ver esta reserva.");
+    }
 
     /*
         Endpoint para crear una nueva reserva.
@@ -54,10 +72,11 @@ public class ReservationController {
         Devuelve la reserva correspondiente si existe.
         Si no existe, lanza una excepción.
      */
-    @GetMapping("{id}")
-    public ResponseEntity<ReservationResponseDTO> getReservation(@PathVariable String id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ReservationResponseDTO> getReservation(@PathVariable String id, Authentication authentication) {
         UUID uuid = parseUUID(id);
         Reservation reservation = reservationService.getReservationById(uuid);
+        requireOwnerOrAdmin(reservation, authentication);
         return ResponseEntity.ok(convertToDTO(reservation));
 
     }
@@ -133,11 +152,44 @@ public class ReservationController {
         Endpoint para obtener reservas dentro de un rango de fechas.
         Recibe las fechas de inicio y fin como parámetros y devuelve una lista de DTOs con los detalles de las reservas en ese rango.
      */
+    /*
+        Vista pública de disponibilidad: SIN PII (sin usuario/DUI/email).
+        La página pública /customer/vehicles debe migrar a este endpoint.
+        GET /api/reservations/availability?startDate=dd-MM-yyyy&endDate=dd-MM-yyyy
+     */
+    @GetMapping("/availability")
+    public ResponseEntity<List<ReservationAvailabilityDTO>> getAvailability(
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        dateFormat.setLenient(false);
+        Date startDate = dateFormat.parse(startDateStr);
+        Date endDate = dateFormat.parse(endDateStr);
+        if (startDate.after(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de inicio no puede ser posterior a la fecha de fin");
+        }
+        List<Reservation> reservations = reservationService.getReservationsForAvailability(startDate, endDate);
+        List<ReservationAvailabilityDTO> dtos = reservations.stream()
+                .map(r -> ReservationAvailabilityDTO.builder()
+                        .vehicleId(String.valueOf(r.getVehicle().getId()))
+                        .startDate(r.getStartDate())
+                        .endDate(r.getEndDate())
+                        .status(r.getPaymentStatus() == null ? PaymentStatus.PENDING.name() : r.getPaymentStatus().name())
+                        .build())
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
+    /*
+        Rango con detalle: requiere login. ADMIN ve PII, CUSTOMER solo ve ocupación sin usuario.
+     */
     @GetMapping("/date")
-    public ResponseEntity<List<ReservationResponseDTO>> getReservationByRange(@RequestParam("startDate") String startDateStr,
-                                                                    @RequestParam("endDate") String endDateStr) throws ParseException {
+    public ResponseEntity<?> getReservationByRange(@RequestParam("startDate") String startDateStr,
+                                                                    @RequestParam("endDate") String endDateStr,
+                                                                    Authentication authentication) throws ParseException {
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            dateFormat.setLenient(false);
             Date startDate = dateFormat.parse(startDateStr);
             Date endDate = dateFormat.parse(endDateStr);
 
@@ -145,21 +197,38 @@ public class ReservationController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de inicio no puede ser posterior a la fecha de fin");
             }
             List<Reservation> reservations = reservationService.getReservationByRange(startDate, endDate);
-            List<ReservationResponseDTO> dtos = reservations.stream()
-                    .map(this::convertToDTO)
+            if (isAdmin(authentication)) {
+                List<ReservationResponseDTO> dtos = reservations.stream()
+                        .map(this::convertToDTO)
+                        .collect(Collectors.toList());
+                return ResponseEntity.ok(dtos);
+            }
+            // No-admin: misma ocupación pero sin PII
+            List<ReservationAvailabilityDTO> pub = reservations.stream()
+                    .map(r -> ReservationAvailabilityDTO.builder()
+                            .vehicleId(String.valueOf(r.getVehicle().getId()))
+                            .startDate(r.getStartDate())
+                            .endDate(r.getEndDate())
+                            .status(r.getPaymentStatus() == null ? PaymentStatus.PENDING.name() : r.getPaymentStatus().name())
+                            .build())
                     .collect(Collectors.toList());
-
-            return ResponseEntity.ok(dtos);
+            return ResponseEntity.ok(pub);
 
     }
 
     /*
         Endpoint para obtener reservas por ID de usuario.
-        Recibe el ID del usuario como parámetro y devuelve una lista de DTOs con los detalles de las reservas de ese usuario.
+        Solo el dueño o ADMIN. Se resuelve el dueño por email del token, no solo por userId.
      */
     @GetMapping("/user")
-    public ResponseEntity<List<ReservationResponseDTO>> getReservationByUser(@RequestParam("userId") String userId) {
+    public ResponseEntity<List<ReservationResponseDTO>> getReservationByUser(@RequestParam("userId") String userId, Authentication authentication) {
             UUID uuid = parseUUID(userId);
+            if (!isAdmin(authentication)) {
+                var me = userRepository.findByEmail(authentication.getName()).orElse(null);
+                if (me == null || !me.getId().equals(uuid)) {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes ver reservas de otro usuario.");
+                }
+            }
 
             List<Reservation> reservations = reservationService.getReservationByUser(uuid);
 
@@ -173,16 +242,22 @@ public class ReservationController {
 
 
     @GetMapping("/vehicle")
-    public ResponseEntity<List<Reservation>> getReservationByVehicle(@RequestParam("vehicleId") String vehicleId) {
+    public ResponseEntity<List<ReservationResponseDTO>> getReservationByVehicle(@RequestParam("vehicleId") String vehicleId, Authentication authentication) {
+            if (!isAdmin(authentication)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo administradores.");
+            }
             UUID uuid = parseUUID(vehicleId);
             List<Reservation> reservations = reservationService.getReservationByVehicle(uuid);
-            return ResponseEntity.ok(reservations);
+            return ResponseEntity.ok(reservations.stream().map(this::convertToDTO).collect(Collectors.toList()));
     }
 
     @GetMapping("/vehicleType")
-    public ResponseEntity<List<Reservation>> getReservationByVehicleType(@RequestParam("vehicleType") String vehicleType) {
+    public ResponseEntity<List<ReservationResponseDTO>> getReservationByVehicleType(@RequestParam("vehicleType") String vehicleType, Authentication authentication) {
+            if (!isAdmin(authentication)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo administradores.");
+            }
             List<Reservation> reservations = reservationService.getReservationByVehicleType(vehicleType);
-            return ResponseEntity.ok(reservations);
+            return ResponseEntity.ok(reservations.stream().map(this::convertToDTO).collect(Collectors.toList()));
     }
 
     @DeleteMapping("/{id}")

@@ -85,12 +85,10 @@ const VehicleTypeDetailPage = () => {
     };
 
     const handleViewVehicles = () => {
-        navigate('/customer/vehicles');
+        // Pasar el tipo para pre-filtrar VehiclesPage (mapeo pickup->PickUp, sedan->Sedan, suv->SUV)
+        const map = { sedan: 'Sedan', suv: 'SUV', pickup: 'PickUp' };
+        navigate('/customer/vehicles', { state: { type: map[vehicleType] || 'all' } });
     };
-
-    const handleReserve = () => {
-        navigate('/customer/reservation-page');
-    }
 
     if (!vehicleData) {
         return (
@@ -100,7 +98,7 @@ const VehicleTypeDetailPage = () => {
         );
     }
     return (
-        <div className="min-h-screen bg-neutral-100 font-montserrat">
+        <div className="min-h-screen bg-neutral-100 font-montserrat pb-24 md:pb-0">
             {/* Header Section */}
             <VehicleHeader vehicleData={vehicleData} onBack={handleBackToHome} />
             {/* Specifications Section */}
@@ -109,8 +107,18 @@ const VehicleTypeDetailPage = () => {
             <CTASection
                 title={vehicleData.title}
                 onViewVehicles={handleViewVehicles}
-                onReserve={handleReserve}
+                onBack={handleBackToHome}
             />
+
+            {/* Sticky CTA móvil: siempre visible, 44px+ */}
+            <div className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-neutral-900/95 backdrop-blur border-t border-white/10 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                <button
+                    onClick={handleViewVehicles}
+                    className="w-full min-h-11 py-3 rounded-full font-semibold bg-white text-neutral-900 active:bg-neutral-200 cursor-pointer"
+                >
+                    Ver {vehicleData.title}s disponibles
+                </button>
+            </div>
 
         </div>
     );

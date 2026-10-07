@@ -242,7 +242,13 @@ public class PaymentService {
     private static void validateUrl(String value) {
         try {
             URI uri = URI.create(value);
-            if (uri.getHost() != null && ("https".equalsIgnoreCase(uri.getScheme()) || "http".equalsIgnoreCase(uri.getScheme()))) return;
+            String scheme = uri.getScheme();
+            String host = uri.getHost();
+            if (host == null) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Una URL de Wompi no es válida. Revisa la configuración del servidor.");
+            // En prod solo https. http solo para localhost/dev.
+            boolean local = host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1");
+            if ("https".equalsIgnoreCase(scheme)) return;
+            if (local && "http".equalsIgnoreCase(scheme)) return;
         } catch (IllegalArgumentException ignored) { }
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Una URL de Wompi no es válida. Revisa la configuración del servidor.");
     }

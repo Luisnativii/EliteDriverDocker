@@ -28,10 +28,10 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.valueOf(ex.getStatusCode().value()), ex.getReason());
     }
 
-    // 🔒 Error: correo no registrado
+    // 🔒 Error: correo no registrado — mensaje genérico para no enumerar usuarios
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUsernameNotFound(UsernameNotFoundException ex) {
-        return buildError(HttpStatus.NOT_FOUND, "El correo ingresado no está registrado.");
+        return buildError(HttpStatus.UNAUTHORIZED, "Credenciales inválidas.");
     }
 
     // 🔐 Error: contraseña incorrecta
@@ -69,11 +69,10 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    // 💥 Fallback: errores no controlados
+    // 💥 Fallback: errores no controlados — nunca exponer ex.getMessage() (fuga SQL/stack)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
-        ex.printStackTrace(); // para que lo veas en consola
-        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado." + ex.getMessage());
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado.");
     }
 
     @ExceptionHandler(ParseException.class)

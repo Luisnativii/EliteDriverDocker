@@ -16,7 +16,7 @@ import java.util.List;
 /*
     Clase de configuración para inicializar datos en la base de datos al iniciar la aplicación.
     - Crea un usuario ADMIN si no existe.
-    - Si no existen, crea tipos de vehículo: PickUp, Sedan, SUV, Microbus.
+    - Si no existen, crea tipos de vehículo: PickUp, Sedan, SUV.
  */
 @Configuration
 @RequiredArgsConstructor
@@ -59,10 +59,10 @@ public class DataInitializer {
                 });
             }
 
-            // 2) Sembrar VehicleType: PickUp, Sedan, SUV, Microbus
+            // 2) Sembrar VehicleType: PickUp, Sedan, SUV (sin Microbus por decisión de negocio)
 
             // Verificamos si ya existen los tipos de vehículo
-            List<String> tipos = List.of("PickUp", "Sedan", "SUV", "Microbus");
+            List<String> tipos = List.of("PickUp", "Sedan", "SUV");
             tipos.forEach(tipoNombre ->
                     vehicleTypeRepository.findByType(tipoNombre).ifPresentOrElse(vt -> {
                         System.out.println("✅ VehicleType '" + tipoNombre + "' ya existe");

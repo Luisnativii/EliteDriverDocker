@@ -21,6 +21,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     Optional<Reservation> findForPayment(@Param("id") UUID id);
     List<Reservation> findByStartDateBetween(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
     List<Reservation> findByVehicle_VehicleType(VehicleType vehicleType);
+    List<Reservation> findByUser_Id(UUID userId);
+    List<Reservation> findByVehicle_Id(UUID vehicleId);
     @Query("SELECT r FROM Reservation r WHERE r.vehicle.id = :vehicleId AND " +
             "(r.paymentStatus IS NULL OR r.paymentStatus <> com.example.elitedriverbackend.domain.entity.PaymentStatus.CANCELLED) AND " +
             "(:startDate <= r.endDate AND :endDate >= r.startDate)")

@@ -14,9 +14,8 @@ const vehicleApi = axios.create({
 // Interceptor para requests - agregar token si existe
 vehicleApi.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem('authToken') ||
-      localStorage.getItem('authToken') ||
-      window.authToken;
+    const token = localStorage.getItem('authToken') ||
+      sessionStorage.getItem('authToken');
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -423,29 +422,4 @@ export const isAuthenticated = () => {
 export const hasAdminRole = () => {
   const user = getCurrentUser();
   return user && (user.role === 'ADMIN' || user.roles?.includes('ADMIN'));
-};
-
-export const getStatusLabel = (status) => {
-  const statusLabels = {
-    'reserved': 'Reservado',
-    'underMaintenance': 'En Mantenimiento',
-    'maintenanceRequired': 'Requiere Mantenimiento',
-    'maintenanceCompleted': 'Disponible',
-    'outOfService': 'Fuera de Servicio'
-  };
-
-  return statusLabels[status] || 'Estado Desconocido';
-};
-
-// Agregar función para obtener el color del estado
-export const getStatusColor = (status) => {
-  const statusColors = {
-    'reserved': 'text-green-400 bg-green-500/20',
-    'underMaintenance': 'text-orange-400 bg-orange-500/20',
-    'maintenanceRequired': 'text-yellow-400 bg-yellow-500/20',
-    'maintenanceCompleted': 'text-emerald-400 bg-emerald-500/20',
-    'outOfService': 'text-red-400 bg-red-500/20'
-  };
-
-  return statusColors[status] || 'text-gray-400 bg-gray-500/20';
 };
