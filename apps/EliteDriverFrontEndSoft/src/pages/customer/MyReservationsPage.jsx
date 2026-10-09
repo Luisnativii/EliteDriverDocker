@@ -48,7 +48,7 @@ export default function MyReservationPage() {
     };
 
     return (
-        <div className="pt-25 pb-10 px-4 sm:px-6 lg:px-8 text-white max-w-7xl mx-auto">
+        <div className="pt-24 pb-10 px-4 sm:px-6 lg:px-8 text-white max-w-7xl mx-auto">
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">Mis reservas</h1>
             <p className="text-gray-300 mb-6">Consulta tus fechas y el estado de tu pago.</p>
             {isLoading ? <p role="status">Cargando reservas…</p> : error ? (

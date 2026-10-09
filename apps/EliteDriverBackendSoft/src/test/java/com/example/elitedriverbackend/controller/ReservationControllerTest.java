@@ -1,6 +1,7 @@
 package com.example.elitedriverbackend.controller;
 
 import com.example.elitedriverbackend.domain.entity.*;
+import com.example.elitedriverbackend.repositories.UserRepository;
 import com.example.elitedriverbackend.services.PaymentService;
 import com.example.elitedriverbackend.services.ReservationService;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,7 +24,7 @@ class ReservationControllerTest {
     @NullSource
     void reservationApiOnlyConfirmsRealApprovedPayments(PaymentStatus payment) throws Exception {
         var reservations = mock(ReservationService.class);
-        var controller = new ReservationController(reservations, mock(PaymentService.class));
+        var controller = new ReservationController(reservations, mock(PaymentService.class), mock(UserRepository.class));
         var reservation = Reservation.builder().id(UUID.randomUUID())
                 .startDate(Date.valueOf("2026-10-01")).endDate(Date.valueOf("2026-10-04"))
                 .totalPrice(new BigDecimal("59.97")).paymentStatus(payment)
