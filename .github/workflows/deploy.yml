@@ -135,10 +135,23 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
+      - name: Normalize SSH host
+        id: normalize-ssh-host
+        run: |
+          raw_host="${{ secrets.SSH_HOST }}"
+          host="${raw_host#*://}"
+          host="${host%%/*}"
+          host="$(echo "$host" | xargs)"
+          if [ -z "$host" ]; then
+            echo "SSH_HOST is empty after normalization" >&2
+            exit 1
+          fi
+          echo "host=$host" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.SSH_HOST }}
+          host: ${{ steps.normalize-ssh-host.outputs.host }}
           username: ${{ secrets.SSH_USERNAME }}
           key_path: /tmp/deploy_key
           port: ${{ secrets.SSH_PORT }}
