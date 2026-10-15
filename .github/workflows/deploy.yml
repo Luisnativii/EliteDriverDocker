@@ -1,4 +1,10 @@
-name: CI/CD - Auto Deploy
+name: CI/CD - Pruebas y release
+
+# Nota sobre el despliegue:
+# Este workflow NO despliega al homelab. Los runners de GitHub corren en la nube
+# y no tienen ruta hacia una red local de casa, así que un push por SSH a
+# homelab.local nunca iba a funcionar (y fallaba en cada ejecución).
+# El despliegue se hace con `scripts/deploy.sh`, que corre desde tu equipo.
 
 on:
   push:
@@ -56,6 +62,9 @@ jobs:
 
   build-and-push:
     name: Build & Push Images
+    # Solo en tags: cada push a main dispara las pruebas, que es lo que
+    # interesa ver rápido. Las imágenes se publican al liberar una versión.
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest
     permissions:
@@ -115,6 +124,7 @@ jobs:
           push: true
           build-args: |
             VITE_API_BASE_URL=/api
+            VITE_APP_VERSION=${{ github.ref_name }}
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
           cache-from: type=gha,scope=frontend
@@ -125,40 +135,24 @@ jobs:
           echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
           echo "Deployed version: ${{ github.ref_name }}"
 
-  deploy:
-    name: Deploy to Production
-    needs: build-and-push
+  resumen:
+    name: Como desplegar
+    needs: [test-backend, test-frontend]
+    if: always() && needs.test-backend.result == 'success' && needs.test-frontend.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - name: Normalize SSH host
-        id: normalize-ssh-host
+      - name: Instrucciones de despliegue
         run: |
-          raw_host="${{ secrets.SSH_HOST }}"
-          host="${raw_host#*://}"
-          host="${host%%/*}"
-          host="$(echo "$host" | xargs)"
-          if [ -z "$host" ]; then
-            echo "SSH_HOST is empty after normalization" >&2
-            exit 1
-          fi
-          echo "host=$host" >> "$GITHUB_OUTPUT"
-
-      - name: Deploy to server via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ steps.normalize-ssh-host.outputs.host }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd /home/serverln/proyectos/EliteDriverDocker
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ${{ env.BACKEND_IMAGE }}:latest
-            docker pull ${{ env.FRONTEND_IMAGE }}:latest
-            docker tag ${{ env.BACKEND_IMAGE }}:latest elitedriver-backend:local
-            docker tag ${{ env.FRONTEND_IMAGE }}:latest elitedriver-frontend:local
-            docker compose up -d
-            docker image prune -f
-            echo "Deploy completado - $(date)"
-            echo "Versión: ${{ github.ref_name }}"
-            docker compose ps
+          echo "### Pruebas correctas." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "El despliegue al homelab **no** lo hace este workflow." >> $GITHUB_STEP_SUMMARY
+          echo "Los runners de GitHub estan en la nube y no llegan a una red local de casa," >> $GITHUB_STEP_SUMMARY
+          echo "por eso el deploy por SSH a \\`homelab.local\\` no puede funcionar." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Para publicar en el servidor, desde tu equipo:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "./scripts/deploy.sh ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Verifica despues en el panel de administracion, en la esquina inferior" >> $GITHUB_STEP_SUMMARY
+          echo "izquierda aparece la version desplegada." >> $GITHUB_STEP_SUMMARY

@@ -104,6 +104,17 @@ git push origin main --follow-tags
 antes de construir para que frontend y backend coincidan, y verifica el bundle y
 `/health` al terminar. Si pasas un tag que no corresponde a `HEAD`, se detiene.
 
+### Por qué el despliegue no ocurre en GitHub Actions
+
+El workflow `CI/CD` corre **las pruebas** en cada push a `main` y **publica las
+imágenes** al liberar un tag. No despliega al homelab, y es a propósito: los
+runners de GitHub se ejecutan en la nube y no tienen ruta hacia una red local de
+casa, así que un `ssh homelab.local` desde allí no puede funcionar.
+
+Publicar en el servidor se hace desde tu equipo con el comando de arriba. Si se
+quiere automatizar de verdad, la vía es un runner instalado en el homelab, no
+exponer SSH a internet.
+
 ### Ver qué versión está en el servidor
 
 Con la sesión de administrador abierta, el panel muestra la versión en la
