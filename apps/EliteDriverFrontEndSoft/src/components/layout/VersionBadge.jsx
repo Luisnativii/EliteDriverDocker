@@ -40,11 +40,14 @@ const VersionBadge = () => {
   const stale = backend.startsWith('sin /api') || (backend !== '...' && backend !== build);
 
   return (
-    <div className="fixed bottom-3 left-3 z-50 font-mono text-[11px] select-none">
+    // Abajo a la derecha: la esquina inferior izquierda la ocupa el bloque de
+    // usuario y "Cerrar sesión" del sidebar.
+    <div className="fixed bottom-3 right-3 z-50 font-mono text-[11px] select-none">
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
         aria-label="Versión desplegada"
+        aria-expanded={open}
         className={`flex items-center gap-1.5 px-2 py-1 rounded-md border backdrop-blur-sm transition-colors ${
           stale
             ? 'bg-amber-500/20 border-amber-400/60 text-amber-200'
@@ -59,7 +62,8 @@ const VersionBadge = () => {
       </button>
 
       {open && (
-        <div className="mt-1 p-2 rounded-md bg-neutral-900/95 border border-white/15 text-white/80 space-y-0.5 shadow-lg">
+        // Se abre hacia arriba para no salirse de la pantalla.
+        <div className="absolute bottom-full right-0 mb-1 p-2 rounded-md bg-neutral-900/95 border border-white/15 text-white/80 space-y-0.5 shadow-lg">
           <div>frontend: {build}</div>
           <div>backend:&nbsp; {backend}</div>
           {stale && <div className="text-amber-300 pt-0.5">revisa el despliegue</div>}
