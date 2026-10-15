@@ -1,0 +1,72 @@
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { API_BASE_URL } from '../../config/apiConfig';
+
+/**
+ * Muestra en una esquina del panel de administración qué versión está desplegada.
+ *
+ * Compara la versión compilada en el frontend con la que responde el backend.
+ * Si difieren (o el backend todavía no expone el endpoint), significa que una
+ * de las dos imágenes quedó desactualizada en el servidor.
+ *
+ * Solo se renderiza para administradores.
+ */
+const VersionBadge = () => {
+  const { user } = useAuth();
+  const build = import.meta.env.VITE_APP_VERSION || 'desconocida';
+  const [backend, setBackend] = useState('...');
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const token = localStorage.getItem('authToken');
+
+    const controller = new AbortController();
+    fetch(`${API_BASE_URL}/version`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      signal: controller.signal,
+      cache: 'no-store',
+    })
+      .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then(data => { if (!cancelled) setBackend(data?.version || 'desconocida'); })
+      .catch(() => { if (!cancelled) setBackend('sin /api/version'); });
+
+    return () => { cancelled = true; controller.abort(); };
+  }, []);
+
+  if (user?.routeRole !== 'admin') return null;
+
+  // El backend anterior a esta versión no tenía el endpoint.
+  const stale = backend.startsWith('sin /api') || (backend !== '...' && backend !== build);
+
+  return (
+    <div className="fixed bottom-3 left-3 z-50 font-mono text-[11px] select-none">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        aria-label="Versión desplegada"
+        className={`flex items-center gap-1.5 px-2 py-1 rounded-md border backdrop-blur-sm transition-colors ${
+          stale
+            ? 'bg-amber-500/20 border-amber-400/60 text-amber-200'
+            : 'bg-white/5 border-white/20 text-white/60 hover:text-white/90'
+        }`}
+      >
+        <span
+          aria-hidden="true"
+          className={`w-1.5 h-1.5 rounded-full ${stale ? 'bg-amber-400' : 'bg-emerald-400'}`}
+        />
+        {build}
+      </button>
+
+      {open && (
+        <div className="mt-1 p-2 rounded-md bg-neutral-900/95 border border-white/15 text-white/80 space-y-0.5 shadow-lg">
+          <div>frontend: {build}</div>
+          <div>backend:&nbsp; {backend}</div>
+          {stale && <div className="text-amber-300 pt-0.5">revisa el despliegue</div>}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default VersionBadge;

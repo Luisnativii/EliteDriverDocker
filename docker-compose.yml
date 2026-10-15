@@ -27,6 +27,7 @@ services:
     environment:
       JAVA_OPTS: ${JAVA_OPTS:--XX:InitialRAMPercentage=20 -XX:MaxRAMPercentage=60}
       SERVER_PORT: ${SERVER_PORT:-8080}
+      APP_VERSION: ${APP_VERSION:-desconocida}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/elitedriver}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-elitedriver}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-change-me}
@@ -67,6 +68,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_APP_VERSION: ${APP_VERSION:-desconocida}
     restart: unless-stopped
     depends_on:
       backend:

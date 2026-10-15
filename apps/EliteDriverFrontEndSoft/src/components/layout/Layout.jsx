@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useLayout } from '../../hooks/useLayout';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import VersionBadge from './VersionBadge';
 
 const Layout = () => {
   const { showSidebar, isMobile, toggleSidebar } = useLayout();
@@ -41,6 +42,9 @@ const Layout = () => {
           </div>
         </main>
       </div>
+
+      {/* Versión desplegada (solo admin, esquina inferior izquierda) */}
+      <VersionBadge />
 
       {/* Scrollbar & animation styles */}
       <style>{`

@@ -40,6 +40,9 @@ jwt:
   exptime: ${JWT_EXPTIME:28800000}
 
 app:
+  # Versión desplegada. La inyecta docker-compose desde APP_VERSION para confirmar
+  # desde el panel de administración qué build está realmente en el servidor.
+  version: ${APP_VERSION:desconocida}
   bootstrap-admin:
     email: ${APP_BOOTSTRAP_ADMIN_EMAIL:}
     password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}
