@@ -20,6 +20,22 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
+    /*
+        Hash BCrypt válido de una cadena aleatoria de 48 caracteres que nunca se
+        guardó ni se comunica a nadie. Existe solo para que una cuenta sin
+        contraseña (por ejemplo, un futuro ingreso con Google) pueda construir su
+        UserDetails sin fallar: Spring exige una contraseña no nula, y
+        JwtAuthenticationFilter pide este servicio en cada request autenticado.
+
+        Al ser la preimagen desconocida, PasswordEncoder.matches() siempre
+        devuelve false ante cualquier contraseña: esa cuenta no puede entrar con
+        contraseña, solo por su proveedor externo. Usar un valor constante en
+        vez de generar un hash por request evita pagar el costo de BCrypt en
+        cada petición.
+    */
+    private static final String PASSWORD_NO_UTILIZABLE =
+            "$2a$10$hpzWXMRbXoEK3P4PkSdmGO6U.egV6e5M4M5xROSWcH/6WL4Xt4IRu";
+
     private final UserRepository userRepository;
 
     /*
@@ -33,9 +49,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Credenciales inválidas"));
 
+        String password = user.getPassword();
+        if (password == null || password.isBlank()) {
+            password = PASSWORD_NO_UTILIZABLE;
+        }
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
-                .password(user.getPassword())
+                .password(password)
                 .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole())))
                 .build();
     }
