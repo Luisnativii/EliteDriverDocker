@@ -1,7 +1,9 @@
 // components/forms/RegisterForm.jsx
 import React, { useState } from 'react';
 import { useRegister } from '../../hooks/useRegister';
+import { useAuth } from '../../hooks/useAuth';
 import { PASSWORD_HINT } from '../../utils/registerValidation';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Componente del formulario de registro de usuario.
@@ -19,6 +21,9 @@ const RegisterForm = ({ onLoginClick }) => {
     handleSubmit,
     resetForm
   } = useRegister();
+
+  const { login: loginContext } = useAuth();
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -40,13 +45,25 @@ const RegisterForm = ({ onLoginClick }) => {
    * @param {Object} response - Respuesta del servicio de registro.
    */
 
-  const handleRegistrationSuccess = (response) => {
+  const handleRegistrationSuccess = async (response) => {
     setRegistrationSuccess(true);
 
-    // Mostrar mensaje de éxito por unos segundos
+    // El backend ya devolvió token y perfil: se registra la sesión en el
+    // contexto y se entra directo. Antes se redirigía al login para escribir
+    // la contraseña otra vez.
+    if (response?.user) {
+      const result = await loginContext(response);
+      if (result.success) {
+        setTimeout(() => {
+          navigate(response.user.role?.toLowerCase() === 'admin' ? '/admin' : '/customer', { replace: true });
+        }, 1200);
+        return;
+      }
+    }
+
+    // Sin token (respuesta inesperada): cae al login como antes.
     setTimeout(() => {
       setRegistrationSuccess(false);
-      // Opcional: redirigir automáticamente al login
       if (onLoginClick) {
         onLoginClick();
       }
@@ -75,7 +92,7 @@ const RegisterForm = ({ onLoginClick }) => {
       {registrationSuccess && (
         <div className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-lg">
           <p className="text-green-300 text-center font-medium">
-            ¡Registro exitoso! Redirigiendo al login...
+            ¡Registro exitoso! Ingresando...
           </p>
         </div>
       )}

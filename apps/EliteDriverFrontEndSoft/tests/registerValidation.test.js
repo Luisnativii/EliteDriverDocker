@@ -13,23 +13,24 @@ const valid = {
     dui: '065311929',
     phoneNumber: '72053098',
     email: 'luis.nativi24@gmail.com',
-    password: 'Contrasena1',
-    confirmPassword: 'Contrasena1',
+    password: 'perro*5',
+    confirmPassword: 'perro*5',
 };
 
 test('un formulario completo no produce errores', () => {
     assert.deepEqual(validateRegistration(valid), {});
 });
 
-test('la contraseña exige 10 caracteres, una letra y un número (igual que el backend)', () => {
-    // El frontend pedía 6: una contraseña de 6-9 pasaba el cliente y el servidor la rechazaba.
-    assert.equal(validateRegistration({ ...valid, password: 'Ab1', confirmPassword: 'Ab1' }).password,
-        'La contraseña debe tener al menos 10 caracteres');
-    assert.equal(validateRegistration({ ...valid, password: '1234567890', confirmPassword: '1234567890' }).password,
-        'La contraseña debe incluir al menos una letra y un número');
-    assert.equal(validateRegistration({ ...valid, password: 'abcdefghijk', confirmPassword: 'abcdefghijk' }).password,
-        'La contraseña debe incluir al menos una letra y un número');
-    assert.equal(validateRegistration(valid).password, undefined);
+test('la contraseña exige 5 caracteres y un símbolo (igual que el backend)', () => {
+    assert.equal(validateRegistration({ ...valid, password: 'a1$', confirmPassword: 'a1$' }).password,
+        'La contraseña debe tener al menos 5 caracteres');
+    assert.equal(validateRegistration({ ...valid, password: 'perro5', confirmPassword: 'perro5' }).password,
+        'La contraseña debe incluir al menos un símbolo');
+    assert.equal(validateRegistration({ ...valid, password: 'perro 5', confirmPassword: 'perro 5' }).password,
+        'La contraseña debe incluir al menos un símbolo', 'un espacio no cuenta como símbolo');
+    assert.equal(validateRegistration({ ...valid, password: '12345678', confirmPassword: '12345678' }).password,
+        'La contraseña debe incluir al menos un símbolo');
+    assert.equal(validateRegistration(valid).password, undefined, 'perro*5 cumple la regla');
 });
 
 test('las contraseñas que no coinciden se reportan en confirmar contraseña', () => {
@@ -65,8 +66,8 @@ test('las reglas de negocio del backend se asignan al campo correcto', () => {
     assert.equal(fieldErrorsFromResponse({ error: 'Las contraseñas no coinciden' }).confirmPassword,
         'Las contraseñas no coinciden');
     assert.equal(
-        fieldErrorsFromResponse({ error: 'La contraseña debe tener al menos 10 caracteres, una letra y un número' }).password,
-        'La contraseña debe tener al menos 10 caracteres, una letra y un número');
+        fieldErrorsFromResponse({ error: 'La contraseña debe tener al menos 5 caracteres y un símbolo' }).password,
+        'La contraseña debe tener al menos 5 caracteres y un símbolo');
     assert.equal(fieldErrorsFromResponse({ error: 'Debes tener al menos 18 años para registrarte' }).birthDate,
         'Debes tener al menos 18 años para registrarte');
 });

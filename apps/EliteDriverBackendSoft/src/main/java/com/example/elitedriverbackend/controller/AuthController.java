@@ -28,13 +28,14 @@ public class AuthController {
     /*
         * Endpoint para el registro de nuevos usuarios.
         * Recibe un objeto RegisterRequest en el cuerpo de la solicitud.
-        * Retorna un mensaje de éxito si el registro es exitoso.
+        * Retorna el mismo cuerpo que el login (token y perfil) para que la
+        * persona quede con sesión iniciada sin volver a escribir su contraseña.
      */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request) {
             log.info("Registro iniciado para email: {}", request.getEmail());
-            String result = authService.register(request);
-            return ResponseEntity.ok().body(Map.of("message", result));
+            AuthResponse response = authService.register(request);
+            return ResponseEntity.ok(response);
     }
 
     /*

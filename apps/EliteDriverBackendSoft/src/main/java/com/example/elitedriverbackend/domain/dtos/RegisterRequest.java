@@ -35,7 +35,7 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank
-    @Size(min = 10, max = 100, message = "La contraseña debe tener entre 10 y 100 caracteres")
+    @Size(min = 5, max = 100, message = "La contraseña debe tener entre 5 y 100 caracteres")
     private String password;
 
     @NotBlank

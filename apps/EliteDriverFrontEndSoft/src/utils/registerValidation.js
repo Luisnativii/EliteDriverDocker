@@ -2,9 +2,14 @@
 // Validación pura del registro: sin React, para poder probarla con `node --test`.
 // Las reglas deben coincidir con RegisterRequest.java y AuthService.register del backend.
 
+// Mismo criterio que AuthService.register: 5 caracteres y al menos un símbolo.
+// Un símbolo es cualquier carácter que no sea letra, ni dígito, ni espacio.
+export const PASSWORD_SYMBOL = /[^A-Za-z0-9\s]/;
+export const PASSWORD_MIN_LENGTH = 5;
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const PASSWORD_HINT = 'Mínimo 10 caracteres, con al menos una letra y un número.';
+export const PASSWORD_HINT = 'Mínimo 5 caracteres y al menos un símbolo (por ejemplo:perro*5).';
 
 /**
  * El backend responde los errores de validación en `{ fields: { campo: mensaje } }`.
@@ -110,14 +115,14 @@ export const validateRegistration = (data) => {
         errors.email = 'El correo electrónico no es válido';
     }
 
-    // Mismo criterio que AuthService.register: 10+ caracteres, una letra y un número.
+    // Mismo criterio que AuthService.register: 5+ caracteres y un símbolo.
     const password = data.password || '';
     if (!password) {
         errors.password = 'La contraseña es requerida';
-    } else if (password.length < 10) {
-        errors.password = 'La contraseña debe tener al menos 10 caracteres';
-    } else if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-        errors.password = 'La contraseña debe incluir al menos una letra y un número';
+    } else if (password.length < PASSWORD_MIN_LENGTH) {
+        errors.password = `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres`;
+    } else if (!PASSWORD_SYMBOL.test(password)) {
+        errors.password = 'La contraseña debe incluir al menos un símbolo';
     }
 
     if (!data.confirmPassword) {

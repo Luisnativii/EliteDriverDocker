@@ -92,6 +92,12 @@ export const register = async (userData) => {
             // NO incluir Authorization aquí
         }
     });
+    // El registro devuelve el mismo cuerpo que el login (token + perfil), así que
+    // se guarda la sesión igual que en `login` para no pedir la contraseña otra vez.
+    if (response.data?.token && response.data?.user) {
+      localStorage.setItem('authToken', response.data.token);
+      localStorage.setItem('userData', JSON.stringify(response.data.user));
+    }
     return response.data;
     
   } catch (error) {
