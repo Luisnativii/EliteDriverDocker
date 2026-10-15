@@ -65,8 +65,8 @@ export const login = async (credentials) => {
   } catch (error) {
     // Manejar diferentes tipos de errores
     if (error.response) {
-      // El servidor respondió con un error
-      const message = error.response.data?.message || 'Error del servidor';
+      // El servidor respondió con un error. Su cuerpo es `{ error }`, no `{ message }`.
+      const message = error.response.data?.error || error.response.data?.message || 'No se pudo iniciar sesión. Intenta nuevamente.';
       throw new Error(message);
     } else if (error.request) {
       // La petición se hizo pero no hubo respuesta
@@ -100,31 +100,28 @@ export const register = async (userData) => {
     
     if (error.response) {
       const { status, data } = error.response;
+      // El backend responde `{ error, fields }`, nunca `message`.
+      const serverMessage = data?.error || data?.message;
+      // Los errores por campo (validación del DTO) llegan aquí y deben conservarse
+      // para que el formulario los muestre junto al input correspondiente.
+      const fields = data?.fields && typeof data.fields === 'object' ? data.fields : undefined;
       
       switch (status) {
         case 403:
           // Forbidden - puede ser por varios motivos
-          if (data && typeof data === 'string') {
-            errorMessage = data;
-          } else if (data?.message) {
-            errorMessage = data.message;
-          } else if (data?.error) {
-            errorMessage = data.error;
-          } else {
-            errorMessage = 'Acceso denegado. Verifica que todos los datos sean correctos.';
-          }
+          errorMessage = serverMessage || 'Acceso denegado. Verifica que todos los datos sean correctos.';
           break;
           
         case 400:
-          errorMessage = data?.message || 'Datos inválidos. Verifica la información ingresada.';
+          errorMessage = serverMessage || 'Datos inválidos. Verifica la información ingresada.';
           break;
           
         case 409:
-          errorMessage = data?.message || 'El usuario ya existe. Intenta con otro email o DUI.';
+          errorMessage = serverMessage || 'El usuario ya existe. Intenta con otro email o DUI.';
           break;
           
         case 422:
-          errorMessage = data?.message || 'Error de validación. Revisa los datos ingresados.';
+          errorMessage = serverMessage || 'Error de validación. Revisa los datos ingresados.';
           break;
           
         case 500:
@@ -132,15 +129,19 @@ export const register = async (userData) => {
           break;
           
         default:
-          errorMessage = data?.message || `Error del servidor (${status}).`;
+          errorMessage = serverMessage || `Error del servidor (${status}).`;
       }
-    } else if (error.request) {
-      errorMessage = 'No se pudo conectar con el servidor. Verifica que esté ejecutándose.';
-    } else {
-      errorMessage = error.message || 'Error inesperado';
+
+      const failure = new Error(errorMessage);
+      failure.fields = fields;
+      throw failure;
     }
     
-    throw new Error(errorMessage);
+    if (error.request) {
+      throw new Error('No se pudo conectar con el servidor. Verifica que esté ejecutándose.');
+    }
+    
+    throw new Error(error.message || 'Error inesperado');
   }
 };
 

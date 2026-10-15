@@ -1,6 +1,7 @@
 // components/forms/RegisterForm.jsx
 import React, { useState } from 'react';
 import { useRegister } from '../../hooks/useRegister';
+import { PASSWORD_HINT } from '../../utils/registerValidation';
 
 /**
  * Componente del formulario de registro de usuario.
@@ -249,8 +250,10 @@ const RegisterForm = ({ onLoginClick }) => {
               required
               disabled={isLoading}
             />
-            {errors.password && (
+            {errors.password ? (
               <p className="text-red-300 text-xs mt-1">{errors.password}</p>
+            ) : (
+              <p className="text-white/50 text-xs mt-1">{PASSWORD_HINT}</p>
             )}
           </div>
 
