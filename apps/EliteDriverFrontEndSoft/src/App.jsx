@@ -15,6 +15,11 @@ import VehiclesPage from './pages/customer/VehiclesPage';
 import Login from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import VehicleTypeDetailPage from './pages/customer/VehicleTypeDetailPage';
+import InformacionPage from './pages/InformacionPage';
+import PrivacidadPage from './pages/legal/PrivacidadPage';
+import TerminosPage from './pages/legal/TerminosPage';
+import CookiesPage from './pages/legal/CookiesPage';
+import LegalPage from './pages/legal/LegalPage';
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -33,6 +38,15 @@ const App = () => (
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<RegisterPage />} />
+
+          {/* Información y documentos legales: públicos, sin sesión.
+              El artículo 16(g) de la Ley para la Protección de Datos Personales
+              exige que el aviso de privacidad esté publicado en el sitio web. */}
+          <Route path="/informacion" element={<InformacionPage />} />
+          <Route path="/informacion/privacidad" element={<PrivacidadPage />} />
+          <Route path="/informacion/terminos" element={<TerminosPage />} />
+          <Route path="/informacion/cookies" element={<CookiesPage />} />
+          <Route path="/informacion/legal" element={<LegalPage />} />
 
           {/* Layout común (sidebar dinámico según estado de login) */}
           <Route element={<Layout />}>
