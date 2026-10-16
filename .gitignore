@@ -7,3 +7,8 @@ build/
 .env
 .env.local
 apps/api/uploads/
+
+# Capturas de auditoria movil: pesan y se regeneran con los scripts de
+# scripts/. El analisis queda en los .md y la evidencia en los .json.
+docs/**/*.jpg
+docs/**/screenshots/

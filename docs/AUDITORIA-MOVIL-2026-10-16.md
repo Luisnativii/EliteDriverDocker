@@ -1,5 +1,9 @@
 # Auditoría de frontend móvil y flujo de alquiler
 
+> Las capturas de pantalla de esta auditoría ya no están en el repositorio (pesaban
+> 1.7 MB). El análisis y los resultados numéricos se conservan aquí y en los `.json`
+> de esta carpeta. Las capturas se regeneran con los scripts de `scripts/`.
+
 > Actualización: F01–F05 se corrigieron después de esta auditoría. Ver [correcciones y verificación](CORRECCIONES-F01-F05-2026-10-16.md). El contenido y las evidencias siguientes documentan el estado anterior.
 
 > F06–F24 también tienen correcciones aplicadas. Ver [resultados y límites de la verificación móvil](CORRECCIONES-MOVIL-2026-10-16.md).
