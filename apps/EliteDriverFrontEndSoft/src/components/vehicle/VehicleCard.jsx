@@ -20,7 +20,7 @@ import { toast } from 'react-toastify';
 /**
  * Componente de tarjeta de vehículo.
  * Muestra la información de un vehículo con opciones para editar, eliminar o ver detalles.
- * 
+ *
  * @param {Object} vehicle - Datos del vehículo a mostrar.
  * @param {function} onEdit - Función para editar el vehículo.
  * @param {function} onRefresh - Función para refrescar la lista de vehículos después de una acción (por ejemplo, eliminación).
@@ -87,8 +87,8 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
     return new Intl.NumberFormat('es-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     }).format(price);
   };
 
@@ -196,7 +196,7 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
                 className="w-full h-full object-cover"
                 onError={(e) => (e.target.src = "/images/vehicle-placeholder.jpg")}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100 transition-opacity duration-300" />
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
@@ -222,15 +222,15 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
           {vehicle.listImageUrls && vehicle.listImageUrls.length > 0 && (
             <>
               <button
-                onClick={prevImage}
-                className="absolute top-1/2 left-3 -translate-y-1/2 bg-white/90 backdrop-blur-sm text-gray-800 p-2 rounded-full hover:bg-white shadow-xl transition-all duration-200 opacity-0 group-hover:opacity-100"
+                aria-label="Imagen anterior" onClick={prevImage}
+                className="absolute top-1/2 left-3 -translate-y-1/2 bg-white/90 backdrop-blur-sm text-gray-800 min-h-11 min-w-11 p-2 rounded-full hover:bg-white shadow-xl transition-all duration-200 opacity-100"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
 
               <button
-                onClick={nextImage}
-                className="absolute top-1/2 right-3 -translate-y-1/2 bg-white/90 backdrop-blur-sm text-gray-800 p-2 rounded-full hover:bg-white shadow-xl transition-all duration-200 opacity-0 group-hover:opacity-100"
+                aria-label="Imagen siguiente" onClick={nextImage}
+                className="absolute top-1/2 right-3 -translate-y-1/2 bg-white/90 backdrop-blur-sm text-gray-800 min-h-11 min-w-11 p-2 rounded-full hover:bg-white shadow-xl transition-all duration-200 opacity-100"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -394,7 +394,7 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
         </div>
       )}
     </>
-  ); 
+  );
 };
 
 export default VehicleCard;

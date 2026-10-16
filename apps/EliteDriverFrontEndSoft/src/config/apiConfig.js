@@ -1,5 +1,5 @@
 // config/apiConfig.js
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+export const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
 
 // Configuración de endpoints
 export const API_ENDPOINTS = {
@@ -41,12 +41,12 @@ export const DEFAULT_HEADERS = {
 // Función de utilidad para construir URLs con parámetros
 export const buildEndpoint = (endpoint, params = {}) => {
   let url = endpoint;
-  
+
   // Reemplazar parámetros en la URL
   Object.keys(params).forEach(key => {
     url = url.replace(`:${key}`, params[key]);
   });
-  
+
   return url;
 };
 

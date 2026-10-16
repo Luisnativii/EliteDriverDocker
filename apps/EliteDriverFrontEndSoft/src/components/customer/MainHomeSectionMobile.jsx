@@ -4,7 +4,7 @@ import DateForm from "@/components/forms/DateForm.jsx";
 export const MainHomeSectionMobile = () => {
   return(
       <>
-          <section className="relative min-h-screen bg-cover bg-center flex items-center justify-between px-8 lg:px-16
+          <section className="relative min-h-[100svh] bg-cover bg-center flex items-center justify-between pt-28 pb-10 px-4 sm:px-8
            font-montserrat"
                    style={{ backgroundImage: `url(${CarroPaginaHomeBanner})` }}>
               {/* Overlay para mejorar legibilidad */}
@@ -12,12 +12,12 @@ export const MainHomeSectionMobile = () => {
 
               <div className="relative z-10 flex flex-col items-center justify-between w-full mx-auto">
                   {/* Lado izquierdo - Título y subtítulo */}
-                  <div className="text-left ">
-                      <h1 className="text-8xl font-extralight text-white flex flex-col items-center pb-4">
-                          <span className="block w-full text-center tracking-widest">ELITE</span>
+                  <div className="text-center min-w-0 ">
+                      <h1 className="text-[clamp(3rem,18vw,6rem)] font-extralight text-white flex flex-col items-center pb-4">
+                          <span className="block w-full text-center tracking-wider">ELITE</span>
                           <span className="block w-full text-center">DRIVE</span>
                       </h1>
-                      <p className="text-lg text-white/90 drop-shadow-lg max-w-md pb-6">
+                      <p className="text-base sm:text-lg text-white/90 drop-shadow-lg max-w-md pb-6">
                           Encuentra tu libertad en cada viaje
                       </p>
                   </div>

@@ -128,6 +128,8 @@ quedó desactualizada. Un punto verde indica que ambas coinciden.
 
 ## Notas
 
+- La protección de reservas simultáneas se instala automáticamente al iniciar el backend, mediante una restricción PostgreSQL con `btree_gist`. Las reglas de calendario usan `America/El_Salvador`. Detalles y pruebas en [Correcciones F01–F05](docs/CORRECCIONES-F01-F05-2026-10-16.md).
+
 - La integración de Wompi El Salvador y las pruebas locales se explican en [docs/WOMPI.md](docs/WOMPI.md).
 
 - El endpoint `/health` del backend consulta PostgreSQL con `SELECT 1`.

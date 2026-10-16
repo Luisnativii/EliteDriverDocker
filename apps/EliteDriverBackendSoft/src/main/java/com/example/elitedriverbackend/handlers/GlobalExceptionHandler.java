@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.dao.DataIntegrityViolationException;
+import java.sql.SQLException;
 
 /*
     Manejo global de excepciones para la aplicación.
@@ -22,6 +24,17 @@ import org.springframework.web.server.ResponseStatusException;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleIntegrityViolation(DataIntegrityViolationException ex) {
+        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
+            if (cause instanceof SQLException sql && "23P01".equals(sql.getSQLState())) {
+                return buildError(HttpStatus.BAD_REQUEST,
+                        "Este vehículo ya está reservado en el rango de fechas seleccionado.");
+            }
+        }
+        return buildError(HttpStatus.BAD_REQUEST, "Los datos no cumplen las reglas de integridad.");
+    }
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handleResponseStatus(ResponseStatusException ex) {

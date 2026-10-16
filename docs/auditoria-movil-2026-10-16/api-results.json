@@ -1,0 +1,121 @@
+{
+  "timestamp": "2026-10-16T09:59:29.7907420-06:00",
+  "api": "http://localhost:18080/api",
+  "checks": [
+    {
+      "name": "Local customer login",
+      "passed": true,
+      "status": 200,
+      "milliseconds": 2461.8,
+      "observed": "Token received; omitted from report"
+    },
+    {
+      "name": "Public fleet",
+      "passed": true,
+      "status": 200,
+      "milliseconds": 2135.2,
+      "observed": "Vehicles: 3"
+    },
+    {
+      "name": "Known occupied range 10-13 Nov",
+      "passed": true,
+      "status": 200,
+      "milliseconds": 2048.2,
+      "observed": "Corolla occupied: True"
+    },
+    {
+      "name": "Interior overlap must remain occupied 11-12 Nov",
+      "passed": false,
+      "status": 200,
+      "milliseconds": 2034.3,
+      "observed": "Corolla occupied: False"
+    },
+    {
+      "name": "Reversed availability range rejected",
+      "passed": true,
+      "status": 400,
+      "milliseconds": 2052.3,
+      "observed": "La fecha de inicio no puede ser posterior a la fecha de fin"
+    },
+    {
+      "name": "Impossible date returns client validation error",
+      "passed": true,
+      "status": 400,
+      "milliseconds": 2042.4,
+      "observed": "Error al parsear la fecha: Unparseable date: \"31-02-2027\""
+    },
+    {
+      "name": "Three days and 13 percent IVA total 101.67",
+      "passed": true,
+      "status": 201,
+      "milliseconds": 2078.6,
+      "observed": "Total: 101.67; status: PENDING"
+    },
+    {
+      "name": "Duplicate overlapping reservation rejected",
+      "passed": true,
+      "status": 400,
+      "milliseconds": 2153.8,
+      "observed": "❌ Este vehículo ya está reservado en el rango de fechas seleccionado"
+    },
+    {
+      "name": "Same-day zero-duration booking rejected",
+      "passed": true,
+      "status": 400,
+      "milliseconds": 2045.4,
+      "observed": "La fecha de fin debe ser posterior a la fecha de inicio."
+    },
+    {
+      "name": "Reversed booking rejected",
+      "passed": true,
+      "status": 400,
+      "milliseconds": 2057.1,
+      "observed": "La fecha de fin debe ser posterior a la fecha de inicio."
+    },
+    {
+      "name": "Past booking rejected by server",
+      "passed": false,
+      "status": 201,
+      "milliseconds": 2062.4,
+      "observed": "HTTP 201; total: 101.67"
+    },
+    {
+      "name": "Observe return-day boundary (current inclusive policy)",
+      "passed": true,
+      "status": 400,
+      "milliseconds": 2127.2,
+      "observed": "Start on previous return date: HTTP 400"
+    },
+    {
+      "name": "Disabled local Wompi reports 503",
+      "passed": true,
+      "status": 503,
+      "milliseconds": 2076.4,
+      "observed": "Los pagos con Wompi aún no están configurados en el servidor."
+    },
+    {
+      "name": "Failed payment remains PENDING, never PAID",
+      "passed": true,
+      "status": 200,
+      "milliseconds": 2080.1,
+      "observed": "Status: PENDING; amount: 101.67"
+    },
+    {
+      "name": "Cancel only audit-created reservation",
+      "passed": true,
+      "status": 200,
+      "milliseconds": 2101.4,
+      "observed": "HTTP 200"
+    },
+    {
+      "name": "Cancel only audit-created reservation",
+      "passed": true,
+      "status": 200,
+      "milliseconds": 2592.3,
+      "observed": "HTTP 200"
+    }
+  ],
+  "createdReservations": 2,
+  "passed": 14,
+  "failed": 2
+}

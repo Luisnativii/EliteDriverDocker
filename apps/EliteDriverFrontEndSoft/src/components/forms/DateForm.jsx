@@ -1,19 +1,17 @@
 import React, { useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDateContext } from '../../context/DateContext';
+import { rentalToday } from '../../utils/rentalDates.js';
 
 const DateForm = ({ variant = 'default', onSearch }) => {
   const navigate = useNavigate();
   const fieldId = useId();
   const { startDate, endDate, setStartDate, setEndDate } = useDateContext();
 
-  // Fecha local yyyy-MM-dd (no UTC: en SV UTC-6 el ISO bloqueaba "hoy")
-  const todayLocal = () => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  };
+  const todayLocal = rentalToday;
 
   const handleSearch = () => {
+    if (!startDate || !endDate || endDate <= startDate) return;
     if (onSearch) {
       onSearch({ startDate, endDate });
     } else {
@@ -23,22 +21,22 @@ const DateForm = ({ variant = 'default', onSearch }) => {
 
   const homeStyles = {
     container: `
-      bg-white/10 backdrop-blur-md py-6 px-8 rounded-3xl 
-      shadow-2xl border border-white/20 min-w-[700px] 
+      bg-white/10 backdrop-blur-md py-6 px-8 rounded-3xl
+      shadow-2xl border border-white/20 w-full max-w-2xl min-w-0
       hover:bg-white/15 transition-all duration-300
     `,
     title: 'text-white text-lg font-semibold mb-4 text-center',
     label: 'text-white/90 font-medium text-sm block mb-2',
     input: `
       date-input
-      w-full bg-white/20 backdrop-blur-sm border border-white/30 
+      w-full min-w-0 bg-white/20 backdrop-blur-sm border border-white/30
       rounded-lg px-4 py-3 text-white placeholder-white/60
-      focus:outline-none focus:ring-2 focus:ring-white/50 
+      focus:outline-none focus:ring-2 focus:ring-white/50
       focus:border-transparent transition-all duration-200
       hover:bg-white/25
     `,
     button: `
-      w-full bg-gradient-to-r from-black to-neutral-700 
+      w-full bg-gradient-to-r from-black to-neutral-700
       hover:from-black hover:to-white
       text-white font-semibold py-3 px-6 rounded-lg
       transition-all duration-200 transform hover:scale-105
@@ -49,7 +47,7 @@ const DateForm = ({ variant = 'default', onSearch }) => {
 
   const homeMobileStyles = {
     container: `
-      bg-white/10 backdrop-blur-md py-5 px-5 rounded-2xl 
+      bg-white/10 backdrop-blur-md py-5 px-5 rounded-2xl
       shadow-xl border border-white/20 w-full max-w-sm
       hover:bg-white/15 transition-all duration-300
     `,
@@ -57,14 +55,14 @@ const DateForm = ({ variant = 'default', onSearch }) => {
     label: 'text-white/90 font-medium text-xs block mb-1.5',
     input: `
       date-input
-      w-full bg-white/20 backdrop-blur-sm border border-white/30 
+      w-full min-w-0 bg-white/20 backdrop-blur-sm border border-white/30
       rounded-lg px-1 py-2.5 min-h-11 text-white placeholder-white/60 text-base
-      focus:outline-none focus:ring-2 focus:ring-white/50 
+      focus:outline-none focus:ring-2 focus:ring-white/50
       focus:border-transparent transition-all duration-200
       hover:bg-white/25
     `,
     button: `
-      w-full bg-gradient-to-r from-black to-neutral-700 
+      w-full bg-gradient-to-r from-black to-neutral-700
       hover:from-black hover:to-white
       text-white font-semibold py-2.5 px-5 min-h-11 rounded-lg text-sm
       transition-all duración-200 transform active:scale-95
@@ -80,7 +78,7 @@ const DateForm = ({ variant = 'default', onSearch }) => {
     input: `
       date-input
       border border-gray-300 rounded-lg px-3 py-2 text-base min-h-11
-      focus:outline-none focus:ring-2 focus:ring-neutral-500 
+      focus:outline-none focus:ring-2 focus:ring-neutral-500
       focus:border-transparent transition-all duration-200
       w-full min-w-0 md:w-38 cursor-pointer
     `,
@@ -183,7 +181,8 @@ const DateForm = ({ variant = 'default', onSearch }) => {
           </div>
         </div>
 
-        <button onClick={handleSearch} className={`${styles.button} min-h-11`}>
+        <p role="status" className="text-sm text-white/90">Elige la devolución después de la entrega.</p>
+        <button disabled={!startDate || !endDate || endDate <= startDate} onClick={handleSearch} className={`${styles.button} min-h-11`}>
           Buscar Vehículos
         </button>
       </div>

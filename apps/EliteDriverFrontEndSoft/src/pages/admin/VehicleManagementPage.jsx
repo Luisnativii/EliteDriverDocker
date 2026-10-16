@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 import { useVehicleManagement } from '../../hooks/useVehicleManagement';
 import CreateVehicleForm from '../../components/forms/CreateVehicleForm';
 import EditVehicleForm from '../../components/forms/EditVehicleForm';
@@ -12,7 +13,7 @@ import { Plus, Search, AlertCircle, Wrench, Car, Calendar } from 'lucide-react';
  * Este componente permite a los administradores gestionar la flota de vehículos,
  * incluyendo la adición, edición y visualización de vehículos, así como el filtrado y
  * búsqueda de vehículos según varios criterios.
- * 
+ *
  * Los administradores tienen la capacidad de modificar el estado de los vehículos y agregar nuevos
  * vehículos a la flota. Los usuarios no administradores solo pueden ver los vehículos disponibles.
  */
@@ -60,6 +61,8 @@ const VehicleManagementPage = () => {
     setReservationDateFrom,
     setReservationDateTo,
   } = useVehicleManagement();
+
+  const formRef = useDialogFocus(showForm, handleCloseForm);
 
   // Mostrar loading mientras se cargan auth y vehículos
   if (loading || authLoading || reservationsLoading) {
@@ -152,7 +155,7 @@ const VehicleManagementPage = () => {
         {/* Error Message con glassmorphism */}
         {error && (
           <div className="mb-8 bg-red-500/20 backdrop-blur-md border border-red-500/30 rounded-2xl p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center">
                 <AlertCircle className="w-6 h-6 text-red-400 mr-3" />
                 <span className="text-red-200 font-medium">{error}</span>
@@ -354,15 +357,15 @@ const VehicleManagementPage = () => {
         {/* Modal del formulario */}
         {showForm && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 max-w-2xl w-full max-h-[90vh] overflow-hidden">
-              <div className="sticky top-0 bg-white/10 backdrop-blur-md border-b border-white/20 px-8 py-6">
+            <div ref={formRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={isEditingMode ? "Editar vehículo" : "Agregar vehículo"} className="bg-neutral-900 rounded-2xl shadow-2xl border border-white/20 max-w-2xl w-full max-h-[90dvh] flex flex-col overflow-hidden">
+              <div className="sticky top-0 bg-white/10 backdrop-blur-md border-b border-white/20 px-4 sm:px-8 py-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-white">
                     {isEditingMode ? 'Editar Vehículo' : 'Agregar Nuevo Vehículo'}
                   </h2>
                   <button
                     onClick={handleCloseForm}
-                    className="text-white/60 hover:text-white transition-colors duration-300 p-2 hover:bg-white/10 rounded-lg"
+                    className="text-white/60 hover:text-white transition-colors duration-300 min-h-11 min-w-11 p-2 hover:bg-white/10 rounded-lg"
                   >
                     <span className="sr-only">Cerrar</span>
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -371,7 +374,7 @@ const VehicleManagementPage = () => {
                   </button>
                 </div>
               </div>
-              <div className="p-8 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="p-4 sm:p-8 min-h-0 overflow-y-auto">
                 {isEditingMode ? (
                   <EditVehicleForm
                     vehicle={editingVehicle}

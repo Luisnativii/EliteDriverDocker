@@ -7,7 +7,9 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
     const [payment, setPayment] = useState({ paymentStatus: initialStatus || 'PENDING', amount: initialAmount });
     const [loading, setLoading] = useState(false);
     const [checking, setChecking] = useState(false);
-    const [error, setError] = useState('');
+    const [statusError, setStatusError] = useState('');
+    const [linkError, setLinkError] = useState('');
+    const error = linkError || statusError;
     const [verification, setVerification] = useState(0);
     const [lastChecked, setLastChecked] = useState(null);
 
@@ -19,15 +21,16 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
         if (loading) return;
         const watcher = watchPayment({
             read: () => PaymentService.getStatus(reservationId),
-            repeat: autoVerify || verification > 0,
+            repeat: !linkError && (autoVerify || verification > 0),
             onChecking: setChecking,
-            onError: err => { setError(err.message); setLastChecked(new Date()); },
+            onError: err => { setStatusError(err.message); setLastChecked(new Date()); },
             onUpdate: data => {
                 setPayment(data);
-                setError('');
+                setStatusError('');
                 setLastChecked(new Date());
                 onPaymentUpdate(reservationId, data);
                 if (['PAID', 'PAID_TEST', 'CANCELLED'].includes(data.paymentStatus)) {
+                    setLinkError('');
                     forgetPayment(reservationId, sessionStorage);
                 }
             },
@@ -40,26 +43,27 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
             window.removeEventListener('focus', onFocus);
             document.removeEventListener('visibilitychange', onFocus);
         };
-    }, [reservationId, initialStatus, autoVerify, verification, onPaymentUpdate, loading]);
+    }, [reservationId, initialStatus, autoVerify, verification, onPaymentUpdate, loading, linkError]);
 
     const handlePayment = async () => {
         setLoading(true);
-        setError('');
+        setLinkError('');
+        setStatusError('');
+        setChecking(false);
         try {
             const data = await PaymentService.createLink(reservationId);
             setPayment(data);
             onPaymentUpdate(reservationId, data);
             PaymentService.openLink(data);
         } catch (err) {
-            setError(err.message);
+            setLinkError(err.message);
             setLastChecked(new Date());
-            setVerification(value => value + 1);
         } finally {
             setLoading(false);
         }
     };
 
-    const retry = () => { setError(''); setVerification(v => v + 1); };
+    const retry = () => { setStatusError(''); setVerification(v => v + 1); };
 
     const status = payment.paymentStatus || 'PENDING';
     const isServerMisconfigured = /no están configurados|configura la URL|503/i.test(error);
@@ -90,7 +94,7 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
             )}
             {status === 'PENDING' && <>
                 <p className="text-sm text-gray-300">
-                    {checking ? 'Consultando la confirmación en Wompi… esto puede tardar hasta 90 segundos si acabas de volver del pago.' : 'Tu reserva quedará confirmada solo cuando Wompi apruebe el pago. Los parámetros de la URL nunca confirman por sí solos.'}
+                    {checking ? 'Consultando la confirmación del pago…' : 'Tu reserva quedará confirmada cuando Wompi apruebe el pago.'}
                 </p>
                 {autoVerify && !checking && !error && <p className="text-sm text-amber-200">
                     Volviste de Wompi pero aún no hay confirmación. Si ya pagaste, espera y pulsa Verificar pago.

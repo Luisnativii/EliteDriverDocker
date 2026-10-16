@@ -1,0 +1,302 @@
+{
+  "timestamp": "2026-10-16T16:26:26.602Z",
+  "checks": [
+    {
+      "name": "Three days still use server price plus 13 percent IVA",
+      "passed": true,
+      "observed": {
+        "total": 101.67,
+        "status": "PENDING"
+      }
+    },
+    {
+      "name": "F02 availability: Exact range",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "occupied": true
+      }
+    },
+    {
+      "name": "Creation agrees with availability: Exact range",
+      "passed": true,
+      "observed": {
+        "status": 400
+      }
+    },
+    {
+      "name": "F02 availability: Interior range",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "occupied": true
+      }
+    },
+    {
+      "name": "Creation agrees with availability: Interior range",
+      "passed": true,
+      "observed": {
+        "status": 400
+      }
+    },
+    {
+      "name": "F02 availability: Enclosing range",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "occupied": true
+      }
+    },
+    {
+      "name": "Creation agrees with availability: Enclosing range",
+      "passed": true,
+      "observed": {
+        "status": 400
+      }
+    },
+    {
+      "name": "F02 availability: Partial overlap before",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "occupied": true
+      }
+    },
+    {
+      "name": "Creation agrees with availability: Partial overlap before",
+      "passed": true,
+      "observed": {
+        "status": 400
+      }
+    },
+    {
+      "name": "F02 availability: Partial overlap after",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "occupied": true
+      }
+    },
+    {
+      "name": "Creation agrees with availability: Partial overlap after",
+      "passed": true,
+      "observed": {
+        "status": 400
+      }
+    },
+    {
+      "name": "F02 availability: Inclusive return day",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "occupied": true
+      }
+    },
+    {
+      "name": "Creation agrees with availability: Inclusive return day",
+      "passed": true,
+      "observed": {
+        "status": 400
+      }
+    },
+    {
+      "name": "F02 availability: Inclusive pickup day",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "occupied": true
+      }
+    },
+    {
+      "name": "Creation agrees with availability: Inclusive pickup day",
+      "passed": true,
+      "observed": {
+        "status": 400
+      }
+    },
+    {
+      "name": "F02 availability: Following free day",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "occupied": false
+      }
+    },
+    {
+      "name": "F02 availability: Preceding free day",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "occupied": false
+      }
+    },
+    {
+      "name": "F05 server rejects a booking in 2001",
+      "passed": true,
+      "observed": {
+        "status": 400,
+        "error": "La fecha de inicio no puede ser anterior a hoy."
+      }
+    },
+    {
+      "name": "F04 server accepts today in the business timezone",
+      "passed": true,
+      "observed": {
+        "startDate": "2026-10-16",
+        "status": 201
+      }
+    },
+    {
+      "name": "Invalid duration: zero days",
+      "passed": true,
+      "observed": {
+        "status": 400
+      }
+    },
+    {
+      "name": "Invalid duration: reversed",
+      "passed": true,
+      "observed": {
+        "status": 400
+      }
+    },
+    {
+      "name": "F01 concurrent round 1: one accepted of five",
+      "passed": true,
+      "observed": {
+        "accepted": 1,
+        "rejected": 4,
+        "statuses": [
+          400,
+          400,
+          201,
+          400,
+          400
+        ]
+      }
+    },
+    {
+      "name": "F01 concurrent round 2: one accepted of five",
+      "passed": true,
+      "observed": {
+        "accepted": 1,
+        "rejected": 4,
+        "statuses": [
+          400,
+          400,
+          400,
+          201,
+          400
+        ]
+      }
+    },
+    {
+      "name": "F01 concurrent round 3: one accepted of five",
+      "passed": true,
+      "observed": {
+        "accepted": 1,
+        "rejected": 4,
+        "statuses": [
+          400,
+          201,
+          400,
+          400,
+          400
+        ]
+      }
+    },
+    {
+      "name": "F01 concurrent round 4: one accepted of five",
+      "passed": true,
+      "observed": {
+        "accepted": 1,
+        "rejected": 4,
+        "statuses": [
+          201,
+          400,
+          400,
+          400,
+          400
+        ]
+      }
+    },
+    {
+      "name": "F01 concurrent round 5: one accepted of five",
+      "passed": true,
+      "observed": {
+        "accepted": 1,
+        "rejected": 4,
+        "statuses": [
+          400,
+          201,
+          400,
+          400,
+          400
+        ]
+      }
+    },
+    {
+      "name": "Disjoint concurrent ranges for the same vehicle both succeed",
+      "passed": true,
+      "observed": {
+        "statuses": [
+          201,
+          201
+        ]
+      }
+    },
+    {
+      "name": "Different vehicles can be reserved for the same dates",
+      "passed": true,
+      "observed": {
+        "statuses": [
+          201,
+          201
+        ]
+      }
+    },
+    {
+      "name": "Cancellation releases availability and permits booking again",
+      "passed": true,
+      "observed": {
+        "availableAfterCancel": true,
+        "replacementStatus": 201
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    }
+  ],
+  "passed": 29,
+  "failed": 0,
+  "uncleanedReservations": 0
+}

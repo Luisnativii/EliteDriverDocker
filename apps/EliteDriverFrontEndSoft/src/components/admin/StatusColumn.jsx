@@ -1,7 +1,7 @@
 import React from 'react';
 import VehicleDragCard from '../vehicle/VehicleDragCard';
-import { 
-  AlertCircle, 
+import {
+  AlertCircle,
   Wrench,
   CheckCircle,
   XCircle
@@ -10,7 +10,7 @@ import {
 /**
  * Componente de columna de estado para mostrar y gestionar vehículos en diferentes estados.
  * Permite arrastrar y soltar vehículos entre estados, con visualización de información relacionada.
- * 
+ *
  * @param {string} status - El estado actual de la columna (p.ej., "maintenance", "completed").
  * @param {Object} config - Configuración de la columna, incluyendo título, icono, colores, etc.
  * @param {Array} vehicles - Lista de vehículos asociados a este estado.
@@ -25,19 +25,22 @@ import {
  * @param {function} onViewHistory - Función para ver el historial de un vehículo.
  */
 
-const StatusColumn = ({ 
-  status, 
-  config, 
-  vehicles, 
+const StatusColumn = ({
+  status,
+  config,
+  vehicles,
   count,
-  onDragOver, 
-  onDragLeave, 
-  onDrop, 
+  onDragOver,
+  onDragLeave,
+  onDrop,
   dragOverColumn,
   draggedVehicle,
   onDragStart,
   onDragEnd,
-  onViewHistory
+  onViewHistory,
+  onStatusChange,
+  statusOptions,
+  statusChangeDisabled
 }) => {
   const IconComponent = {
     AlertCircle,
@@ -50,7 +53,7 @@ const StatusColumn = ({
   const canDrop = draggedVehicle && (draggedVehicle.status || 'maintenanceCompleted') !== status;
 
   return (
-    <div 
+    <div
       className={`bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-4 transition-all duration-300 ${
         isOver && canDrop ? 'bg-white/15 border-white/30 scale-105' : ''
       }`}
@@ -93,9 +96,12 @@ const StatusColumn = ({
             onDragEnd={onDragEnd}
             onViewHistory={onViewHistory}
             isDragging={draggedVehicle?.id === vehicle.id}
+            onStatusChange={onStatusChange}
+            statusOptions={statusOptions}
+            statusChangeDisabled={statusChangeDisabled}
           />
         ))}
-        
+
         {vehicles.length === 0 && (
           <div className="text-center py-8">
             <div className={`w-12 h-12 ${config.iconBg} rounded-full flex items-center justify-center mx-auto mb-3`}>

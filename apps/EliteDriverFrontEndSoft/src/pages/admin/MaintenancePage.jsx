@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useVehicleMaintenance } from '../../hooks/useVehicleMaintenance';
 import LoadingSpinner from '../../components/layout/LoadingSpinner';
-import { 
-  Search, 
-  AlertCircle, 
+import {
+  Search,
+  AlertCircle,
   RefreshCw,
   Filter,
   Settings
 } from 'lucide-react';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 
 import StatusColumn from '../../components/admin/StatusColumn';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
@@ -23,7 +23,7 @@ import MaintenanceHistoryWindow from '../../components/vehicle/MaintenanceHistor
 
 const MaintenancePage = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  
+
   const {
     // Estados
     loading,
@@ -35,19 +35,20 @@ const MaintenancePage = () => {
     searchTerm,
     filterType,
     showConfirmDialog,
-    
+
     // Datos computados
     vehiclesByStatus,
     uniqueTypes,
     statusCounts,
     statusColumns,
-    
+
     // Handlers
     handleDragStart,
     handleDragEnd,
     handleDragOver,
     handleDragLeave,
     handleDrop,
+    requestStatusChange,
     handleConfirmStatusChange,
     handleCancelStatusChange,
     handleRefresh,
@@ -122,7 +123,7 @@ const MaintenancePage = () => {
       <div className="max-w-7xl mt-18 mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">
                 Gestión de Mantenimiento
@@ -188,7 +189,7 @@ const MaintenancePage = () => {
               <div>
                 <h3 className="text-white font-semibold mb-2">Instrucciones de uso</h3>
                 <div className="text-white/70 text-sm space-y-1">
-                  <p>• Arrastra y suelta los vehículos entre columnas para cambiar su estado de mantenimiento</p>
+                  <p>• Usa el selector de estado de cada vehículo o arrástralo entre columnas</p>
                   <p>• Haz clic en el icono de ojo para ver el historial de mantenimiento en la ventana lateral</p>
                   <p>• Los cambios se guardan automáticamente al soltar el vehículo</p>
                   <p>• Usa los filtros para encontrar vehículos específicos</p>
@@ -245,6 +246,9 @@ const MaintenancePage = () => {
               draggedVehicle={draggedVehicle}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
+              statusOptions={statusColumns}
+              onStatusChange={requestStatusChange}
+              statusChangeDisabled={!hasAdminRole || operationLoading}
               onViewHistory={handleViewHistory}
             />
           ))}

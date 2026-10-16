@@ -1,0 +1,9 @@
+{
+  "beforeCount": 0,
+  "beforeCache": "MISS",
+  "afterProxyCount": 1,
+  "afterProxyCache": "MISS",
+  "afterDirectCount": 1,
+  "passed": true,
+  "cleanupStatus": 200
+}

@@ -1,22 +1,24 @@
 import React from 'react';
-import { 
-  AlertCircle, 
+import { useDialogFocus } from '../../hooks/useDialogFocus';
+import {
+  AlertCircle,
 } from 'lucide-react';
 
 const ConfirmDialog = ({ isOpen, message, onConfirm, onCancel }) => {
+  const dialogRef = useDialogFocus(isOpen, onCancel);
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 max-w-md w-full">
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Confirmar cambio" className="bg-neutral-900 rounded-2xl shadow-2xl border border-white/20 max-w-md w-full">
         <div className="p-6">
           <div className="flex items-center mb-4">
             <AlertCircle className="w-6 h-6 text-yellow-400 mr-3" />
             <h3 className="text-xl font-semibold text-white">Confirmar Cambio</h3>
           </div>
-          
+
           <p className="text-white/80 mb-6">{message}</p>
-          
+
           <div className="flex space-x-3">
             <button
               onClick={onCancel}

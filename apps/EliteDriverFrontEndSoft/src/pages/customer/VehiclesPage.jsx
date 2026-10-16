@@ -5,6 +5,7 @@ import { useDateContext } from '../../context/DateContext';
 import DateForm from '../../components/forms/DateForm';
 import ReservationService from '../../services/reservationService';
 import { useAuth } from '../../hooks/useAuth';
+import { goToReservation } from '../../utils/reservationNavigation.js';
 import { toast } from 'react-toastify';
 import {
     DollarSignIcon,
@@ -39,7 +40,7 @@ const VehicleCard = ({ vehicle, isFiltered = false, isReserved = false }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     // Validar si el rango es de un solo día
-    const isSameDayRange = startDate && endDate && startDate === endDate;
+    const isSameDayRange = Boolean(startDate || endDate) && (!startDate || !endDate || startDate >= endDate);
     const galleryImages = useMemo(() => getVehicleGalleryImages(vehicle), [vehicle]);
     const hasImages = galleryImages.length > 0;
     const hasMultipleImages = galleryImages.length > 1;
@@ -74,13 +75,7 @@ const VehicleCard = ({ vehicle, isFiltered = false, isReserved = false }) => {
     };
 
     const proceedReservation = () => {
-        if (!user) {
-            navigate('/login', {
-                state: { redirectTo: `/customer/reservation-page/${vehicle.id}` }
-            });
-        } else {
-            navigate(`/customer/reservation-page/${vehicle.id}`);
-        }
+        goToReservation(navigate, vehicle.id, user);
     };
 
     const handleReservationClick = () => {
@@ -275,7 +270,7 @@ const VehiclesPage = () => {
     const [availabilityError, setAvailabilityError] = useState(null);
 
     // Definir si hay filtros de fecha activos
-    const hasDateFilter = Boolean(startDate && endDate);
+    const hasDateFilter = Boolean(startDate && endDate && startDate < endDate);
 
     // Obtener disponibilidad solo cuando hay rango válido. Sin fechas no se bloquea nada.
     useEffect(() => {
@@ -303,7 +298,7 @@ const VehiclesPage = () => {
             } catch (err) {
                 if (cancelled) return;
                 setReservedIds([]);
-                setAvailabilityError('No se pudo verificar disponibilidad. Mostrando todo como disponible.');
+                setAvailabilityError('No se pudo verificar disponibilidad. Intenta nuevamente antes de reservar.');
             } finally {
                 if (!cancelled) setAvailabilityLoading(false);
             }

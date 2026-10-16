@@ -5,7 +5,7 @@ const VehicleImageGallery = ({ mainImage, imageUrls = [] }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const selectedImage = allImages[selectedIndex] || null;
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-    
+
 
     useEffect(() => {
         setSelectedIndex(0);
@@ -36,12 +36,12 @@ const VehicleImageGallery = ({ mainImage, imageUrls = [] }) => {
                     <div className="relative w-full h-full flex items-center justify-center">
                         {/* Flecha izquierda */}
                         {selectedIndex > 0 && (
-                            <button
+                            <button aria-label="Imagen anterior"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedIndex((prev) => prev - 1);
                                 }}
-                                className="absolute left-2 z-10 text-white bg-black/50 hover:bg-black/80 rounded-full w-10 h-10 flex items-center justify-center text-2xl"
+                                className="absolute left-2 z-10 text-white bg-black/50 hover:bg-black/80 rounded-full w-11 h-11 flex items-center justify-center text-2xl"
                             >
                                 ‹
                             </button>
@@ -57,12 +57,12 @@ const VehicleImageGallery = ({ mainImage, imageUrls = [] }) => {
 
                         {/* Flecha derecha */}
                         {selectedIndex < allImages.length - 1 && (
-                            <button
+                            <button aria-label="Imagen siguiente"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedIndex((prev) => prev + 1);
                                 }}
-                                className="absolute right-2 z-10 text-white bg-black/50 hover:bg-black/80 rounded-full w-10 h-10 flex items-center justify-center text-2xl"
+                                className="absolute right-2 z-10 text-white bg-black/50 hover:bg-black/80 rounded-full w-11 h-11 flex items-center justify-center text-2xl"
                             >
                                 ›
                             </button>
@@ -106,12 +106,12 @@ const VehicleImageGallery = ({ mainImage, imageUrls = [] }) => {
                     <div className="relative max-w-4xl max-h-[90vh]">
                         {/* Flecha izquierda */}
                         {selectedIndex > 0 && (
-                            <button
+                            <button aria-label="Imagen anterior"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedIndex((prev) => prev - 1);
                                 }}
-                                className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white bg-black/50 hover:bg-black/80 rounded-full w-10 h-10 flex items-center justify-center text-2xl"
+                                className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white bg-black/50 hover:bg-black/80 rounded-full w-11 h-11 flex items-center justify-center text-2xl"
                             >
                                 ‹
                             </button>
@@ -128,21 +128,21 @@ const VehicleImageGallery = ({ mainImage, imageUrls = [] }) => {
 
                         {/* Flecha derecha */}
                         {selectedIndex < allImages.length - 1 && (
-                            <button
+                            <button aria-label="Imagen siguiente"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedIndex((prev) => prev + 1);
                                 }}
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white bg-black/50 hover:bg-black/80 rounded-full w-10 h-10 flex items-center justify-center text-2xl"
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white bg-black/50 hover:bg-black/80 rounded-full w-11 h-11 flex items-center justify-center text-2xl"
                             >
                                 ›
                             </button>
                         )}
 
                         {/* Botón cerrar */}
-                        <button
+                        <button aria-label="Cerrar imagen ampliada"
                             onClick={() => setIsLightboxOpen(false)}
-                            className="absolute top-2 right-2 text-white bg-black/50 hover:bg-black/80 rounded-full w-10 h-10 flex items-center justify-center text-xl"
+                            className="absolute top-2 right-2 text-white bg-black/50 hover:bg-black/80 rounded-full w-11 h-11 flex items-center justify-center text-xl"
                         >
                             ✕
                         </button>

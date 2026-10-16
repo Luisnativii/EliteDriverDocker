@@ -5,7 +5,7 @@ import { useVehicles, useAuthCheck, useVehicleOperations } from './useVehicles';
  * Hook personalizado para gestionar las operaciones de mantenimiento de vehículos.
  * Este hook permite filtrar, agrupar, actualizar el estado y manejar las acciones de los vehículos
  * (como la actualización de su estado a través de drag-and-drop).
- * 
+ *
  * @returns {Object} - Retorna un objeto con la lógica para gestionar las operaciones de mantenimiento de vehículos.
  */
 
@@ -14,7 +14,7 @@ export const useVehicleMaintenance = () => {
   const { vehicles, loading, error, refetch } = useVehicles();
   const { hasAdminRole, isAuthenticated, loading: authLoading } = useAuthCheck();
   const { updateVehicle, isLoading: operationLoading } = useVehicleOperations();
-  
+
   // Estados del componente
   const [draggedVehicle, setDraggedVehicle] = useState(null);
   const [dragOverColumn, setDragOverColumn] = useState(null);
@@ -81,12 +81,12 @@ export const useVehicleMaintenance = () => {
   const vehiclesByStatus = useCallback(() => {
     const filtered = filteredVehicles();
     const grouped = {};
-    
+
     // Inicializar todas las columnas
     Object.keys(statusColumns).forEach(status => {
       grouped[status] = [];
     });
-    
+
     // Agrupar vehículos filtrados por estado
     filtered.forEach(vehicle => {
       const status = vehicle.status || 'maintenanceCompleted';
@@ -94,7 +94,7 @@ export const useVehicleMaintenance = () => {
         grouped[status].push(vehicle);
       }
     });
-    
+
     return grouped;
   }, [filteredVehicles, statusColumns]);
 
@@ -107,11 +107,11 @@ export const useVehicleMaintenance = () => {
   const getStatusCounts = useCallback(() => {
     const filtered = filteredVehicles();
     const counts = {};
-    
+
     Object.keys(statusColumns).forEach(status => {
       counts[status] = filtered.filter(v => (v.status || 'maintenanceCompleted') === status).length;
     });
-    
+
     counts.total = filtered.length;
     return counts;
   }, [filteredVehicles, statusColumns]);
@@ -138,36 +138,6 @@ export const useVehicleMaintenance = () => {
     setDragOverColumn(null);
   }, []);
 
-  const handleDrop = useCallback((e, newStatus) => {
-    e.preventDefault();
-    setDragOverColumn(null);
-    
-    if (!draggedVehicle) return;
-    
-    const currentStatus = draggedVehicle.status || 'maintenanceCompleted';
-    if (currentStatus === newStatus) return;
-    
-    // Verificar permisos
-    if (!hasAdminRole) {
-      alert('Solo los administradores pueden cambiar el estado de los vehículos');
-      return;
-    }
-    
-    // Mostrar confirmación para cambios críticos
-    if (newStatus === 'outOfService' || currentStatus === 'outOfService') {
-      setPendingStatusChange({
-        vehicle: draggedVehicle,
-        newStatus,
-        currentStatus
-      });
-      setShowConfirmDialog(true);
-    } else {
-      updateVehicleStatus(draggedVehicle.id, newStatus);
-    }
-    
-    setDraggedVehicle(null);
-  }, [draggedVehicle, hasAdminRole]);
-
   // Función para actualizar el estado del vehículo
   const updateVehicleStatus = useCallback(async (vehicleId, newStatus) => {
     try {
@@ -180,6 +150,18 @@ export const useVehicleMaintenance = () => {
     }
   }, [updateVehicle, refetch]);
 
+  const requestStatusChange = useCallback((vehicle, newStatus) => {
+    const currentStatus = vehicle.status || 'maintenanceCompleted';
+    if (!hasAdminRole || !statusColumns[newStatus] || currentStatus === newStatus) return;
+    if (newStatus === 'outOfService' || currentStatus === 'outOfService') {
+      setPendingStatusChange({ vehicle, newStatus, currentStatus }); setShowConfirmDialog(true);
+    } else { void updateVehicleStatus(vehicle.id, newStatus); }
+  }, [hasAdminRole, statusColumns, updateVehicleStatus]);
+  const handleDrop = useCallback((event, newStatus) => {
+    event.preventDefault(); setDragOverColumn(null);
+    if (draggedVehicle) requestStatusChange(draggedVehicle, newStatus);
+    setDraggedVehicle(null);
+  }, [draggedVehicle, requestStatusChange]);
   // Confirmar cambio de estado
   const handleConfirmStatusChange = useCallback(() => {
     if (pendingStatusChange) {
@@ -212,11 +194,11 @@ export const useVehicleMaintenance = () => {
   // Función para obtener el mensaje de confirmación
   const getConfirmationMessage = useCallback(() => {
     if (!pendingStatusChange) return '';
-    
+
     const { vehicle, newStatus, currentStatus } = pendingStatusChange;
     const newStatusTitle = statusColumns[newStatus]?.title || newStatus;
     const currentStatusTitle = statusColumns[currentStatus]?.title || currentStatus;
-    
+
     return `¿Estás seguro de cambiar el estado del vehículo "${vehicle.name}" de "${currentStatusTitle}" a "${newStatusTitle}"?`;
   }, [pendingStatusChange, statusColumns]);
 
@@ -234,34 +216,35 @@ export const useVehicleMaintenance = () => {
     filterType,
     showConfirmDialog,
     pendingStatusChange,
-    
+
     // Datos computados
     vehicles: filteredVehicles(),
     vehiclesByStatus: vehiclesByStatus(),
     uniqueTypes: uniqueTypes(),
     statusCounts: getStatusCounts(),
     statusColumns,
-    
+
     // Handlers de drag and drop
     handleDragStart,
     handleDragEnd,
     handleDragOver,
     handleDragLeave,
     handleDrop,
-    
+    requestStatusChange,
+
     // Handlers de estado
     updateVehicleStatus,
     handleConfirmStatusChange,
     handleCancelStatusChange,
-    
+
     // Handlers generales
     handleRefresh,
     handleSearchTermChange,
     handleFilterTypeChange,
-    
+
     // Funciones de utilidad
     getConfirmationMessage,
-    
+
     // Setters
     setSearchTerm,
     setFilterType

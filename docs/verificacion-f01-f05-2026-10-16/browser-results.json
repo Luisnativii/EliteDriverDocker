@@ -1,0 +1,21 @@
+{
+  "homeReserve": {
+    "loginReached": true,
+    "returnedVehicle": "Toyota Corolla 2022",
+    "startDate": "2026-11-20",
+    "endDate": "2026-11-23",
+    "days": 3,
+    "total": 101.67
+  },
+  "interiorAvailability": {
+    "startDate": "2026-11-11",
+    "endDate": "2026-11-12",
+    "vehicle": "Toyota Corolla 2022",
+    "occupied": true,
+    "bookingDisabled": true
+  },
+  "protectedRoute": {
+    "loginReached": true,
+    "destinationIncludesQueryAndHash": true
+  }
+}

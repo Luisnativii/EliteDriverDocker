@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 import { Outlet } from 'react-router-dom';
 import { useLayout } from '../../hooks/useLayout';
 import Sidebar from './Sidebar';
@@ -7,6 +8,8 @@ import VersionBadge from './VersionBadge';
 
 const Layout = () => {
   const { showSidebar, isMobile, toggleSidebar } = useLayout();
+
+  const sidebarRef = useDialogFocus(isMobile && showSidebar, toggleSidebar);
 
   return (
     <div className="flex h-dvh bg-neutral-900 w-screen overflow-hidden">
@@ -20,9 +23,9 @@ const Layout = () => {
       )}
 
       {/* Sidebar */}
-      <div inert={!showSidebar} aria-hidden={!showSidebar} className={`
+      <div ref={sidebarRef} tabIndex={-1} role={isMobile && showSidebar ? "dialog" : undefined} aria-modal={isMobile && showSidebar ? true : undefined} aria-label="Menú de navegación" inert={!showSidebar} aria-hidden={!showSidebar} className={`
         transition-all duration-300 ease-in-out
-        ${isMobile 
+        ${isMobile
           ? `${showSidebar ? 'fixed translate-x-0' : 'fixed -translate-x-full'} top-0 left-0 h-dvh z-50`
           : `${showSidebar ? 'w-64' : 'w-0'} relative overflow-hidden`
         }
@@ -31,9 +34,9 @@ const Layout = () => {
       </div>
 
       {/* Main content area */}
-      <div className="bg-neutral-900 flex flex-col flex-1 min-w-0 overflow-hidden">
+      <div inert={isMobile && showSidebar} className="bg-neutral-900 flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header toggleSidebar={toggleSidebar} showSidebar={showSidebar && !isMobile} menuOpen={showSidebar} />
-        
+
         <main className="flex-1 overflow-auto transition-all duration-300 custom-scrollbar">
           <div className="min-h-full">
             <div className="animate-fade-in">
@@ -67,21 +70,21 @@ const Layout = () => {
           scrollbar-width: thin;
           scrollbar-color: rgb(56, 58, 61) #000000;
         }
-                
+
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }
-                
+
         .custom-scrollbar::-webkit-scrollbar-track {
           background: #000000;
           border-radius: 2px;
         }
-                
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: #6b7280;
           border-radius: 2px;
         }
-                
+
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgb(68, 71, 76);
         }

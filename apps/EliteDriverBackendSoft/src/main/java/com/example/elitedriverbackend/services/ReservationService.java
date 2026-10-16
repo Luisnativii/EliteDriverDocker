@@ -11,7 +11,7 @@ import com.example.elitedriverbackend.repositories.UserRepository;
 import com.example.elitedriverbackend.repositories.VehicleRepository;
 import com.example.elitedriverbackend.repositories.VehicleTypeRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.Clock;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -29,19 +30,14 @@ import java.util.UUID;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ReservationService {
 
-    @Autowired
-    private ReservationRepository reservationRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private VehicleRepository vehicleRepository;
-
-    @Autowired
-    private VehicleTypeRepository vehicleTypeRepository;
+    private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleTypeRepository vehicleTypeRepository;
+    private final Clock rentalClock;
 
     /*
         Crea una nueva reserva si el vehículo no está ya reservado en el rango de fechas especificado.
@@ -61,11 +57,19 @@ public class ReservationService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes crear una reserva para otro usuario.");
         }
 
-        Vehicle vehicle = vehicleRepository.findById(UUID.fromString(createReservationDTO.getVehicleId()))
-                .orElseThrow(() -> new RuntimeException("Vehiculo no encontrado"));
-        // Convertir LocalDate a java.sql.Date (sin hora ni desfase)
         LocalDate start = createReservationDTO.getStartDate();
         LocalDate end = createReservationDTO.getEndDate();
+        if (start == null || end == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Las fechas de inicio y fin son requeridas.");
+        }
+        if (start.isBefore(LocalDate.now(rentalClock))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de inicio no puede ser anterior a hoy.");
+        }
+
+        // Serialize bookings for this vehicle until the transaction commits.
+        // Lock before reading availability, including the first reservation.
+        Vehicle vehicle = vehicleRepository.findForReservation(UUID.fromString(createReservationDTO.getVehicleId()))
+                .orElseThrow(() -> new RuntimeException("Vehiculo no encontrado"));
         var totalPrice = ReservationPricing.total(start, end, vehicle.getPricePerDay());
 
         Date startDate = java.sql.Date.valueOf(start);
@@ -92,7 +96,7 @@ public class ReservationService {
         newReservation.setVehicle(vehicle);
         newReservation.setTotalPrice(totalPrice);
         newReservation.setPaymentStatus(PaymentStatus.PENDING);
-        return reservationRepository.save(newReservation);
+        return reservationRepository.saveAndFlush(newReservation);
     }
 
     public List<Reservation> getAllReservations() {
@@ -101,8 +105,7 @@ public class ReservationService {
     }
 
     public List<Reservation> getReservationsForAvailability(Date startDate, Date endDate) {
-        return reservationRepository.findByStartDateBetween(startDate, endDate).stream()
-                .filter(r -> r.getPaymentStatus() != PaymentStatus.CANCELLED).toList();
+        return reservationRepository.findOverlapping(startDate, endDate);
     }
 
     /*
@@ -121,8 +124,7 @@ public class ReservationService {
      */
     public List<Reservation> getReservationByRange(Date startDate, Date endDate) {
         try {
-            return reservationRepository.findByStartDateBetween(startDate, endDate).stream()
-                    .filter(r -> r.getPaymentStatus() != PaymentStatus.CANCELLED).toList();
+            return reservationRepository.findOverlapping(startDate, endDate);
         }catch (Exception e){
             throw new RuntimeException("Error obteniendo reservas: " + e.getMessage(), e);
         }

@@ -1,0 +1,149 @@
+{
+  "timezone": "America/Guatemala",
+  "results": [
+    {
+      "name": "One day",
+      "passed": true,
+      "expected": {
+        "days": 1,
+        "total": 33.89
+      },
+      "actual": {
+        "days": 1,
+        "subtotal": 29.99,
+        "iva": 3.9,
+        "totalPrice": 33.89
+      }
+    },
+    {
+      "name": "Two days",
+      "passed": true,
+      "expected": {
+        "days": 2,
+        "total": 67.78
+      },
+      "actual": {
+        "days": 2,
+        "subtotal": 59.98,
+        "iva": 7.8,
+        "totalPrice": 67.78
+      }
+    },
+    {
+      "name": "Three days",
+      "passed": true,
+      "expected": {
+        "days": 3,
+        "total": 101.67
+      },
+      "actual": {
+        "days": 3,
+        "subtotal": 89.97,
+        "iva": 11.7,
+        "totalPrice": 101.67
+      }
+    },
+    {
+      "name": "Month boundary",
+      "passed": true,
+      "expected": {
+        "days": 1,
+        "total": 33.89
+      },
+      "actual": {
+        "days": 1,
+        "subtotal": 29.99,
+        "iva": 3.9,
+        "totalPrice": 33.89
+      }
+    },
+    {
+      "name": "Leap year",
+      "passed": true,
+      "expected": {
+        "days": 2,
+        "total": 67.78
+      },
+      "actual": {
+        "days": 2,
+        "subtotal": 59.98,
+        "iva": 7.8,
+        "totalPrice": 67.78
+      }
+    },
+    {
+      "name": "Non leap year",
+      "passed": true,
+      "expected": {
+        "days": 1,
+        "total": 33.89
+      },
+      "actual": {
+        "days": 1,
+        "subtotal": 29.99,
+        "iva": 3.9,
+        "totalPrice": 33.89
+      }
+    },
+    {
+      "name": "Year boundary",
+      "passed": true,
+      "expected": {
+        "days": 1,
+        "total": 33.89
+      },
+      "actual": {
+        "days": 1,
+        "subtotal": 29.99,
+        "iva": 3.9,
+        "totalPrice": 33.89
+      }
+    },
+    {
+      "name": "Same day",
+      "passed": true,
+      "expected": {
+        "days": 0,
+        "total": 0
+      },
+      "actual": {
+        "days": 0,
+        "subtotal": 0,
+        "iva": 0,
+        "totalPrice": 0
+      }
+    },
+    {
+      "name": "Reversed dates",
+      "passed": true,
+      "expected": {
+        "days": 0,
+        "total": 0
+      },
+      "actual": {
+        "days": 0,
+        "subtotal": 0,
+        "iva": 0,
+        "totalPrice": 0
+      }
+    },
+    {
+      "name": "Today remains valid at 19:00 Guatemala",
+      "passed": false,
+      "instant": "2026-10-17T01:00:00Z",
+      "actual": {
+        "isValid": false,
+        "errors": [
+          "La fecha de inicio no puede ser anterior a hoy"
+        ]
+      }
+    },
+    {
+      "name": "Invalid date returns validation errors without throwing",
+      "passed": false,
+      "error": "Invalid time value"
+    }
+  ],
+  "passed": 9,
+  "failed": 2
+}

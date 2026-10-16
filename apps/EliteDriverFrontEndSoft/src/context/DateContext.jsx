@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { normalizeRentalSelection, restoreRentalSelection, RENTAL_SELECTION_KEY } from '../utils/rentalSelection.js';
 
 const DateContext = createContext();
 
@@ -11,17 +12,20 @@ export const useDateContext = () => {
 };
 
 export const DateProvider = ({ children }) => {
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    const [selection, setSelection] = useState(() => restoreRentalSelection(window.sessionStorage));
+    const { startDate, endDate } = selection;
+    const setStartDate = value => setSelection(previous => normalizeRentalSelection({ ...previous, startDate: value }));
+    const setEndDate = value => setSelection(previous => normalizeRentalSelection({ ...previous, endDate: value }));
+    useEffect(() => {
+        try { sessionStorage.setItem(RENTAL_SELECTION_KEY, JSON.stringify(selection)); } catch { /* Storage may be unavailable. */ }
+    }, [selection]);
 
     const updateDates = (start, end) => {
-        setStartDate(start);
-        setEndDate(end);
+        setSelection(normalizeRentalSelection({ startDate: start, endDate: end }));
     };
 
     const clearDates = () => {
-        setStartDate('');
-        setEndDate('');
+        setSelection({ startDate: '', endDate: '' });
     };
 
     return (

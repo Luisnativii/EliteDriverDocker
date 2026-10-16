@@ -1,9 +1,10 @@
-import { API_BASE_URL, API_ENDPOINTS, buildEndpoint } from '../config/apiConfig';
+import { API_BASE_URL, API_ENDPOINTS, buildEndpoint } from '../config/apiConfig.js';
+import { isRentalDate, rentalToday, rentalDays } from '../utils/rentalDates.js';
 
 
 
 class ReservationService {
-    
+
     //llamada a API para crear reserva
     static async createReservation(reservationData) {
         const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
@@ -108,7 +109,7 @@ class ReservationService {
     }
 
     // Validar datos de reserva
-    static validateReservation(reservationData) {
+    static validateReservation(reservationData, now = new Date()) {
         const errors = [];
 
         if (!reservationData.startDate) {
@@ -119,22 +120,19 @@ class ReservationService {
             errors.push('La fecha de fin es requerida');
         }
 
-        if (reservationData.startDate && reservationData.endDate) {
-            const toDateOnlyString = (d) =>
-                new Date(d).toISOString().split('T')[0]; // YYYY-MM-DD
-
-            const start = toDateOnlyString(reservationData.startDate);
-            const end = toDateOnlyString(reservationData.endDate);
-            const today = toDateOnlyString(new Date());
-
-            if (start < today) {
-                errors.push('La fecha de inicio no puede ser anterior a hoy');
-            }
-
-            if (end <= start) {
-                errors.push('La fecha de fin debe ser posterior a la fecha de inicio');
-            }
-
+        const start = reservationData.startDate;
+        const end = reservationData.endDate;
+        if (start && !isRentalDate(start)) {
+            errors.push('La fecha de inicio no es válida');
+        }
+        if (end && !isRentalDate(end)) {
+            errors.push('La fecha de fin no es válida');
+        }
+        if (isRentalDate(start) && start < rentalToday(now)) {
+            errors.push('La fecha de inicio no puede ser anterior a hoy');
+        }
+        if (isRentalDate(start) && isRentalDate(end) && end <= start) {
+            errors.push('La fecha de fin debe ser posterior a la fecha de inicio');
         }
         if (!reservationData.vehicleId) {
             errors.push('ID del vehículo es requerido');
@@ -151,10 +149,7 @@ class ReservationService {
     static calculateTotalPrice(startDate, endDate, pricePerDay) {
         if (!startDate || !endDate || !pricePerDay) return { days: 0, subtotal: 0, iva: 0, totalPrice: 0 };
 
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        const diffTime = end - start;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffDays = rentalDays(startDate, endDate);
 
         if (diffDays <= 0) return { days: 0, subtotal: 0, iva: 0, totalPrice: 0 };
         const subtotal = Math.round((diffDays * pricePerDay + Number.EPSILON) * 100) / 100;

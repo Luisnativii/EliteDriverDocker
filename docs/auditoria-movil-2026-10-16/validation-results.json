@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-16",
+  "frontendExistingTests": { "passed": 30, "failed": 0 },
+  "backendExistingTests": { "passed": 39, "failed": 0 },
+  "frontendLint": { "errors": 31, "warnings": 6 },
+  "build": { "frontend": "passed", "backend": "passed", "initialJavascriptKB": 750.35, "initialJavascriptGzipKB": 219.75 },
+  "additionalApiChecks": { "passed": 14, "failed": 2 },
+  "additionalDateChecks": { "passed": 9, "failed": 2 },
+  "concurrency": { "requests": 5, "accepted": 2, "passed": false },
+  "cacheFreshness": { "passed": true, "proxyCacheStatus": "MISS" },
+  "browserRouteViewportSamples": 68,
+  "localFixtureCleanup": { "remainingVehicles": 3, "remainingReservations": 2, "auditReservationsCancelled": 6, "auditAccountRemoved": true },
+  "paymentProvider": { "enabled": false, "realCharge": false, "approvedProviderRoundTripTested": false },
+  "functionalApplicationCodeChanged": false
+}

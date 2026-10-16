@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-16",
+  "constraint": "reservations_no_active_overlap",
+  "installed": true,
+  "migrationReappliedSuccessfully": true,
+  "directSqlConflictsRejected": 6,
+  "testedHoldingStatuses": ["PENDING", "PAID", "PAID_TEST", null],
+  "cancelledOverlapAllowed": true,
+  "conflictingReactivationRejected": true,
+  "inclusiveReturnDayEnforced": true,
+  "disjointPeriodAllowed": true,
+  "testTransactionRolledBack": true,
+  "remainingVehicles": 3,
+  "remainingReservations": 2
+}

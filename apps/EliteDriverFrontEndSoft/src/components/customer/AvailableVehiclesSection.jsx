@@ -4,6 +4,8 @@ import { MapPin, ArrowRight } from 'lucide-react';
 import { useDateContext } from '../../context/DateContext';
 import { getAllVehicles } from '../../services/vehicleService';
 import ReservationService from '../../services/reservationService';
+import { useAuth } from '../../hooks/useAuth';
+import { goToReservation } from '../../utils/reservationNavigation.js';
 
 /**
  * Vehículos que se pueden reservar ahora mismo, en la página de inicio.
@@ -17,6 +19,7 @@ import ReservationService from '../../services/reservationService';
 const AvailableVehiclesSection = () => {
   const { startDate, endDate } = useDateContext();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [vehicles, setVehicles] = useState([]);
   const [reservedIds, setReservedIds] = useState([]);
@@ -83,7 +86,7 @@ const AvailableVehiclesSection = () => {
 
   const visibles = disponibles.slice(0, 6);
 
-  const irAlVehiculo = (id) => navigate(`/customer/reservation-page/${id}`);
+  const irAlVehiculo = (id) => goToReservation(navigate, id, user);
 
   return (
     <section className="bg-neutral-800 text-white py-14 sm:py-20 px-4 sm:px-6">

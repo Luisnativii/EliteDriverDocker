@@ -16,16 +16,17 @@ import java.util.UUID;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
+    String ACTIVE_OVERLAP = "(r.paymentStatus IS NULL OR r.paymentStatus <> com.example.elitedriverbackend.domain.entity.PaymentStatus.CANCELLED) AND " +
+            "(:startDate <= r.endDate AND :endDate >= r.startDate)";
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r FROM Reservation r WHERE r.id = :id")
     Optional<Reservation> findForPayment(@Param("id") UUID id);
-    List<Reservation> findByStartDateBetween(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    @Query("SELECT r FROM Reservation r WHERE " + ACTIVE_OVERLAP)
+    List<Reservation> findOverlapping(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
     List<Reservation> findByVehicle_VehicleType(VehicleType vehicleType);
     List<Reservation> findByUser_Id(UUID userId);
     List<Reservation> findByVehicle_Id(UUID vehicleId);
-    @Query("SELECT r FROM Reservation r WHERE r.vehicle.id = :vehicleId AND " +
-            "(r.paymentStatus IS NULL OR r.paymentStatus <> com.example.elitedriverbackend.domain.entity.PaymentStatus.CANCELLED) AND " +
-            "(:startDate <= r.endDate AND :endDate >= r.startDate)")
+    @Query("SELECT r FROM Reservation r WHERE r.vehicle.id = :vehicleId AND " + ACTIVE_OVERLAP)
     List<Reservation> findByVehicleIdAndDateOverlap(
             @Param("vehicleId") UUID vehicleId,
             @Param("startDate") Date startDate,

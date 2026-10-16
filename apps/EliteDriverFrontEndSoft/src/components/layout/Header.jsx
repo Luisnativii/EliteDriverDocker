@@ -6,7 +6,7 @@ const Header = ({ toggleSidebar, showSidebar, menuOpen }) => {
   return (
     <header className={`
       fixed top-0 left-0 right-0 z-30
-      bg-black/20 backdrop-blur-md border-b border-white/10
+      bg-neutral-950/95 backdrop-blur-md border-b border-white/10
       h-20 flex-shrink-0 transition-all duration-300 ease-in-out
       ${showSidebar ? 'opacity-0 -translate-y-full pointer-events-none' : 'opacity-100 translate-y-0'}
     `}>
@@ -19,7 +19,7 @@ const Header = ({ toggleSidebar, showSidebar, menuOpen }) => {
             }}
             className={`
               min-h-11 min-w-11 flex items-center justify-center rounded-xl bg-transparent hover:bg-white/10
-              transition-all duration-200 
+              transition-all duration-200
               hover:scale-105 active:scale-95
               ${showSidebar ? 'hidden' : 'block'}
             `}
@@ -29,14 +29,14 @@ const Header = ({ toggleSidebar, showSidebar, menuOpen }) => {
           >
             <Menu size={20} className="text-white" />
           </button>
-          
+
           <div className="flex items-center gap-3">
             <img
               src="/EliteDrive.svg"
               alt="Logo"
               className="h-12 w-auto brightness-0 invert"
             />
-            
+
           </div>
         </div>
       </div>

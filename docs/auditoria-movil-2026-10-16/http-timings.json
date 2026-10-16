@@ -1,0 +1,86 @@
+[
+  {
+    "url": "http://127.0.0.1:5173/",
+    "status": 200,
+    "totalMs": 46.25,
+    "firstByteMs": 46.0,
+    "bytes": 477
+  },
+  {
+    "url": "http://127.0.0.1:5173/",
+    "status": 200,
+    "totalMs": 222.06,
+    "firstByteMs": 221.8,
+    "bytes": 477
+  },
+  {
+    "url": "http://127.0.0.1:5173/",
+    "status": 200,
+    "totalMs": 84.29,
+    "firstByteMs": 83.56,
+    "bytes": 477
+  },
+  {
+    "url": "http://127.0.0.1:5173/api/vehicles",
+    "status": 200,
+    "totalMs": 235.96,
+    "firstByteMs": 235.66,
+    "bytes": 1467
+  },
+  {
+    "url": "http://127.0.0.1:5173/api/vehicles",
+    "status": 200,
+    "totalMs": 114.17,
+    "firstByteMs": 113.9,
+    "bytes": 1467
+  },
+  {
+    "url": "http://127.0.0.1:5173/api/vehicles",
+    "status": 200,
+    "totalMs": 121.32,
+    "firstByteMs": 121.07,
+    "bytes": 1467
+  },
+  {
+    "url": "http://127.0.0.1:18080/health",
+    "status": 200,
+    "totalMs": 31.28,
+    "firstByteMs": 31.02,
+    "bytes": 31
+  },
+  {
+    "url": "http://127.0.0.1:18080/health",
+    "status": 200,
+    "totalMs": 39.61,
+    "firstByteMs": 36.79,
+    "bytes": 31
+  },
+  {
+    "url": "http://127.0.0.1:18080/health",
+    "status": 200,
+    "totalMs": 54.72,
+    "firstByteMs": 48.64,
+    "bytes": 31
+  },
+  {
+    "url": "http://localhost:5173/api/vehicles",
+    "status": 200,
+    "totalMs": 349.64,
+    "firstByteMs": 349.14,
+    "bytes": 1467
+  },
+  {
+    "url": "http://localhost:5173/api/vehicles",
+    "status": 200,
+    "totalMs": 311.57,
+    "firstByteMs": 310.95,
+    "bytes": 1467
+  },
+  {
+    "url": "http://localhost:5173/api/vehicles",
+    "status": 200,
+    "totalMs": 322.39,
+    "firstByteMs": 321.82,
+    "bytes": 1467
+  }
+]

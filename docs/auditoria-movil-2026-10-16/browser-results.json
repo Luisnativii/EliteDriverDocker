@@ -1,0 +1,1085 @@
+{
+  "viewports": [
+    {
+      "route": "inicio",
+      "heading": "ELITEDRIVE",
+      "height": 568,
+      "mainScroll": 312,
+      "mainWidth": 310,
+      "overflow": [
+        {
+          "tag": "DIV",
+          "text": "ELITEDRIVEEncuentra tu libertad en cada viaje",
+          "w": 313,
+          "x": -2
+        },
+        {
+          "tag": "H1",
+          "text": "ELITEDRIVE",
+          "w": 313,
+          "x": -2
+        },
+        {
+          "tag": "SPAN",
+          "text": "ELITE",
+          "w": 313,
+          "x": -2
+        },
+        {
+          "tag": "SPAN",
+          "text": "DRIVE",
+          "w": 313,
+          "x": -2
+        },
+        {
+          "tag": "P",
+          "text": "Encuentra tu libertad en cada viaje",
+          "w": 313,
+          "x": -2
+        }
+      ],
+      "unlabeledInputs": [],
+      "width": 320
+    },
+    {
+      "route": "catalogo",
+      "heading": "Vehículos Disponibles",
+      "height": 568,
+      "mainScroll": 310,
+      "mainWidth": 310,
+      "overflow": [
+        {
+          "tag": "DIV",
+          "text": "TodosSedanSUVPickUp",
+          "w": 360,
+          "x": 29
+        },
+        {
+          "tag": "BUTTON",
+          "text": "PickUp",
+          "w": 94,
+          "x": 295
+        }
+      ],
+      "unlabeledInputs": [],
+      "width": 320
+    },
+    {
+      "route": "reserva",
+      "heading": "Reservar Vehículo",
+      "height": 568,
+      "mainScroll": 328,
+      "mainWidth": 310,
+      "overflow": [
+        {
+          "tag": "DIV",
+          "text": "3Pagando",
+          "w": 91,
+          "x": 237
+        },
+        {
+          "tag": "SPAN",
+          "text": "Pagando",
+          "w": 55,
+          "x": 273
+        }
+      ],
+      "unlabeledInputs": [],
+      "width": 320
+    },
+    {
+      "route": "mis-reservas",
+      "heading": "Mis reservas",
+      "height": 568,
+      "mainScroll": 310,
+      "mainWidth": 310,
+      "overflow": [],
+      "unlabeledInputs": [],
+      "width": 320
+    },
+    {
+      "route": "inicio",
+      "heading": "ELITEDRIVE",
+      "height": 800,
+      "mainScroll": 350,
+      "mainWidth": 350,
+      "overflow": [],
+      "unlabeledInputs": [],
+      "width": 360
+    },
+    {
+      "route": "catalogo",
+      "heading": "Vehículos Disponibles",
+      "height": 800,
+      "mainScroll": 350,
+      "mainWidth": 350,
+      "overflow": [
+        {
+          "tag": "DIV",
+          "text": "TodosSedanSUVPickUp",
+          "w": 360,
+          "x": 29
+        },
+        {
+          "tag": "BUTTON",
+          "text": "PickUp",
+          "w": 94,
+          "x": 295
+        }
+      ],
+      "unlabeledInputs": [],
+      "width": 360
+    },
+    {
+      "route": "reserva",
+      "heading": "Reservar Vehículo",
+      "height": 800,
+      "mainScroll": 350,
+      "mainWidth": 350,
+      "overflow": [],
+      "unlabeledInputs": [],
+      "width": 360
+    },
+    {
+      "route": "mis-reservas",
+      "heading": "Mis reservas",
+      "height": 800,
+      "mainScroll": 350,
+      "mainWidth": 350,
+      "overflow": [],
+      "unlabeledInputs": [],
+      "width": 360
+    },
+    {
+      "route": "inicio",
+      "heading": "ELITEDRIVE",
+      "height": 812,
+      "mainScroll": 365,
+      "mainWidth": 365,
+      "overflow": [],
+      "unlabeledInputs": [],
+      "width": 375
+    },
+    {
+      "route": "catalogo",
+      "heading": "Vehículos Disponibles",
+      "height": 812,
+      "mainScroll": 365,
+      "mainWidth": 365,
+      "overflow": [
+        {
+          "tag": "DIV",
+          "text": "TodosSedanSUVPickUp",
+          "w": 360,
+          "x": 29
+        },
+        {
+          "tag": "BUTTON",
+          "text": "PickUp",
+          "w": 94,
+          "x": 295
+        }
+      ],
+      "unlabeledInputs": [],
+      "width": 375
+    },
+    {
+      "route": "reserva",
+      "heading": "Reservar Vehículo",
+      "height": 812,
+      "mainScroll": 365,
+      "mainWidth": 365,
+      "overflow": [],
+      "unlabeledInputs": [],
+      "width": 375
+    },
+    {
+      "route": "mis-reservas",
+      "heading": "Mis reservas",
+      "height": 812,
+      "mainScroll": 375,
+      "mainWidth": 375,
+      "overflow": [],
+      "unlabeledInputs": [],
+      "width": 375
+    },
+    {
+      "route": "inicio",
+      "heading": "ELITEDRIVE",
+      "height": 844,
+      "mainScroll": 380,
+      "mainWidth": 380,
+      "overflow": [],
+      "width": 390
+    },
+    {
+      "route": "catalogo",
+      "heading": "Vehículos Disponibles",
+      "height": 844,
+      "mainScroll": 380,
+      "mainWidth": 380,
+      "overflow": [],
+      "width": 390
+    },
+    {
+      "route": "reserva",
+      "heading": "Reservar Vehículo",
+      "height": 844,
+      "mainScroll": 380,
+      "mainWidth": 380,
+      "overflow": [],
+      "width": 390
+    },
+    {
+      "route": "mis-reservas",
+      "heading": "Mis reservas",
+      "height": 844,
+      "mainScroll": 390,
+      "mainWidth": 390,
+      "overflow": [],
+      "width": 390
+    },
+    {
+      "route": "inicio",
+      "heading": "ELITEDRIVE",
+      "height": 896,
+      "mainScroll": 404,
+      "mainWidth": 404,
+      "overflow": [],
+      "width": 414
+    },
+    {
+      "route": "catalogo",
+      "heading": "Vehículos Disponibles",
+      "height": 896,
+      "mainScroll": 404,
+      "mainWidth": 404,
+      "overflow": [],
+      "width": 414
+    },
+    {
+      "route": "reserva",
+      "heading": "Reservar Vehículo",
+      "height": 896,
+      "mainScroll": 404,
+      "mainWidth": 404,
+      "overflow": [],
+      "width": 414
+    },
+    {
+      "route": "mis-reservas",
+      "heading": "Mis reservas",
+      "height": 896,
+      "mainScroll": 414,
+      "mainWidth": 414,
+      "overflow": [],
+      "width": 414
+    },
+    {
+      "route": "inicio",
+      "heading": "ELITEDRIVE",
+      "height": 932,
+      "mainScroll": 420,
+      "mainWidth": 420,
+      "overflow": [],
+      "width": 430
+    },
+    {
+      "route": "catalogo",
+      "heading": "Vehículos Disponibles",
+      "height": 932,
+      "mainScroll": 420,
+      "mainWidth": 420,
+      "overflow": [],
+      "width": 430
+    },
+    {
+      "route": "reserva",
+      "heading": "Reservar Vehículo",
+      "height": 932,
+      "mainScroll": 420,
+      "mainWidth": 420,
+      "overflow": [],
+      "width": 430
+    },
+    {
+      "route": "mis-reservas",
+      "heading": "Mis reservas",
+      "height": 932,
+      "mainScroll": 430,
+      "mainWidth": 430,
+      "overflow": [],
+      "width": 430
+    },
+    {
+      "route": "inicio",
+      "heading": "ELITEDRIVE",
+      "height": 1024,
+      "mainScroll": 502,
+      "mainWidth": 502,
+      "overflow": [],
+      "width": 768
+    },
+    {
+      "route": "catalogo",
+      "heading": "Vehículos Disponibles",
+      "height": 1024,
+      "mainScroll": 502,
+      "mainWidth": 502,
+      "overflow": [],
+      "width": 768
+    },
+    {
+      "route": "reserva",
+      "heading": "Reservar Vehículo",
+      "height": 1024,
+      "mainScroll": 502,
+      "mainWidth": 502,
+      "overflow": [],
+      "width": 768
+    },
+    {
+      "route": "mis-reservas",
+      "heading": "Mis reservas",
+      "height": 1024,
+      "mainScroll": 512,
+      "mainWidth": 512,
+      "overflow": [],
+      "width": 768
+    },
+    {
+      "route": "inicio",
+      "heading": "ELITEDRIVE",
+      "height": 768,
+      "mainScroll": 1066,
+      "mainWidth": 758,
+      "overflow": [
+        {
+          "tag": "DIV",
+          "text": "Reserva tu vehículoDesde:Hasta:Buscar Vehículos",
+          "w": 700,
+          "x": 622
+        },
+        {
+          "tag": "H3",
+          "text": "Reserva tu vehículo",
+          "w": 634,
+          "x": 655
+        },
+        {
+          "tag": "DIV",
+          "text": "Desde:Hasta:Buscar Vehículos",
+          "w": 634,
+          "x": 655
+        },
+        {
+          "tag": "DIV",
+          "text": "Desde:Hasta:",
+          "w": 634,
+          "x": 655
+        },
+        {
+          "tag": "DIV",
+          "text": "Hasta:",
+          "w": 309,
+          "x": 980
+        },
+        {
+          "tag": "LABEL",
+          "text": "Hasta:",
+          "w": 309,
+          "x": 980
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "w": 309,
+          "x": 980
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Buscar Vehículos",
+          "w": 634,
+          "x": 655
+        }
+      ],
+      "width": 1024
+    },
+    {
+      "route": "catalogo",
+      "heading": "Vehículos Disponibles",
+      "height": 768,
+      "mainScroll": 758,
+      "mainWidth": 758,
+      "overflow": [],
+      "width": 1024
+    },
+    {
+      "route": "reserva",
+      "heading": "Reservar Vehículo",
+      "height": 768,
+      "mainScroll": 758,
+      "mainWidth": 758,
+      "overflow": [],
+      "width": 1024
+    },
+    {
+      "route": "mis-reservas",
+      "heading": "Mis reservas",
+      "height": 768,
+      "mainScroll": 768,
+      "mainWidth": 768,
+      "overflow": [],
+      "width": 1024
+    },
+    {
+      "route": "inicio",
+      "heading": "ELITEDRIVE",
+      "height": 900,
+      "mainScroll": 1174,
+      "mainWidth": 1174,
+      "overflow": [],
+      "width": 1440
+    },
+    {
+      "route": "catalogo",
+      "heading": "Vehículos Disponibles",
+      "height": 900,
+      "mainScroll": 1184,
+      "mainWidth": 1184,
+      "overflow": [],
+      "width": 1440
+    },
+    {
+      "route": "reserva",
+      "heading": "Reservar Vehículo",
+      "height": 900,
+      "mainScroll": 1174,
+      "mainWidth": 1174,
+      "overflow": [],
+      "width": 1440
+    },
+    {
+      "route": "mis-reservas",
+      "heading": "Mis reservas",
+      "height": 900,
+      "mainScroll": 1184,
+      "mainWidth": 1184,
+      "overflow": [],
+      "width": 1440
+    },
+    {
+      "route": "login",
+      "bodyScroll": 305,
+      "bodyWidth": 305,
+      "heading": "Inicio de sesión",
+      "height": 568,
+      "labels": [
+        {
+          "font": "16px",
+          "labelCount": 1,
+          "name": "email"
+        },
+        {
+          "font": "16px",
+          "labelCount": 1,
+          "name": "password"
+        }
+      ],
+      "pageHeight": 687,
+      "width": 320
+    },
+    {
+      "route": "registro",
+      "bodyScroll": 305,
+      "bodyWidth": 305,
+      "heading": "Crear cuenta",
+      "height": 568,
+      "labels": [
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "firstName"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "lastName"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "birthDate"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "dui"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "phoneNumber"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "email"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "password"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "confirmPassword"
+        }
+      ],
+      "pageHeight": 1331,
+      "width": 320
+    },
+    {
+      "route": "informacion",
+      "bodyScroll": 305,
+      "bodyWidth": 305,
+      "heading": "Sobre Elite Driver",
+      "height": 568,
+      "labels": [],
+      "pageHeight": 1845,
+      "width": 320
+    },
+    {
+      "route": "privacidad",
+      "bodyScroll": 305,
+      "bodyWidth": 305,
+      "heading": "Aviso de privacidad",
+      "height": 568,
+      "labels": [],
+      "pageHeight": 3624,
+      "width": 320
+    },
+    {
+      "route": "terminos",
+      "bodyScroll": 305,
+      "bodyWidth": 305,
+      "heading": "Términos y Condiciones",
+      "height": 568,
+      "labels": [],
+      "pageHeight": 3914,
+      "width": 320
+    },
+    {
+      "route": "cookies",
+      "bodyScroll": 305,
+      "bodyWidth": 305,
+      "heading": "Política de cookies",
+      "height": 568,
+      "labels": [],
+      "pageHeight": 1912,
+      "width": 320
+    },
+    {
+      "route": "legal",
+      "bodyScroll": 305,
+      "bodyWidth": 305,
+      "heading": "Información legal",
+      "height": 568,
+      "labels": [],
+      "pageHeight": 2238,
+      "width": 320
+    },
+    {
+      "route": "tipo-sedan",
+      "bodyScroll": 320,
+      "bodyWidth": 320,
+      "heading": "Sedán",
+      "height": 568,
+      "labels": [],
+      "pageHeight": 568,
+      "width": 320
+    },
+    {
+      "route": "login",
+      "bodyScroll": 390,
+      "bodyWidth": 390,
+      "heading": "Inicio de sesión",
+      "height": 844,
+      "labels": [
+        {
+          "font": "16px",
+          "labelCount": 1,
+          "name": "email"
+        },
+        {
+          "font": "16px",
+          "labelCount": 1,
+          "name": "password"
+        }
+      ],
+      "pageHeight": 844,
+      "width": 390
+    },
+    {
+      "route": "registro",
+      "bodyScroll": 375,
+      "bodyWidth": 375,
+      "heading": "Crear cuenta",
+      "height": 844,
+      "labels": [
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "firstName"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "lastName"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "birthDate"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "dui"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "phoneNumber"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "email"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "password"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "confirmPassword"
+        }
+      ],
+      "pageHeight": 1331,
+      "width": 390
+    },
+    {
+      "route": "informacion",
+      "bodyScroll": 375,
+      "bodyWidth": 375,
+      "heading": "Sobre Elite Driver",
+      "height": 844,
+      "labels": [],
+      "pageHeight": 1643,
+      "width": 390
+    },
+    {
+      "route": "privacidad",
+      "bodyScroll": 375,
+      "bodyWidth": 375,
+      "heading": "Aviso de privacidad",
+      "height": 844,
+      "labels": [],
+      "pageHeight": 3097,
+      "width": 390
+    },
+    {
+      "route": "terminos",
+      "bodyScroll": 375,
+      "bodyWidth": 375,
+      "heading": "Términos y Condiciones",
+      "height": 844,
+      "labels": [],
+      "pageHeight": 3246,
+      "width": 390
+    },
+    {
+      "route": "cookies",
+      "bodyScroll": 375,
+      "bodyWidth": 375,
+      "heading": "Política de cookies",
+      "height": 844,
+      "labels": [],
+      "pageHeight": 1646,
+      "width": 390
+    },
+    {
+      "route": "legal",
+      "bodyScroll": 375,
+      "bodyWidth": 375,
+      "heading": "Información legal",
+      "height": 844,
+      "labels": [],
+      "pageHeight": 1967,
+      "width": 390
+    },
+    {
+      "route": "tipo-sedan",
+      "bodyScroll": 390,
+      "bodyWidth": 390,
+      "heading": "Sedán",
+      "height": 844,
+      "labels": [],
+      "pageHeight": 844,
+      "width": 390
+    },
+    {
+      "route": "login",
+      "bodyScroll": 829,
+      "bodyWidth": 829,
+      "heading": "Inicio de sesión",
+      "height": 390,
+      "labels": [
+        {
+          "font": "16px",
+          "labelCount": 1,
+          "name": "email"
+        },
+        {
+          "font": "16px",
+          "labelCount": 1,
+          "name": "password"
+        }
+      ],
+      "pageHeight": 688,
+      "width": 844
+    },
+    {
+      "route": "registro",
+      "bodyScroll": 829,
+      "bodyWidth": 829,
+      "heading": "Crear cuenta",
+      "height": 390,
+      "labels": [
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "firstName"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "lastName"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "birthDate"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "dui"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "phoneNumber"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "email"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "password"
+        },
+        {
+          "font": "16px",
+          "labelCount": 0,
+          "name": "confirmPassword"
+        }
+      ],
+      "pageHeight": 1030,
+      "width": 844
+    },
+    {
+      "route": "informacion",
+      "bodyScroll": 829,
+      "bodyWidth": 829,
+      "heading": "Sobre Elite Driver",
+      "height": 390,
+      "labels": [],
+      "pageHeight": 1429,
+      "width": 844
+    },
+    {
+      "route": "privacidad",
+      "bodyScroll": 829,
+      "bodyWidth": 829,
+      "heading": "Aviso de privacidad",
+      "height": 390,
+      "labels": [],
+      "pageHeight": 2287,
+      "width": 844
+    },
+    {
+      "route": "terminos",
+      "bodyScroll": 829,
+      "bodyWidth": 829,
+      "heading": "Términos y Condiciones",
+      "height": 390,
+      "labels": [],
+      "pageHeight": 2560,
+      "width": 844
+    },
+    {
+      "route": "cookies",
+      "bodyScroll": 829,
+      "bodyWidth": 829,
+      "heading": "Política de cookies",
+      "height": 390,
+      "labels": [],
+      "pageHeight": 1274,
+      "width": 844
+    },
+    {
+      "route": "legal",
+      "bodyScroll": 829,
+      "bodyWidth": 829,
+      "heading": "Información legal",
+      "height": 390,
+      "labels": [],
+      "pageHeight": 1516,
+      "width": 844
+    },
+    {
+      "route": "tipo-sedan",
+      "bodyScroll": 844,
+      "bodyWidth": 844,
+      "heading": "Sedán",
+      "height": 390,
+      "labels": [],
+      "pageHeight": 390,
+      "width": 844
+    },
+    {
+      "route": "admin",
+      "heading": "Alertas de Mantenimiento",
+      "height": 568,
+      "mainScroll": 310,
+      "mainWidth": 310,
+      "overflow": [],
+      "width": 320
+    },
+    {
+      "route": "admin-reservas",
+      "heading": "Gestión de Reservas",
+      "height": 568,
+      "mainScroll": 310,
+      "mainWidth": 310,
+      "overflow": [],
+      "width": 320
+    },
+    {
+      "route": "admin-vehiculos",
+      "heading": "Gestión de Vehículos",
+      "height": 568,
+      "mainScroll": 310,
+      "mainWidth": 310,
+      "overflow": [
+        {
+          "tag": "BUTTON",
+          "text": "Agregar Vehículo",
+          "w": 135,
+          "x": 190
+        }
+      ],
+      "width": 320
+    },
+    {
+      "route": "admin-mantenimiento",
+      "heading": "Gestión de Mantenimiento",
+      "height": 568,
+      "mainScroll": 397,
+      "mainWidth": 310,
+      "overflow": [
+        {
+          "tag": "DIV",
+          "text": "Actualizar",
+          "w": 139,
+          "x": 257
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Actualizar",
+          "w": 139,
+          "x": 257
+        }
+      ],
+      "width": 320
+    },
+    {
+      "route": "admin",
+      "heading": "Alertas de Mantenimiento",
+      "height": 844,
+      "mainScroll": 380,
+      "mainWidth": 380,
+      "overflow": [],
+      "width": 390
+    },
+    {
+      "route": "admin-reservas",
+      "heading": "Gestión de Reservas",
+      "height": 844,
+      "mainScroll": 380,
+      "mainWidth": 380,
+      "overflow": [],
+      "width": 390
+    },
+    {
+      "route": "admin-vehiculos",
+      "heading": "Gestión de Vehículos",
+      "height": 844,
+      "mainScroll": 380,
+      "mainWidth": 380,
+      "overflow": [],
+      "width": 390
+    },
+    {
+      "route": "admin-mantenimiento",
+      "heading": "Gestión de Mantenimiento",
+      "height": 844,
+      "mainScroll": 397,
+      "mainWidth": 380,
+      "overflow": [
+        {
+          "tag": "DIV",
+          "text": "Actualizar",
+          "w": 139,
+          "x": 257
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Actualizar",
+          "w": 139,
+          "x": 257
+        }
+      ],
+      "width": 390
+    }
+  ],
+  "findings": [
+    {
+      "id": "F02",
+      "title": "Interior overlap is shown available",
+      "range": [
+        "2026-11-11",
+        "2026-11-13"
+      ],
+      "existing": [
+        "2026-11-10",
+        "2026-11-13"
+      ]
+    },
+    {
+      "id": "F03",
+      "title": "Guest home reserve returns home instead of login"
+    },
+    {
+      "id": "F06",
+      "title": "Payment creation error is cleared by pending-state polling"
+    },
+    {
+      "id": "F07",
+      "title": "Registration loses selected vehicle"
+    },
+    {
+      "id": "F08",
+      "title": "Reload clears rental dates"
+    },
+    {
+      "id": "F09",
+      "title": "Reservation error appears above the visible mobile viewport"
+    },
+    {
+      "id": "F10",
+      "title": "Reversed dates enable catalog reservation CTA"
+    },
+    {
+      "id": "F11",
+      "title": "320 px home title clipped by header"
+    },
+    {
+      "id": "F12",
+      "title": "320 px progress steps overflow"
+    },
+    {
+      "id": "F14",
+      "title": "Maintenance action overflows at 320 and 390 px"
+    },
+    {
+      "id": "F16",
+      "title": "Eight registration inputs have no associated label"
+    },
+    {
+      "id": "F17",
+      "title": "Menu and vehicle form do not close with Escape"
+    },
+    {
+      "id": "F18",
+      "title": "1024 px home date form overflows"
+    }
+  ],
+  "flows": [
+    {
+      "name": "Guest home reserve",
+      "result": "Returns home, no login redirect"
+    },
+    {
+      "name": "Guest catalog login",
+      "result": "Returns to selected vehicle with dates"
+    },
+    {
+      "name": "Registration validation",
+      "result": "Rejects underage and mismatched passwords"
+    },
+    {
+      "name": "Registration after selecting vehicle",
+      "result": "Creates local session but returns home, loses vehicle"
+    },
+    {
+      "name": "Rental three days",
+      "result": "101.67 USD inclusive of 13 percent IVA"
+    },
+    {
+      "name": "Payment disabled",
+      "result": "503; reservation PENDING"
+    },
+    {
+      "name": "Payment retry",
+      "result": "Configuration error cleared by pending-status polling; buttons disabled"
+    },
+    {
+      "name": "Cancel audit reservation",
+      "result": "Succeeded; previous reservations retained"
+    },
+    {
+      "name": "Reload",
+      "result": "Rental dates cleared"
+    },
+    {
+      "name": "Gallery",
+      "result": "Catalog arrows and reservation lightbox work; Escape closes lightbox"
+    },
+    {
+      "name": "Menu and create vehicle modal Escape",
+      "result": "Do not close; reservation detail modal does close and returns focus"
+    },
+    {
+      "name": "Admin filters and detail",
+      "result": "Pending filter and detail work at 320/390"
+    }
+  ]
+}

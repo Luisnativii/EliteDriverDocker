@@ -4,22 +4,22 @@ import { AuthProvider } from "./context/AuthContext";
 import { DateProvider } from './context/DateContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Layout from './components/layout/Layout';
-import DashboardPage from './pages/admin/DashboardPage';
-import MaintenancePage from './pages/admin/MaintenancePage';
-import ReservationManagementPage from './pages/admin/ReservationManagementPage';
-import VehicleManagementPage from './pages/admin/VehicleManagementPage';
-import HomePage from './pages/customer/HomePage';
-import MyReservationPage from './pages/customer/MyReservationsPage';
-import ReservationPage from './pages/customer/ReservationPage';
-import VehiclesPage from './pages/customer/VehiclesPage';
-import Login from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
-import VehicleTypeDetailPage from './pages/customer/VehicleTypeDetailPage';
-import InformacionPage from './pages/InformacionPage';
-import PrivacidadPage from './pages/legal/PrivacidadPage';
-import TerminosPage from './pages/legal/TerminosPage';
-import CookiesPage from './pages/legal/CookiesPage';
-import LegalPage from './pages/legal/LegalPage';
+const DashboardPage = React.lazy(() => import('./pages/admin/DashboardPage'));
+const MaintenancePage = React.lazy(() => import('./pages/admin/MaintenancePage'));
+const ReservationManagementPage = React.lazy(() => import('./pages/admin/ReservationManagementPage'));
+const VehicleManagementPage = React.lazy(() => import('./pages/admin/VehicleManagementPage'));
+const HomePage = React.lazy(() => import('./pages/customer/HomePage'));
+const MyReservationPage = React.lazy(() => import('./pages/customer/MyReservationsPage'));
+const ReservationPage = React.lazy(() => import('./pages/customer/ReservationPage'));
+const VehiclesPage = React.lazy(() => import('./pages/customer/VehiclesPage'));
+const Login = React.lazy(() => import('./pages/auth/LoginPage'));
+const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'));
+const VehicleTypeDetailPage = React.lazy(() => import('./pages/customer/VehicleTypeDetailPage'));
+const InformacionPage = React.lazy(() => import('./pages/InformacionPage'));
+const PrivacidadPage = React.lazy(() => import('./pages/legal/PrivacidadPage'));
+const TerminosPage = React.lazy(() => import('./pages/legal/TerminosPage'));
+const CookiesPage = React.lazy(() => import('./pages/legal/CookiesPage'));
+const LegalPage = React.lazy(() => import('./pages/legal/LegalPage'));
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -29,6 +29,7 @@ const App = () => (
   <Router>
     <AuthProvider>
       <DateProvider>
+        <React.Suspense fallback={<div role="status" className="min-h-dvh bg-neutral-900 text-white p-6 pt-24">Cargando…</div>}>
         <Routes>
           {/* Rutas públicas sin necesidad de login */}
           <Route element={<Layout />}>
@@ -77,6 +78,7 @@ const App = () => (
           {/* Redirección si no se encuentra ruta */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </React.Suspense>
 
       </DateProvider>
     </AuthProvider>

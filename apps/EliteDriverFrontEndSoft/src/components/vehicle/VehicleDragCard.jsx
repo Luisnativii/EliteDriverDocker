@@ -6,7 +6,10 @@ const VehicleDragCard = ({
   onDragStart,
   onDragEnd,
   isDragging,
-  onViewHistory
+  onViewHistory,
+  onStatusChange,
+  statusOptions = {},
+  statusChangeDisabled = false
 }) => {
   const handleViewHistory = (e) => {
     e.stopPropagation();
@@ -18,11 +21,11 @@ const VehicleDragCard = ({
       draggable
       onDragStart={(e) => onDragStart(e, vehicle)}
       onDragEnd={onDragEnd}
-      className={`bg-white/10 backdrop-blur-md rounded-xl shadow-lg border border-white/20 p-4 cursor-move hover:bg-white/20 transition-all duration-300 transform hover:scale-105 ${isDragging ? 'opacity-50 rotate-3' : ''
+      className={`bg-white/10 backdrop-blur-md rounded-xl shadow-lg border border-white/20 p-4 cursor-move hover:bg-white/20 transition-all duration-300 sm:transform sm:hover:scale-105 ${isDragging ? 'opacity-50 rotate-3' : ''
         }`}
     >
       <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <h3 className="text-white font-semibold text-lg truncate">{vehicle.name}</h3>
           <p className="text-white/70 text-sm">{vehicle.brand} {vehicle.model}</p>
         </div>
@@ -30,7 +33,7 @@ const VehicleDragCard = ({
           {/* Botón para ver historial */}
           <button
             onClick={handleViewHistory}
-            className="p-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg transition-all duration-200 group"
+            className="min-h-11 min-w-11 p-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg transition-all duration-200 group"
             title="Ver historial de mantenimiento"
           >
             <Eye className="w-4 h-4 text-blue-400 group-hover:text-blue-300" />
@@ -42,6 +45,11 @@ const VehicleDragCard = ({
         </div>
       </div>
 
+      <label className="block text-sm text-white/80 mb-3">Estado de {vehicle.name}
+        <select aria-label={"Estado de " + vehicle.name} disabled={statusChangeDisabled} draggable={false} value={vehicle.status || "maintenanceCompleted"} onChange={event => onStatusChange?.(vehicle, event.target.value)} className="mt-2 block w-full min-h-11 min-w-0 rounded-lg bg-neutral-800 border border-white/30 px-3 text-white">
+          {Object.entries(statusOptions).map(([value, option]) => <option key={value} value={value}>{option.title}</option>)}
+        </select>
+      </label>
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
           <span className="text-white/70">Tipo:</span>

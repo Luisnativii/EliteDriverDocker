@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import { useRegister } from '../../hooks/useRegister';
 import { useAuth } from '../../hooks/useAuth';
 import { PASSWORD_HINT } from '../../utils/registerValidation';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 /**
  * Componente del formulario de registro de usuario.
  * Permite al usuario crear una nueva cuenta proporcionando su información personal y credenciales.
- * 
+ *
  * @param {function} onLoginClick - Función que se ejecuta cuando el usuario hace clic en "Ya tengo una cuenta" para redirigir al login.
  */
 
@@ -18,15 +18,13 @@ const RegisterForm = ({ onLoginClick }) => {
     errors,
     isLoading,
     handleChange,
-    handleSubmit,
-    resetForm
+    handleSubmit
   } = useRegister();
 
   const { login: loginContext } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   //fecha maxima
@@ -54,9 +52,8 @@ const RegisterForm = ({ onLoginClick }) => {
     if (response?.user) {
       const result = await loginContext(response);
       if (result.success) {
-        setTimeout(() => {
-          navigate(response.user.role?.toLowerCase() === 'admin' ? '/admin' : '/customer', { replace: true });
-        }, 1200);
+        const fallback = response.user.role?.toLowerCase() === 'admin' ? '/admin' : '/customer';
+        navigate(location.state?.redirectTo || fallback, { replace: true });
         return;
       }
     }
@@ -76,7 +73,7 @@ const RegisterForm = ({ onLoginClick }) => {
    *
    * @param {Event} e - Evento de envío del formulario.
    */
-  
+
   const onSubmit = (e) => {
     handleSubmit(e, handleRegistrationSuccess);
   };
@@ -114,6 +111,9 @@ const RegisterForm = ({ onLoginClick }) => {
             <input
               type="text"
               name="firstName"
+              id="firstName"
+              aria-invalid={!!errors.firstName}
+              aria-describedby={errors.firstName ? "firstName-error" : undefined}
               value={formData.firstName}
               onChange={handleChange}
               className={`w-full p-3 bg-white/5 backdrop-blur-sm border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-300 ${errors.firstName
@@ -125,7 +125,7 @@ const RegisterForm = ({ onLoginClick }) => {
               disabled={isLoading}
             />
             {errors.firstName && (
-              <p className="text-red-300 text-xs mt-1">{errors.firstName}</p>
+              <p id="firstName-error" className="text-red-300 text-xs mt-1">{errors.firstName}</p>
             )}
           </div>
 
@@ -136,6 +136,9 @@ const RegisterForm = ({ onLoginClick }) => {
             <input
               type="text"
               name="lastName"
+              id="lastName"
+              aria-invalid={!!errors.lastName}
+              aria-describedby={errors.lastName ? "lastName-error" : undefined}
               value={formData.lastName}
               onChange={handleChange}
               className={`w-full p-3 bg-white/5 backdrop-blur-sm border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-300 ${errors.lastName
@@ -147,7 +150,7 @@ const RegisterForm = ({ onLoginClick }) => {
               disabled={isLoading}
             />
             {errors.lastName && (
-              <p className="text-red-300 text-xs mt-1">{errors.lastName}</p>
+              <p id="lastName-error" className="text-red-300 text-xs mt-1">{errors.lastName}</p>
             )}
           </div>
         </div>
@@ -160,6 +163,9 @@ const RegisterForm = ({ onLoginClick }) => {
           <input
             type="date"
             name="birthDate"
+              id="birthDate"
+              aria-invalid={!!errors.birthDate}
+              aria-describedby={errors.birthDate ? "birthDate-error" : undefined}
             value={formData.birthDate}
             max={maxBirthDate}
             min={minBirthDate}
@@ -172,7 +178,7 @@ const RegisterForm = ({ onLoginClick }) => {
             disabled={isLoading}
           />
           {errors.birthDate && (
-            <p className="text-red-300 text-xs mt-1">{errors.birthDate}</p>
+            <p id="birthDate-error" className="text-red-300 text-xs mt-1">{errors.birthDate}</p>
           )}
         </div>
 
@@ -185,6 +191,9 @@ const RegisterForm = ({ onLoginClick }) => {
             <input
               type="text"
               name="dui"
+              id="dui"
+              aria-invalid={!!errors.dui}
+              aria-describedby={errors.dui ? "dui-error" : undefined}
               value={formData.dui}
               onChange={handleChange}
               className={`w-full p-3 bg-white/5 backdrop-blur-sm border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-300 ${errors.dui
@@ -197,7 +206,7 @@ const RegisterForm = ({ onLoginClick }) => {
               disabled={isLoading}
             />
             {errors.dui && (
-              <p className="text-red-300 text-xs mt-1">{errors.dui}</p>
+              <p id="dui-error" className="text-red-300 text-xs mt-1">{errors.dui}</p>
             )}
           </div>
 
@@ -208,6 +217,9 @@ const RegisterForm = ({ onLoginClick }) => {
             <input
               type="tel"
               name="phoneNumber"
+              id="phoneNumber"
+              aria-invalid={!!errors.phoneNumber}
+              aria-describedby={errors.phoneNumber ? "phoneNumber-error" : undefined}
               value={formData.phoneNumber}
               onChange={handleChange}
               className={`w-full p-3 bg-white/5 backdrop-blur-sm border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-300 ${errors.phoneNumber
@@ -220,7 +232,7 @@ const RegisterForm = ({ onLoginClick }) => {
               disabled={isLoading}
             />
             {errors.phoneNumber && (
-              <p className="text-red-300 text-xs mt-1">{errors.phoneNumber}</p>
+              <p id="phoneNumber-error" className="text-red-300 text-xs mt-1">{errors.phoneNumber}</p>
             )}
           </div>
         </div>
@@ -233,6 +245,9 @@ const RegisterForm = ({ onLoginClick }) => {
           <input
             type="email"
             name="email"
+              id="email"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
             value={formData.email}
             onChange={handleChange}
             className={`w-full p-3 bg-white/5 backdrop-blur-sm border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-300 ${errors.email
@@ -244,7 +259,7 @@ const RegisterForm = ({ onLoginClick }) => {
             disabled={isLoading}
           />
           {errors.email && (
-            <p className="text-red-300 text-xs mt-1">{errors.email}</p>
+            <p id="email-error" className="text-red-300 text-xs mt-1">{errors.email}</p>
           )}
         </div>
 
@@ -257,6 +272,9 @@ const RegisterForm = ({ onLoginClick }) => {
             <input
               type="password"
               name="password"
+              id="password"
+              aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? "password-error" : undefined}
               value={formData.password}
               onChange={handleChange}
               className={`w-full p-3 bg-white/5 backdrop-blur-sm border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-300 ${errors.password
@@ -268,7 +286,7 @@ const RegisterForm = ({ onLoginClick }) => {
               disabled={isLoading}
             />
             {errors.password ? (
-              <p className="text-red-300 text-xs mt-1">{errors.password}</p>
+              <p id="password-error" className="text-red-300 text-xs mt-1">{errors.password}</p>
             ) : (
               <p className="text-white/50 text-xs mt-1">{PASSWORD_HINT}</p>
             )}
@@ -281,6 +299,9 @@ const RegisterForm = ({ onLoginClick }) => {
             <input
               type="password"
               name="confirmPassword"
+              id="confirmPassword"
+              aria-invalid={!!errors.confirmPassword}
+              aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
               value={formData.confirmPassword}
               onChange={handleChange}
               className={`w-full p-3 bg-white/5 backdrop-blur-sm border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-300 ${errors.confirmPassword
@@ -292,7 +313,7 @@ const RegisterForm = ({ onLoginClick }) => {
               disabled={isLoading}
             />
             {errors.confirmPassword && (
-              <p className="text-red-300 text-xs mt-1">{errors.confirmPassword}</p>
+              <p id="confirmPassword-error" className="text-red-300 text-xs mt-1">{errors.confirmPassword}</p>
             )}
           </div>
         </div>

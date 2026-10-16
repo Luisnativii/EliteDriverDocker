@@ -72,7 +72,7 @@ export default function MyReservationPage() {
                             {vehicle.mainImageUrl && <img src={vehicle.mainImageUrl} alt={vehicle.name || 'Vehículo'}
                                 className="relative h-full w-full object-cover" onError={e => { e.currentTarget.style.display = 'none'; }} />}
                         </div>
-                        <h2 className="text-lg font-semibold break-words">{vehicle.brand} {vehicle.name}</h2>
+                        <h2 className="text-lg font-semibold break-words">{vehicle.name || [vehicle.brand, vehicle.model].filter(Boolean).join(' ')}</h2>
                         <p className="text-sm text-gray-300 mt-1">Precio por día: ${Number(vehicle.pricePerDay || 0).toFixed(2)}</p>
                         <dl className="grid grid-cols-2 gap-3 mt-4 text-sm">
                             <div><dt className="text-gray-400">Inicio</dt><dd className="font-medium mt-1">{formatDate(res.startDate)}</dd></div>

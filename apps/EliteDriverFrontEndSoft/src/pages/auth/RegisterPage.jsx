@@ -1,12 +1,13 @@
 import React from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import RegisterForm from "../../components/forms/RegisterForm";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLoginClick = () => {
-    navigate('/login');
+    navigate('/login', { state: location.state });
   };
 
   const handleRegistrationSuccess = () => {
