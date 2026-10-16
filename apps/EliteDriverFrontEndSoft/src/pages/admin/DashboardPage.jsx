@@ -15,8 +15,8 @@ const DashboardPage = () => {
 
       {/* Sección de Calendario */}
       <div className="w-full min-w-0 bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 shadow-md">
-        <h2 className="text-xl font-semibold text-white mb-4">Reservas confirmadas</h2>
-        <p className="text-sm text-white/60 mb-4">Solo pagos reales aprobados. Las solicitudes pendientes y las pruebas se consultan en Gestión de reservas.</p>
+        <h2 className="text-xl font-semibold text-white mb-4">Calendario de reservas</h2>
+        <p className="text-sm text-white/60 mb-4">Cada reserva confirmada ocupa su vehículo en verde, azul o amarillo según si está activa, completada o próxima. Las pendientes de pago aparecen punteadas y se liberan solas al vencer.</p>
         <ReservationCalendar />
       </div>
     </div>

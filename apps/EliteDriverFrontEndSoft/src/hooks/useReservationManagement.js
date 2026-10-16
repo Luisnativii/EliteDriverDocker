@@ -8,7 +8,7 @@ export const useReservationManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [operationLoading, setOperationLoading] = useState(false);
-  const [paymentFilter, setPaymentFilter] = useState('PAID');
+  const [view, setView] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterVehicleType, setFilterVehicleType] = useState('all');
@@ -64,7 +64,13 @@ export const useReservationManagement = () => {
     return () => { window.clearInterval(timer); window.removeEventListener('focus', refreshVisible); };
   }, [isAuthenticated, hasAdminRole, authLoading, fetchReservations]);
 
-  const reservationsInView = useMemo(() => allReservations.filter(r => paymentStatus(r) === paymentFilter), [allReservations, paymentFilter]);
+  // 'ALL' muestra todas las reservas, pagadas o no; 'PENDING' solo las que
+  // todavia no se pagaron. La separacion de pruebas ya no es una vista.
+  const reservationsInView = useMemo(
+    () => (view === 'PENDING'
+      ? allReservations.filter(r => paymentStatus(r) === 'PENDING')
+      : allReservations.filter(r => paymentStatus(r) !== 'CANCELLED')),
+    [allReservations, view]);
   const filteredReservations = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     const now = new Date();
@@ -96,7 +102,7 @@ export const useReservationManagement = () => {
   const uniqueVehicleTypes = useMemo(() => [...new Set(reservationsInView.map(r => r.vehicle.type))], [reservationsInView]);
   const uniqueStatuses = useMemo(() => [...new Set(reservationsInView.map(r => reservationStatus(r)))], [reservationsInView]);
   const reservationStats = useMemo(() => calculateStats(allReservations), [allReservations]);
-  const changePaymentFilter = value => { setPaymentFilter(value); setFilterStatus('all'); setFilterVehicleType('all'); };
+  const changeView = value => { setView(value); setFilterStatus('all'); setFilterVehicleType('all'); };
 
   const handleConfirmCancel = async () => {
     if (!reservationToCancel) return;
@@ -125,10 +131,10 @@ export const useReservationManagement = () => {
   return {
     loading, error, authLoading, isAuthenticated, hasAdminRole, operationLoading,
     reservations: filteredReservations, searchTerm, filterStatus, filterVehicleType, dateFilter,
-    sortBy, sortOrder, showConfirmDialog, reservationToCancel, paymentFilter,
+    sortBy, sortOrder, showConfirmDialog, reservationToCancel, view,
     viewTotal: reservationsInView.length, uniqueVehicleTypes, uniqueStatuses, reservationStats,
     setSearchTerm, setFilterStatus, setFilterVehicleType, setDateFilter, setSortBy, setSortOrder,
-    setPaymentFilter: changePaymentFilter, initiateCancel, handleConfirmCancel, handleCancelConfirm,
+    setView: changeView, initiateCancel, handleConfirmCancel, handleCancelConfirm,
     handleRefresh: fetchReservations,
     getConfirmationMessage: () => reservationToCancel ? `¿Deseas cancelar la reserva pendiente de ${reservationToCancel.user.name} para ${reservationToCancel.vehicle.name}?` : '',
     formatDate, formatPrice, getStatusColor, getStatusLabel, setError,

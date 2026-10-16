@@ -5,7 +5,7 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { useReservationManagement } from '../../hooks/useReservationManagement';
-import { localReservationDate, reservationStatus } from '../../utils/reservationStatus';
+import { confirmedStatus, localReservationDate } from '../../utils/reservationStatus';
 import ReservationDetailModal from '../reservation/ReservationDetailModal';
 
 // Configuración del localizador para la fecha (usando date-fns)
@@ -40,7 +40,7 @@ const ReservationCalendar = () => {
             id: r.id,
             title: `${r.vehicle?.name || 'Vehículo reservado'} — ${r.user?.name || ''}`,
             start, end, allDay: true, reservation: r,
-            status: ({ activa: 'active', próxima: 'upcoming', completada: 'completed' })[reservationStatus(r)],
+            status: ({ activa: 'active', 'próxima': 'upcoming', completada: 'completed' })[confirmedStatus(r)] || 'pending',
         };
     }), [reservations]);
 
@@ -58,6 +58,8 @@ const ReservationCalendar = () => {
                     return 'bg-gradient-to-r from-blue-800/80 to-cyan-700/80 border-blue-300/50';
                 case 'upcoming':
                     return 'bg-gradient-to-r from-yellow-500/80 to-amber-400/80 border-yellow-300/50';
+                case 'pending':
+                    return 'bg-gradient-to-r from-amber-700/60 to-orange-600/60 border-amber-400/40 border-dashed';
                 default:
                     return 'bg-gradient-to-r from-gray-500/80 to-slate-500/80 border-gray-400/50';
             }
@@ -71,6 +73,8 @@ const ReservationCalendar = () => {
                     return '🔵';
                 case 'upcoming':
                     return '🟡';
+                case 'pending':
+                    return '🟠';
                 default:
                     return '⚪';
             }
@@ -216,6 +220,20 @@ const ReservationCalendar = () => {
                         </div>
                         <div className="p-2 bg-yellow-500/20 rounded-lg">
                             <CalendarDays className="w-6 h-6 text-yellow-400" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 shadow-lg">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-white/70 text-sm">🟠 Pendientes de pago</p>
+                            <p className="text-2xl font-bold text-amber-400">
+                                {events.filter(e => e.status === 'pending').length}
+                            </p>
+                        </div>
+                        <div className="p-2 bg-amber-500/20 rounded-lg">
+                            <CalendarDays className="w-6 h-6 text-amber-400" />
                         </div>
                     </div>
                 </div>

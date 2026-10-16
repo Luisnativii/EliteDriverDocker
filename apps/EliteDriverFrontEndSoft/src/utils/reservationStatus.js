@@ -41,6 +41,26 @@ export function reservationStatus(reservation, now = new Date()) {
     return 'activa';
 }
 
+/**
+ * Ciclo de vida de una reserva ya confirmada, sin distinguir si el pago fue
+ * real o de pruebas: en ambos casos las fechas quedan bloqueadas para el
+ * cliente y para el calendario del administrador. Devuelve null si la reserva
+ * todavía no esta pagada.
+ *
+ * Antes el calendario soloReconocía 'PAID' y las reservas pagadas en modo de
+ * pruebas aparecian como un bloque gris sin fecha de referencia.
+ */
+export function confirmedStatus(reservation, now = new Date()) {
+    const payment = paymentStatus(reservation);
+    if (payment !== 'PAID' && payment !== 'PAID_TEST') return null;
+    const start = localReservationDate(reservation.startDate);
+    const end = localReservationDate(reservation.endDate, true);
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime())) return 'desconocida';
+    if (start > now) return 'próxima';
+    if (end < now) return 'completada';
+    return 'activa';
+}
+
 export function reservationStats(reservations, now = new Date()) {
     const paid = reservations.filter(r => paymentStatus(r) === 'PAID');
     return {

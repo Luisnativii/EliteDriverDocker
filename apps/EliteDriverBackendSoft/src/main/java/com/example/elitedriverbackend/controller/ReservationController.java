@@ -130,6 +130,7 @@ public class ReservationController {
                         : reservation.getPaymentStatus() == PaymentStatus.CANCELLED ? "cancelado" : "pendiente_pago")
                 .totalPrice(totalPrice) // ✅ Usar el cálculo
                 .paymentStatus(reservation.getPaymentStatus() == null ? PaymentStatus.PENDING.name() : reservation.getPaymentStatus().name())
+                .holdExpiresAt(reservation.getHoldExpiresAt())
                 .user(ReservationResponseDTO.UserInfo.builder()
                         .id(String.valueOf(reservation.getUser().getId()))
                         .firstName(reservation.getUser().getFirstName())

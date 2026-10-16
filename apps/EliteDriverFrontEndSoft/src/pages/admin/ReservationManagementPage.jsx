@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useReservationManagement } from '../../hooks/useReservationManagement';
 import ReservationDetailModal from '@/components/reservation/ReservationDetailModal';
 import LoadingSpinner from '../../components/layout/LoadingSpinner';
@@ -21,6 +21,21 @@ import {
 import { toast } from 'react-toastify';
 import { reservationStatus, statusLabels, paymentStatus } from '../../utils/reservationStatus';
 
+// Cuenta regresiva de la pre-reserva, como la que ve el cliente.
+// Se recalcula en el mismo tick que refresca la lista.
+const restanteDe = (iso, ahora = Date.now()) => {
+  const ms = new Date(iso).getTime() - ahora;
+  if (!Number.isFinite(ms)) return '--:--';
+  if (ms <= 0) return '0:00';
+  const total = Math.ceil(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    : `${m}:${String(s).padStart(2, '0')}`;
+};
+
 const ReservationManagementPage = () => {
 
   const {
@@ -32,8 +47,8 @@ const ReservationManagementPage = () => {
     hasAdminRole,
     operationLoading,
     reservations,
-    paymentFilter,
-    setPaymentFilter,
+    view: vista,
+    setView: cambiarVista,
     viewTotal,
     searchTerm,
     filterStatus,
@@ -68,6 +83,14 @@ const ReservationManagementPage = () => {
   } = useReservationManagement();
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+
+  // Un tic por segundo para que la cuenta regresiva de cada pre-reserva
+  // retroceda sola, igual que la del cliente.
+  const [ahora, setAhora] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setAhora(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleViewReservation = (reservation) => {
     setSelectedReservation(reservation);
@@ -229,21 +252,20 @@ const ReservationManagementPage = () => {
         </div>
 
         <div className="mb-6 space-y-3">
-          <div className="grid grid-cols-3 gap-2" role="group" aria-label="Estado del pago">
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Vista de reservas">
             {[
-              ['PAID', 'Confirmadas', reservationStats.total],
+              ['ALL', 'Todas las reservas', reservationStats.registered],
               ['PENDING', 'Pendientes de pago', reservationStats.pending],
-              ['PAID_TEST', 'Pruebas', reservationStats.test],
-            ].map(([value, label, count]) => <button key={value} onClick={() => setPaymentFilter(value)}
-              aria-pressed={paymentFilter === value}
-              className={`min-h-14 px-2 sm:px-4 py-3 rounded-xl border text-sm sm:text-base transition-colors ${paymentFilter === value ? 'border-red-400/60 bg-red-600/20 text-white' : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'}`}>
+            ].map(([value, label, count]) => <button key={value} onClick={() => cambiarVista(value)}
+              aria-pressed={vista === value}
+              className={`min-h-14 px-2 sm:px-4 py-3 rounded-xl border text-sm sm:text-base transition-colors ${vista === value ? 'border-red-400/60 bg-red-600/20 text-white' : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'}`}>
               <span className="block">{label}</span><strong className="block mt-1">{count}</strong>
             </button>)}
           </div>
           <p className="text-sm text-white/60">
-            {paymentFilter === 'PENDING' ? 'Estas solicitudes aún no están confirmadas ni se cuentan como reservas activas.'
-              : paymentFilter === 'PAID_TEST' ? 'Pagos aprobados en modo de pruebas. No representan cobros reales ni suman ingresos.'
-              : 'Solo reservas con pago real aprobado. El panel se actualiza automáticamente cada 30 segundos.'}
+            {vista === 'PENDING'
+              ? 'Solicitudes sin pagar. Cada una muestra cuánto le queda antes de liberar el vehículo.'
+              : 'Todas las reservas, pagadas o pendientes. Se actualiza cada 30 segundos.'}
           </p>
         </div>
 
@@ -360,6 +382,9 @@ const ReservationManagementPage = () => {
               <div><dt className="text-white/60">Fin</dt><dd className="mt-1">{formatDate(reservation.endDate)}</dd></div>
             </dl>
             <p className="font-semibold">{formatPrice(reservation.totalPrice)}</p>
+            {paymentStatus(reservation) === 'PENDING' && reservation.holdExpiresAt && (
+              <p className="text-sm text-amber-300">Se libera en {restanteDe(reservation.holdExpiresAt, ahora)}</p>
+            )}
             <div className="flex flex-wrap gap-2">
               <button onClick={() => handleViewReservation(reservation)} className="min-h-11 px-4 rounded-lg bg-white/10 border border-white/20">
                 Ver detalles
@@ -529,6 +554,11 @@ const ReservationManagementPage = () => {
                             </span>
                           );
                         })()}
+                        {paymentStatus(reservation) === 'PENDING' && reservation.holdExpiresAt && (
+                          <div className="mt-1.5 text-xs font-medium text-amber-300 tabular-nums">
+                            Se libera en {restanteDe(reservation.holdExpiresAt, ahora)}
+                          </div>
+                        )}
 
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

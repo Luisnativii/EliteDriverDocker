@@ -17,6 +17,11 @@ public class ReservationResponseDTO {
     private String status;
     private Double totalPrice;
     private String paymentStatus;
+    /**
+     * Instante en que la reserva libera el vehiculo si sigue sin pagarse.
+     * El panel de administracion lo muestra como cuenta regresiva.
+     */
+    private java.time.Instant holdExpiresAt;
 
     private UserInfo user;
 

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { reservationStatus, reservationStats, localReservationDate, holdsReservationDates } from '../src/utils/reservationStatus.js';
+import { confirmedStatus, reservationStatus, reservationStats, localReservationDate, holdsReservationDates } from '../src/utils/reservationStatus.js';
 import { returningReservation, rememberPayment, forgetPayment } from '../src/utils/paymentReturn.js';
 
 const today = new Date('2026-09-17T12:00:00');
@@ -52,4 +52,28 @@ test('los enlaces anteriores se verifican al regresar y el recuerdo caduca', () 
     assert.equal(returningReservation('', store, 1000 + 2 * 60 * 60 * 1000), null);
     forgetPayment(id, store);
     assert.equal(returningReservation('', store, 2000), null);
+});
+
+// El calendario del administrador solo reconocia el ciclo de vida en las reservas
+// pagadas. Antes, una reserva confirmada en modo de pruebas aparecia como un
+// bloque gris, invisible entre las demas, y el tablero parecia vacio.
+test('una reserva pagada en modo de pruebas tambien ocupa el calendario', () => {
+    const pagada = { ...reservation, paymentStatus: 'PAID' };
+    const dePrueba = { ...reservation, paymentStatus: 'PAID_TEST' };
+    for (const r of [pagada, dePrueba]) {
+        assert.equal(confirmedStatus(r, today), 'activa');
+        assert.equal(confirmedStatus({ ...r, startDate: '2026-12-01', endDate: '2026-12-05' }, today), 'próxima');
+        assert.equal(confirmedStatus({ ...r, startDate: '2026-08-01', endDate: '2026-08-05' }, today), 'completada');
+    }
+});
+
+test('una reserva sin pagar no tiene ciclo de vida en el calendario', () => {
+    assert.equal(confirmedStatus({ ...reservation, paymentStatus: 'PENDING' }, today), null);
+    assert.equal(confirmedStatus({ ...reservation, paymentStatus: 'CANCELLED' }, today), null);
+    assert.equal(confirmedStatus(reservation, today), null);
+});
+
+test('fechas ilegibles no rompen el calendario', () => {
+    const r = { ...reservation, paymentStatus: 'PAID', startDate: 'no-es-fecha', endDate: 'tampoco' };
+    assert.equal(confirmedStatus(r, today), 'desconocida');
 });
