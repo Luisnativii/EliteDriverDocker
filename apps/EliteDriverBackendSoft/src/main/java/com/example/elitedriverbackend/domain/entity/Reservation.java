@@ -56,6 +56,13 @@ public class Reservation {
 
     private Instant paidAt;
 
+    /*
+        Instante en que esta reserva deja de retener el vehículo si sigue sin pagar.
+        Se renueva cada vez que la persona vuelve a tomar la pre-reserva.
+        Null significa que la reserva no está sujeta a expiración.
+     */
+    private Instant holdExpiresAt;
+
     @ManyToOne
     @JoinColumn(
             name = "user_id",

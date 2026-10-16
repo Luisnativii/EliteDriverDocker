@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.time.Instant;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
@@ -31,5 +33,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
             @Param("vehicleId") UUID vehicleId,
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate);
+
+    /**
+     * Reservas PENDING cuyo bloqueo por tiempo ya venció y que aún retienen
+     * el vehículo. Se ordenan por vencimiento para no cargarlas todas.
+     */
+    @Query("SELECT r FROM Reservation r WHERE r.paymentStatus = com.example.elitedriverbackend.domain.entity.PaymentStatus.PENDING " +
+            "AND r.holdExpiresAt IS NOT NULL AND r.holdExpiresAt < :now ORDER BY r.holdExpiresAt ASC")
+    List<Reservation> findExpiredHolds(@Param("now") Instant now, Pageable pageable);
 
 }

@@ -255,6 +255,7 @@ public class PaymentService {
 
     private static PaymentLinkResponseDTO response(Reservation reservation) {
         return new PaymentLinkResponseDTO(reservation.getId(), reservation.getTotalPrice(), "USD",
-                reservation.getPaymentStatus(), reservation.getPaymentUrl(), reservation.getQrCodeUrl(), reservation.getPaymentProduction());
+                reservation.getPaymentStatus(), reservation.getPaymentUrl(), reservation.getQrCodeUrl(),
+                reservation.getPaymentProduction(), reservation.getHoldExpiresAt());
     }
 }

@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Clock } from 'lucide-react';
 import PaymentService, { paymentLabels } from '../../services/paymentService';
 import { forgetPayment } from '../../utils/paymentReturn';
 import { watchPayment } from '../../utils/watchPayment';
+import { useHoldCountdown, formatCountdown } from '../../hooks/useHoldCountdown';
+import HoldExpiredPanel from './HoldExpiredPanel';
 
-export default function ReservationPayment({ reservationId, initialStatus, initialAmount, autoVerify, onPaymentUpdate }) {
+export default function ReservationPayment({ reservationId, initialStatus, initialAmount, autoVerify, onPaymentUpdate, reservedName = '' }) {
     const [payment, setPayment] = useState({ paymentStatus: initialStatus || 'PENDING', amount: initialAmount });
     const [loading, setLoading] = useState(false);
     const [checking, setChecking] = useState(false);
@@ -12,6 +15,47 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
     const error = linkError || statusError;
     const [verification, setVerification] = useState(0);
     const [lastChecked, setLastChecked] = useState(null);
+    const [holdExpiresAt, setHoldExpiresAt] = useState(null);
+    const [alternatives, setAlternatives] = useState([]);
+    const [holdLoading, setHoldLoading] = useState(false);
+    const [holdError, setHoldError] = useState('');
+    const { expirada, minutos, segundos, restante } = useHoldCountdown(holdExpiresAt);
+
+    // El vencimiento solo importa mientras la reserva sigue sin pagarse.
+    useEffect(() => {
+        const estado = payment?.paymentStatus;
+        if (!expirada || (estado !== 'PENDING' && estado !== 'CANCELLED')) return;
+        void loadAlternatives();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [expirada]);
+
+    async function loadAlternatives() {
+        try {
+            const list = await PaymentService.getAlternatives(reservationId);
+            setAlternatives(Array.isArray(list) ? list : []);
+        } catch (err) {
+            // Sin alternativas no pasa nada: se ofrece volver a reservar.
+            setAlternatives([]);
+        }
+    }
+
+    // Volver a tomar la pre-reserva si el vehículo sigue libre.
+    async function handleRenew() {
+        setHoldLoading(true);
+        setHoldError('');
+        try {
+            const result = await PaymentService.renewHold(reservationId);
+            setHoldExpiresAt(result?.reservation?.holdExpiresAt || null);
+            setAlternatives([]);
+            setVerification(v => v + 1);
+        } catch (err) {
+            setHoldError(err.message || 'Ya no se pudo reservar.');
+            if (err.alternatives?.length) setAlternatives(err.alternatives);
+            else void loadAlternatives();
+        } finally {
+            setHoldLoading(false);
+        }
+    }
 
     useEffect(() => {
         if (initialStatus && initialStatus !== 'PENDING') {
@@ -26,6 +70,7 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
             onError: err => { setStatusError(err.message); setLastChecked(new Date()); },
             onUpdate: data => {
                 setPayment(data);
+                if (data.holdExpiresAt) setHoldExpiresAt(data.holdExpiresAt);
                 setStatusError('');
                 setLastChecked(new Date());
                 onPaymentUpdate(reservationId, data);
@@ -53,6 +98,7 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
         try {
             const data = await PaymentService.createLink(reservationId);
             setPayment(data);
+            if (data.holdExpiresAt) setHoldExpiresAt(data.holdExpiresAt);
             onPaymentUpdate(reservationId, data);
             PaymentService.openLink(data);
         } catch (err) {
@@ -78,6 +124,25 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
                 )}
             </div>
             {payment.amount != null && <p>Total: <strong>${Number(payment.amount).toFixed(2)} USD</strong></p>}
+
+            {/* Ventana de pago: mientras corre, el auto está reservado a tu nombre. */}
+            {restante !== null && status === 'PENDING' && !expirada && (
+                <div
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+                        restante < 5 * 60 * 1000
+                            ? 'bg-red-500/15 border-red-400/50 text-red-100'
+                            : 'bg-white/5 border-white/15 text-white/80'
+                    }`}
+                >
+                    <Clock size={16} aria-hidden="true" className="shrink-0" />
+                    <span>
+                        Te reservamos este auto por{' '}
+                        <strong className="tabular-nums">{formatCountdown(minutos, segundos)}</strong>
+                        {restante < 5 * 60 * 1000 && ' — apúrate, casi se libera'}
+                    </span>
+                </div>
+            )}
+
             {status === 'PAID' && <p className="text-sm text-green-200">Pago recibido. Tu reserva está confirmada.</p>}
             {(payment.production === false || status === 'PAID_TEST') &&
                 <p className="text-sm text-amber-200">Modo de pruebas: no se realiza un cobro real.</p>}
@@ -92,7 +157,7 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
                     </button>
                 </div>
             )}
-            {status === 'PENDING' && <>
+            {status === 'PENDING' && !expirada && <>
                 <p className="text-sm text-gray-300">
                     {checking ? 'Consultando la confirmación del pago…' : 'Tu reserva quedará confirmada cuando Wompi apruebe el pago.'}
                 </p>
@@ -110,6 +175,18 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
                     </button>
                 </div>
             </>}
+
+            {/* Se liberó el auto: se puede retomarlo o elegir otro del mismo tipo. */}
+            {expirada && (status === 'PENDING' || status === 'CANCELLED') && (
+                <HoldExpiredPanel
+                    onRetry={handleRenew}
+                    onChooseAlternative={v => onPaymentUpdate(reservationId, { chooseVehicle: v.id })}
+                    alternatives={alternatives}
+                    loading={holdLoading}
+                    error={holdError}
+                    reservedName={reservedName}
+                />
+            )}
         </div>
     );
 }

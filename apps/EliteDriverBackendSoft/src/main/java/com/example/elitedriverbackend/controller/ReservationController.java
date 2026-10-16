@@ -23,8 +23,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
+import com.example.elitedriverbackend.domain.entity.Vehicle;
 
 /*
     Controlador para gestionar las reservas de vehículos.
@@ -265,6 +268,53 @@ public class ReservationController {
         UUID uuid = parseUUID(id);
         paymentService.cancel(uuid, authentication);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Vuelve a tomar la pre-reserva y renueva la ventana de pago.
+     *
+     * Responde 409 cuando otro cliente ya tomó el vehículo. En ese caso el
+     * cuerpo trae las alternativas del mismo tipo que sí están libres, para
+     * que la interfaz pueda ofrecerlas sin una segunda vuelta al servidor.
+     */
+    @PostMapping("/{id}/hold")
+    public ResponseEntity<?> renewHold(@PathVariable String id, Authentication authentication) {
+        UUID uuid = parseUUID(id);
+        reservationService.releaseExpired();
+        Reservation reservation = reservationService.getReservationById(uuid);
+        requireOwnerOrAdmin(reservation, authentication);
+        try {
+            Reservation renewed = reservationService.renewHold(reservation);
+            return ResponseEntity.ok(Map.of("renewed", true, "reservation", convertToDTO(renewed)));
+        } catch (ResponseStatusException ex) {
+            List<Map<String, Object>> alternativas = reservationService.findAlternatives(reservation)
+                    .stream().map(this::alternativaDTO).toList();
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("renewed", false, "reason", String.valueOf(ex.getReason()),
+                            "alternatives", alternativas));
+        }
+    }
+
+    /** Vehículos del mismo tipo, libres para las mismas fechas de la reserva. */
+    @GetMapping("/{id}/alternatives")
+    public ResponseEntity<List<Map<String, Object>>> alternatives(@PathVariable String id,
+            Authentication authentication) {
+        UUID uuid = parseUUID(id);
+        reservationService.releaseExpired();
+        Reservation reservation = reservationService.getReservationById(uuid);
+        requireOwnerOrAdmin(reservation, authentication);
+        return ResponseEntity.ok(reservationService.findAlternatives(reservation)
+                .stream().map(this::alternativaDTO).toList());
+    }
+
+    private Map<String, Object> alternativaDTO(Vehicle vehicle) {
+        return Map.of(
+                "id", vehicle.getId().toString(),
+                "name", String.valueOf(vehicle.getName()),
+                "brand", String.valueOf(vehicle.getBrand()),
+                "pricePerDay", vehicle.getPricePerDay() == null ? BigDecimal.ZERO : vehicle.getPricePerDay(),
+                "mainImageUrl", String.valueOf(vehicle.getMainImageUrl()),
+                "vehicleType", vehicle.getVehicleType() == null ? "" : String.valueOf(vehicle.getVehicleType().getType()));
     }
 
 }

@@ -29,8 +29,12 @@ class ReservationServiceTest {
             new UsernamePasswordAuthenticationToken("customer@example.test", "unused", List.of());
 
     private ReservationService serviceAt(String instant) {
-        return new ReservationService(reservations, users, vehicles, types,
-                Clock.fixed(Instant.parse(instant), RentalTimeConfiguration.RENTAL_ZONE));
+        Clock clock = Clock.fixed(Instant.parse(instant), RentalTimeConfiguration.RENTAL_ZONE);
+        com.example.elitedriverbackend.config.ReservationHoldProperties holdProps =
+                new com.example.elitedriverbackend.config.ReservationHoldProperties();
+        holdProps.setHoldMinutes(30);
+        return new ReservationService(reservations, users, vehicles, types, clock,
+                new ReservationHoldService(reservations, holdProps));
     }
 
     private CreateReservationDTO dates(String start, String end) {

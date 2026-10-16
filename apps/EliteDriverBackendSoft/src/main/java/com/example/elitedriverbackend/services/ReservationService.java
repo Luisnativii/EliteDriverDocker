@@ -5,6 +5,7 @@ import com.example.elitedriverbackend.domain.entity.Reservation;
 import com.example.elitedriverbackend.domain.entity.PaymentStatus;
 import com.example.elitedriverbackend.domain.entity.User;
 import com.example.elitedriverbackend.domain.entity.Vehicle;
+import com.example.elitedriverbackend.domain.entity.VehicleStatus;
 import com.example.elitedriverbackend.domain.entity.VehicleType;
 import com.example.elitedriverbackend.repositories.ReservationRepository;
 import com.example.elitedriverbackend.repositories.UserRepository;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +41,7 @@ public class ReservationService {
     private final VehicleRepository vehicleRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
     private final Clock rentalClock;
+    private final ReservationHoldService holdService;
 
     /*
         Crea una nueva reserva si el vehículo no está ya reservado en el rango de fechas especificado.
@@ -96,6 +100,8 @@ public class ReservationService {
         newReservation.setVehicle(vehicle);
         newReservation.setTotalPrice(totalPrice);
         newReservation.setPaymentStatus(PaymentStatus.PENDING);
+        // La reserva retiene el vehículo solo durante la ventana de pago.
+        newReservation.setHoldExpiresAt(holdService.newExpiry(Instant.now(rentalClock)));
         return reservationRepository.saveAndFlush(newReservation);
     }
 
@@ -104,7 +110,76 @@ public class ReservationService {
                 .filter(r -> r.getPaymentStatus() != PaymentStatus.CANCELLED).toList();
     }
 
+    /**
+     * Libera las reservas vencidas antes de leer el catálogo o el panel, para que
+     * un auto bloqueado por una reserva abandonada no tarde hasta el siguiente
+     * barrido en volver a aparecer.
+     */
+    @Transactional
+    public int releaseExpired() {
+        return holdService.expireNow(Instant.now(rentalClock));
+    }
+
+    private void releaseExpiredBeforeRead() {
+        holdService.expireNow(Instant.now(rentalClock));
+    }
+
+    /**
+     * Vuelve a tomar la pre-reserva y renueva la ventana de pago.
+     * Solo revive reservas que el tiempo cerró, nunca una cancelada a mano.
+     */
+    @Transactional
+    public Reservation renewHold(Reservation reservation) {
+        Instant now = Instant.now(rentalClock);
+        if (reservation.getPaymentStatus() == PaymentStatus.PAID
+                || reservation.getPaymentStatus() == PaymentStatus.PAID_TEST) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Esta reserva ya tiene un pago registrado.");
+        }
+        if (!holdService.isRenewable(reservation, now)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Esta reserva fue cancelada y no se puede reactivar.");
+        }
+        Instant expiry = holdService.newExpiry(now);
+        if (expiry == null) {
+            // Expiración desactivada: la persona conserva la reserva tal cual.
+            return reservation;
+        }
+        reservation.setPaymentStatus(PaymentStatus.PENDING);
+        reservation.setHoldExpiresAt(expiry);
+        // Si otro cliente tomó el auto mientras tanto, la base lo rechaza aquí.
+        return reservationRepository.saveAndFlush(reservation);
+    }
+
+    /**
+     * Vehículos del mismo tipo que el que se quiso reservar y que están libres
+     * para las mismas fechas. Es lo que se ofrece cuando la pre-reserva venció
+     * y el auto original ya no está disponible.
+     */
+    @Transactional(readOnly = true)
+    public List<Vehicle> findAlternatives(Reservation reservation) {
+        List<Vehicle> mismoTipo = vehicleRepository.findByVehicleType(
+                reservation.getVehicle().getVehicleType());
+        Date inicio = java.sql.Date.valueOf(toLocalDate(reservation.getStartDate()));
+        Date fin = java.sql.Date.valueOf(toLocalDate(reservation.getEndDate()));
+        List<UUID> ocupados = reservationRepository.findOverlapping(inicio, fin)
+                .stream().map(r -> r.getVehicle().getId()).toList();
+        return mismoTipo.stream()
+                .filter(v -> v.getStatus() == VehicleStatus.maintenanceCompleted)
+                .filter(v -> !v.getId().equals(reservation.getVehicle().getId()))
+                .filter(v -> !ocupados.contains(v.getId()))
+                .toList();
+    }
+
+    private static LocalDate toLocalDate(Date value) {
+        return value instanceof java.sql.Date sqlDate ? sqlDate.toLocalDate()
+                : Instant.ofEpochMilli(value.getTime()).atZone(ZoneOffset.UTC).toLocalDate();
+    }
+
     public List<Reservation> getReservationsForAvailability(Date startDate, Date endDate) {
+        // Libera primero lo vencido: un auto bloqueado por una reserva abandonada
+        // tiene que volver al catálogo aunque el barrido aún no haya corrido.
+        holdService.expireNow(Instant.now(rentalClock));
         return reservationRepository.findOverlapping(startDate, endDate);
     }
 
