@@ -25,6 +25,7 @@ import java.net.URI;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -210,23 +211,61 @@ public class PaymentService {
                     id, reservation.getWompiApplicationId(), aplicativo);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
         }
-        if (!amount.isNumber() || amount.decimalValue().compareTo(reservation.getTotalPrice()) != 0) {
-            log.warn("Reserva {} espera {} y Wompi notifico el monto {}",
-                    id, reservation.getTotalPrice(), amount.asText());
+        BigDecimal notificado = decimalOf(amount);
+        if (notificado == null || reservation.getTotalPrice() == null
+                || notificado.compareTo(reservation.getTotalPrice()) != 0) {
+            log.warn("Reserva {} espera {} y Wompi notifico {} (tipo {}, bruto {})",
+                    id, reservation.getTotalPrice(), notificado,
+                    amount == null ? "null" : amount.getNodeType(), amount);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
         }
-        if (!production.isBoolean() || !Boolean.valueOf(production.asBoolean()).equals(reservation.getPaymentProduction())) {
-            log.warn("Reserva {} es produccion={} y el pago notifico {}",
-                    id, reservation.getPaymentProduction(), production.asText());
+        Boolean notificadoProd = boolOf(production);
+        if (notificadoProd == null || !notificadoProd.equals(reservation.getPaymentProduction())) {
+            log.warn("Reserva {} es produccion={} y el pago notifico {} (tipo {})",
+                    id, reservation.getPaymentProduction(), notificadoProd,
+                    production == null ? "null" : production.getNodeType());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
         }
         if (transaction.isBlank()) {
             log.warn("Reserva {} notificada sin id de transaccion", id);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
         }
-        recordPayment(reservation, transaction, production.asBoolean());
+        recordPayment(reservation, transaction, notificadoProd);
         log.info("Reserva {} pagada desde el webhook (transaccion {}, produccion={})",
-                id, transaction, production.asBoolean());
+                id, transaction, notificadoProd);
+    }
+
+    /**
+     * Lee un decimal de la notificacion.
+     *
+     * Wompi envia "Monto" como texto en algunos casos y como numero en otros.
+     * Comparar solo con isNumber() rechazaba pagos reales: el monto se veia
+     * correcto en la bitacora pero la condicion fallaba.
+     */
+    private static BigDecimal decimalOf(JsonNode node) {
+        if (node == null || node.isNull() || node.isMissingNode()) return null;
+        if (node.isNumber()) return node.decimalValue();
+        if (node.isTextual()) {
+            try {
+                return new java.math.BigDecimal(node.asText().trim());
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /** Lee un booleano que puede llegar como booleano, texto o numero. */
+    private static Boolean boolOf(JsonNode node) {
+        if (node == null || node.isNull() || node.isMissingNode()) return null;
+        if (node.isBoolean()) return node.asBoolean();
+        if (node.isNumber()) return node.asInt() != 0;
+        if (node.isTextual()) {
+            String value = node.asText().trim();
+            if (value.equalsIgnoreCase("true")) return Boolean.TRUE;
+            if (value.equalsIgnoreCase("false")) return Boolean.FALSE;
+        }
+        return null;
     }
 
     private void recordPayment(Reservation reservation, String transaction, boolean production) {
