@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { formatCountdown } from '../src/hooks/useHoldCountdown.js';
 
+// Estas pruebas solo leen archivos dentro del paquete del frontend: el build de
+// Docker copia unicamente este directorio, asi que leer fuera (por ejemplo el
+// .env.example de la raiz) rompe la imagen. La logica del servidor la cubren
+// sus propias pruebas de Java.
 const leer = (rel) => readFileSync(new URL(rel, import.meta.url), 'utf8');
 
 test('el reloj se formatea con dos digitos', () => {
@@ -20,7 +24,6 @@ test('la ventana de 30 minutos son 1800 segundos', () => {
 test('el panel de vencida ofrece volver a reservar si el auto sigue libre', () => {
     const src = leer('../src/components/reservation/HoldExpiredPanel.jsx');
     assert.match(src, /Volver a reservar por 30 minutos/);
-    // Con alternativas deja de ofrecer el boton de re-reserva y muestra los modelos.
     assert.match(src, /alternatives/);
     assert.match(src, /ya lo tomó otra persona/);
 });
@@ -38,14 +41,8 @@ test('el panel de pago avisa cuando queda poco tiempo', () => {
     assert.match(src, /HoldExpiredPanel/, 'debe mostrar el panel al vencer');
 });
 
-test('el backend expone el tiempo en el .env.example', () => {
-    const env = leer('../../../.env.example');
-    assert.match(env, /RESERVATION_HOLD_MINUTES=30/);
-    assert.match(env, /volver a tomarlo/, 'debe explicar como recuperarla');
-});
-
-test('el backend libera las reservas vencidas', () => {
-    const src = leer('../../../apps/EliteDriverBackendSoft/src/main/java/com/example/elitedriverbackend/services/ReservationHoldService.java');
-    assert.match(src, /@Scheduled/, 'debe barrer solo las vencidas');
-    assert.match(src, /PaymentStatus.CANCELLED/, 'CANCELLED es lo que libera el vehiculo');
+test('el servicio expone renovar y buscar alternativas', () => {
+    const src = leer('../src/services/paymentService.js');
+    assert.match(src, /renewHold/);
+    assert.match(src, /getAlternatives/);
 });
