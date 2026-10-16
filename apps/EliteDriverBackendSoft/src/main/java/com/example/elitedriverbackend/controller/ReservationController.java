@@ -287,12 +287,31 @@ public class ReservationController {
             Reservation renewed = reservationService.renewHold(reservation);
             return ResponseEntity.ok(Map.of("renewed", true, "reservation", convertToDTO(renewed)));
         } catch (ResponseStatusException ex) {
-            List<Map<String, Object>> alternativas = reservationService.findAlternatives(reservation)
-                    .stream().map(this::alternativaDTO).toList();
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("renewed", false, "reason", String.valueOf(ex.getReason()),
-                            "alternatives", alternativas));
+            return noDisponible(reservation, ex.getReason());
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            // 23P01: otro cliente tomó el vehículo mientras tanto. La restricción
+            // del banco es la que corta la carrera, no una comprobación previa.
+            return noDisponible(reservation,
+                    "Ese vehículo ya lo tomó otra persona para estas fechas.");
         }
+    }
+
+    /**
+     * 409 con los vehículos del mismo tipo que siguen libres, para que la
+     * interfaz ofrezca una salida sin obligar a recargar la página.
+     */
+    private ResponseEntity<?> noDisponible(Reservation reservation, String motivo) {
+        List<Map<String, Object>> alternativas;
+        try {
+            alternativas = reservationService.findAlternatives(reservation)
+                    .stream().map(this::alternativaDTO).toList();
+        } catch (Exception ex) {
+            // No poder calcular alternativas no debe impedir avisar del problema.
+            alternativas = List.of();
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("renewed", false, "reason", String.valueOf(motivo),
+                        "alternatives", alternativas));
     }
 
     /** Vehículos del mismo tipo, libres para las mismas fechas de la reserva. */
