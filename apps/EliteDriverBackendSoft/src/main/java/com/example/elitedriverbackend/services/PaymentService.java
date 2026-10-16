@@ -8,6 +8,7 @@ import com.example.elitedriverbackend.repositories.ReservationRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentService {
     private final ReservationRepository reservations;
     private final WompiClient wompi;
@@ -168,25 +170,63 @@ public class PaymentService {
         catch (Exception ex) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Notificación inválida."); }
         JsonNode link = field(event, "EnlacePago");
         String reference = field(link, "IdentificadorEnlaceComercio").asText();
-        if (!reference.startsWith("ELITEDRIVER-")) return; // Otros enlaces del negocio no pertenecen a una reserva.
+        if (!reference.startsWith("ELITEDRIVER-")) {
+            // Otro enlace del mismo negocio, no de una reserva nuestra.
+            log.info("Webhook de un enlace ajeno a una reserva: {}", reference);
+            return;
+        }
         UUID id;
         try { id = UUID.fromString(reference.substring("ELITEDRIVER-".length())); }
-        catch (IllegalArgumentException ex) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Referencia inválida."); }
+        catch (IllegalArgumentException ex) {
+            log.warn("Webhook con referencia ilegible: {}", reference);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Referencia inválida.");
+        }
         Reservation reservation = load(id);
         JsonNode amount = field(event, "Monto");
         JsonNode production = field(event, "EsProductiva");
         String transaction = field(event, "IdTransaccion").asText();
         JsonNode result = field(event, "ResultadoTransaccion");
         boolean approved = "ExitosaAprobada".equalsIgnoreCase(result.asText()) || (result.isIntegralNumber() && result.asInt() == 0);
-        if (!approved) return;
-        if (reservation.getWompiLinkId() == null || field(link, "Id").asLong(-1) != reservation.getWompiLinkId()
-                || !field(field(event, "Aplicativo"), "Id").asText().equalsIgnoreCase(reservation.getWompiApplicationId())
-                || !amount.isNumber() || amount.decimalValue().compareTo(reservation.getTotalPrice()) != 0
-                || !production.isBoolean() || !Boolean.valueOf(production.asBoolean()).equals(reservation.getPaymentProduction())
-                || transaction.isBlank()) {
+        if (!approved) {
+            log.info("Webhook de una transaccion no aprobada ({}). La reserva {} sigue pendiente.", result.asText(), id);
+            return;
+        }
+        long enlaceNotificado = field(link, "Id").asLong(-1);
+        String aplicativo = field(field(event, "Aplicativo"), "Id").asText();
+        // Cada rechazo registra que dato no coincidio. Sin esto una notificacion
+        // descartada es indistinguible de una que nunca llego, y no hay forma de
+        // saber por que Wompi sigue cobrando y la reserva no se actualiza.
+        if (reservation.getWompiLinkId() == null) {
+            log.warn("Webhook de la reserva {} pero la reserva no tiene enlace de Wompi", id);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
+        }
+        if (enlaceNotificado != reservation.getWompiLinkId()) {
+            log.warn("Reserva {} tiene el enlace {} pero Wompi notifico el enlace {}",
+                    id, reservation.getWompiLinkId(), enlaceNotificado);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
+        }
+        if (!aplicativo.equalsIgnoreCase(reservation.getWompiApplicationId())) {
+            log.warn("Reserva {} pertenece al aplicativo {} y el pago vino de {}",
+                    id, reservation.getWompiApplicationId(), aplicativo);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
+        }
+        if (!amount.isNumber() || amount.decimalValue().compareTo(reservation.getTotalPrice()) != 0) {
+            log.warn("Reserva {} espera {} y Wompi notifico el monto {}",
+                    id, reservation.getTotalPrice(), amount.asText());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
+        }
+        if (!production.isBoolean() || !Boolean.valueOf(production.asBoolean()).equals(reservation.getPaymentProduction())) {
+            log.warn("Reserva {} es produccion={} y el pago notifico {}",
+                    id, reservation.getPaymentProduction(), production.asText());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
+        }
+        if (transaction.isBlank()) {
+            log.warn("Reserva {} notificada sin id de transaccion", id);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pago no coincide con la reserva.");
         }
         recordPayment(reservation, transaction, production.asBoolean());
+        log.info("Reserva {} pagada desde el webhook (transaccion {}, produccion={})",
+                id, transaction, production.asBoolean());
     }
 
     private void recordPayment(Reservation reservation, String transaction, boolean production) {
