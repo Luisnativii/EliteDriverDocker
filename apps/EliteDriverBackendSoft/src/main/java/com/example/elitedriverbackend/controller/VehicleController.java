@@ -102,6 +102,7 @@ public class VehicleController {
     private VehicleResponseDTO toPublicIfNeeded(VehicleResponseDTO dto, org.springframework.security.core.Authentication authentication) {
         if (isAdmin(authentication)) return dto;
         dto.setInsurancePhone(null);
+        dto.setSupplier(null);
         if (dto.getUnavailablePeriods() != null) dto.getUnavailablePeriods().forEach(p -> p.setReason(null));
         return dto;
     }
@@ -110,6 +111,7 @@ public class VehicleController {
         if (isAdmin(authentication)) return list;
         list.forEach(dto -> {
             dto.setInsurancePhone(null);
+            dto.setSupplier(null);
             if (dto.getUnavailablePeriods() != null) dto.getUnavailablePeriods().forEach(p -> p.setReason(null));
         });
         return list;

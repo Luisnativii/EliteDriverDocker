@@ -306,6 +306,7 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
             </div>
           )}
 
+          {isAdmin && <p className="text-sm text-gray-700 mt-4 break-words"><strong>Propietario:</strong> {vehicle.supplier?.name || 'Propio'}</p>}
           {/* Botones de acción mejorados */}
           {isAdmin && (
             <div className="flex gap-3 pt-6 border-t border-gray-100 mt-6">

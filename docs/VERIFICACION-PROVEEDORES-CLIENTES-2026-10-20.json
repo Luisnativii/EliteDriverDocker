@@ -1,0 +1,482 @@
+{
+  "version": "v1.3.1",
+  "date": "2026-10-20",
+  "environment": "isolated Docker candidate with copied server database",
+  "unitTests": {
+    "backend": 86,
+    "frontend": 60,
+    "passed": true,
+    "frontendBuild": "passed"
+  },
+  "newAdministration": {
+    "version": "v1.3.1",
+    "checks": [
+      {
+        "name": "Administrator reads customer dashboard",
+        "passed": true,
+        "observed": {
+          "httpStatus": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "Version v1.3.1",
+        "passed": true
+      },
+      {
+        "name": "Customer dashboard defaults to current business month",
+        "passed": true
+      },
+      {
+        "name": "Anonymous denied suppliers",
+        "passed": true
+      },
+      {
+        "name": "Customer denied suppliers",
+        "passed": true
+      },
+      {
+        "name": "Anonymous denied customers",
+        "passed": true
+      },
+      {
+        "name": "Customer denied customers",
+        "passed": true
+      },
+      {
+        "name": "Anonymous denied customers",
+        "passed": true
+      },
+      {
+        "name": "Customer denied customers",
+        "passed": true
+      },
+      {
+        "name": "Create supplier ProveedorA",
+        "passed": true
+      },
+      {
+        "name": "Create supplier ProveedorB",
+        "passed": true
+      },
+      {
+        "name": "Customer cannot create suppliers",
+        "passed": true
+      },
+      {
+        "name": "Supplier name is required",
+        "passed": true
+      },
+      {
+        "name": "Blank supplier means own vehicle",
+        "passed": true
+      },
+      {
+        "name": "Selected supplier is associated",
+        "passed": true
+      },
+      {
+        "name": "Supplier identity stays private to administrator",
+        "passed": true
+      },
+      {
+        "name": "Supplier identity stays private to administrator",
+        "passed": true
+      },
+      {
+        "name": "Other vehicle edits preserve its supplier",
+        "passed": true
+      },
+      {
+        "name": "Explicitly clearing supplier changes to own",
+        "passed": true
+      },
+      {
+        "name": "Vehicle can change supplier",
+        "passed": true
+      },
+      {
+        "name": "Unknown supplier is rejected without changing association",
+        "passed": true
+      },
+      {
+        "name": "Customer cannot change ownership",
+        "passed": true
+      },
+      {
+        "name": "Supplier edit appears on vehicle",
+        "passed": true
+      },
+      {
+        "name": "Supplier list counts assigned vehicles",
+        "passed": true
+      },
+      {
+        "name": "Cannot delete supplier with assigned vehicles",
+        "passed": true
+      },
+      {
+        "name": "Unused supplier can be removed",
+        "passed": true
+      },
+      {
+        "name": "New registration and first session are recorded",
+        "passed": true
+      },
+      {
+        "name": "Successful login updates last access",
+        "passed": true
+      },
+      {
+        "name": "Failed login does not update access",
+        "passed": true
+      },
+      {
+        "name": "Search returns customers only",
+        "passed": true
+      },
+      {
+        "name": "Active customer comes before pending customer",
+        "passed": true
+      },
+      {
+        "name": "Two active rentals do not duplicate customer statistics",
+        "passed": true
+      },
+      {
+        "name": "Expired-free pending holds include real countdown timestamps",
+        "passed": true
+      },
+      {
+        "name": "Unique monthly customers and overlapping rentals are counted",
+        "passed": true,
+        "observed": {
+          "rentalsDelta": 3
+        }
+      },
+      {
+        "name": "New registrations exclude unknown legacy dates",
+        "passed": true
+      },
+      {
+        "name": "Legacy creation and last access remain unknown",
+        "passed": true
+      },
+      {
+        "name": "Test payment does not mark customer active",
+        "passed": true
+      },
+      {
+        "name": "Previous month counts spanning rentals once per customer",
+        "passed": true
+      },
+      {
+        "name": "Registration month respects El Salvador timezone",
+        "passed": true
+      },
+      {
+        "name": "Pagination preserves active-before-pending order",
+        "passed": true
+      },
+      {
+        "name": "Search treats wildcard characters literally",
+        "passed": true
+      },
+      {
+        "name": "Customer click returns complete rental history",
+        "passed": true
+      },
+      {
+        "name": "History retains final prices with IVA included",
+        "passed": true
+      },
+      {
+        "name": "Customer responses do not expose credentials or payment links",
+        "passed": true
+      },
+      {
+        "name": "Administrators are excluded from customer history",
+        "passed": true
+      },
+      {
+        "name": "Future month is rejected",
+        "passed": true
+      },
+      {
+        "name": "Invalid month is rejected",
+        "passed": true
+      },
+      {
+        "name": "Pending countdown expiry removes priority and records cancellation",
+        "passed": true
+      },
+      {
+        "name": "Ten-minute renewal still works after customer dashboard queries",
+        "passed": true
+      }
+    ],
+    "allPassed": true,
+    "externalPaymentAttempted": false,
+    "uiFixturePendingCleanup": false
+  },
+  "reservationRegression": {
+    "version": "v1.3.1",
+    "checks": [
+      {
+        "name": "Backend version is v1.3.1",
+        "passed": true,
+        "observed": {
+          "version": "v1.3.1"
+        }
+      },
+      {
+        "name": "Create vehicle without maintenance fields",
+        "passed": true,
+        "observed": {
+          "httpStatus": 201
+        }
+      },
+      {
+        "name": "New vehicle defaults to active",
+        "passed": true
+      },
+      {
+        "name": "Anonymous cannot block vehicles",
+        "passed": true,
+        "observed": {
+          "httpStatus": 403
+        }
+      },
+      {
+        "name": "Customer cannot block vehicles",
+        "passed": true
+      },
+      {
+        "name": "Customer cannot change vehicle status",
+        "passed": true
+      },
+      {
+        "name": "Reject reversed period",
+        "passed": true
+      },
+      {
+        "name": "Validate maximum reason length",
+        "passed": true
+      },
+      {
+        "name": "Administrator creates scheduled period",
+        "passed": true,
+        "observed": {
+          "httpStatus": 201
+        }
+      },
+      {
+        "name": "Reject overlapping scheduled periods",
+        "passed": true
+      },
+      {
+        "name": "Public data has no internal reason or maintenance fields",
+        "passed": true
+      },
+      {
+        "name": "Scheduled block appears in public availability",
+        "passed": true
+      },
+      {
+        "name": "Reject reservation overlapping start day",
+        "passed": true,
+        "observed": {
+          "httpStatus": 409
+        }
+      },
+      {
+        "name": "Reject reservation overlapping end day",
+        "passed": true,
+        "observed": {
+          "httpStatus": 409
+        }
+      },
+      {
+        "name": "Reject reservation overlapping enclosing interval",
+        "passed": true,
+        "observed": {
+          "httpStatus": 409
+        }
+      },
+      {
+        "name": "Reject reservation overlapping inside interval",
+        "passed": true,
+        "observed": {
+          "httpStatus": 409
+        }
+      },
+      {
+        "name": "Accept reservation after blocked period",
+        "passed": true
+      },
+      {
+        "name": "IVA remains included and hold remains ten minutes",
+        "passed": true
+      },
+      {
+        "name": "Cannot block dates with a reservation",
+        "passed": true
+      },
+      {
+        "name": "Cannot deactivate vehicle with a future reservation",
+        "passed": true
+      },
+      {
+        "name": "Rejected change preserves active state",
+        "passed": true
+      },
+      {
+        "name": "Customer cannot remove period",
+        "passed": true
+      },
+      {
+        "name": "Administrator removes period",
+        "passed": true
+      },
+      {
+        "name": "Updating mileage has no maintenance side effects",
+        "passed": true
+      },
+      {
+        "name": "Mileage update keeps active state",
+        "passed": true
+      },
+      {
+        "name": "Removed period allows booking again",
+        "passed": true
+      },
+      {
+        "name": "Vehicle can be deactivated when reservations are resolved",
+        "passed": true
+      },
+      {
+        "name": "Inactive vehicle cannot be reserved",
+        "passed": true
+      },
+      {
+        "name": "Inactive vehicle cannot renew an expired hold",
+        "passed": true,
+        "observed": {
+          "httpStatus": 409,
+          "reply": {
+            "renewed": false,
+            "reason": "El vehículo está fuera de servicio para las fechas seleccionadas.",
+            "alternatives": [
+              {
+                "vehicleType": "SUV",
+                "name": "JEEP GRAND CHEROKEE 2019",
+                "brand": "JEEP",
+                "id": "2383faac-b236-435c-bd67-db6c5485c077",
+                "pricePerDay": 50.0
+              },
+              {
+                "vehicleType": "SUV",
+                "name": "Nissan Rogue 4x4 2019",
+                "brand": "Nissan",
+                "id": "7467d072-331d-4ba7-8476-c2bc90aca744",
+                "pricePerDay": 40.0
+              },
+              {
+                "vehicleType": "SUV",
+                "name": "Mitsubishi Outlander 2018",
+                "brand": "Mitsubishi",
+                "id": "8696dc39-14c4-4226-8160-b1fedf00a268",
+                "pricePerDay": 45.0
+              },
+              {
+                "vehicleType": "SUV",
+                "name": "Nissan Rogue Sport 2019",
+                "brand": "Nissan",
+                "id": "b9f1edec-ce1a-4b82-8b53-e5c593500614",
+                "pricePerDay": 45.0
+              },
+              {
+                "vehicleType": "SUV",
+                "name": "Kia Soul 2021",
+                "brand": "Kia",
+                "id": "333a1d05-7754-43cf-ad70-c7d746f2f8c9",
+                "pricePerDay": 35.0
+              },
+              {
+                "vehicleType": "SUV",
+                "name": "Mitsubishi Outlander 2020",
+                "brand": "Mitsubishi",
+                "id": "4e9a3473-779e-4e38-82b9-5329bfe5ae3b",
+                "pricePerDay": 40.0
+              },
+              {
+                "vehicleType": "SUV",
+                "name": "ELITE13108ef9d28 Propio",
+                "brand": "Prueba",
+                "id": "3f7dfdb3-015d-42f8-adc4-622e5b86c368",
+                "pricePerDay": 37.5
+              },
+              {
+                "vehicleType": "SUV",
+                "name": "ELITE13108ef9d28 Pruebas",
+                "brand": "Prueba",
+                "id": "d3bc0702-18e8-437c-a3f2-e2fc74f6f9c9",
+                "pricePerDay": 37.5
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Vehicle can be reactivated",
+        "passed": true
+      },
+      {
+        "name": "Active available vehicle can renew hold",
+        "passed": true
+      },
+      {
+        "name": "Concurrent reservation and block cannot both succeed",
+        "passed": true,
+        "observed": {
+          "httpStatuses": [
+            409,
+            201
+          ]
+        }
+      },
+      {
+        "name": "Original vehicles and users preserved exactly",
+        "passed": true
+      }
+    ],
+    "allPassed": true,
+    "externalPaymentAttempted": false,
+    "uiFixturePendingCleanup": false
+  },
+  "visualChecks": {
+    "supplierCreation": true,
+    "vehicleCreationWithSupplier": true,
+    "ownershipAndTypeFilters": true,
+    "customerPriorityAndCountdown": true,
+    "monthNavigation": true,
+    "fullRentalHistory": true
+  },
+  "cleanup": {
+    "cleanup": true,
+    "preserved": true,
+    "snapshot": {
+      "users": [
+        11,
+        "93ba0a58854e2a78704a7a7c42f444ee"
+      ],
+      "vehicles": [
+        12,
+        "7e091900b411fc32b49ad444791a8c3e"
+      ],
+      "suppliers": 0
+    }
+  },
+  "allPassed": true,
+  "externalPaymentAttempted": false
+}

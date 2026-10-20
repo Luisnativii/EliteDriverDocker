@@ -3,6 +3,7 @@
 import React from 'react';
 import { useVehicleForm } from '../../hooks/useVehicleForm';
 import { toast } from 'react-toastify';
+import SupplierSelect from './SupplierSelect';
 
 /**
  * Formulario para crear un vehículo.
@@ -13,7 +14,7 @@ import { toast } from 'react-toastify';
  * @param {boolean} submitLoading - Indicador de si el formulario está siendo procesado.
  */
 
-const CreateVehicleForm = ({ onSubmit, onCancel, submitLoading = false }) => {
+const CreateVehicleForm = ({ onSubmit, onCancel, submitLoading = false, suppliers = [], suppliersLoading = false, suppliersError }) => {
   // Hook personalizado para manejar el estado y la validación del formulario.
   const {
     formData,
@@ -136,6 +137,7 @@ const CreateVehicleForm = ({ onSubmit, onCancel, submitLoading = false }) => {
       pricePerDay: parseFloat(formData.pricePerDay),
       kilometers: parseInt(formData.kilometers),
       insurancePhone: formData.insurancePhone.trim(),
+      supplierId: formData.supplierId || null,
 
       features: formData.featuresText
         ? formData.featuresText.split(",").map(f => f.trim()).filter(f => f)
@@ -435,6 +437,8 @@ const CreateVehicleForm = ({ onSubmit, onCancel, submitLoading = false }) => {
 
 
         </div>
+
+        <SupplierSelect value={formData.supplierId} onChange={value => setFormData(prev => ({...prev,supplierId:value}))} suppliers={suppliers} loading={suppliersLoading} error={suppliersError} />
 
         {/* Características */}
         <div>

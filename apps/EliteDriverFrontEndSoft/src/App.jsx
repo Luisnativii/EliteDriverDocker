@@ -7,6 +7,8 @@ import Layout from './components/layout/Layout';
 const DashboardPage = React.lazy(() => import('./pages/admin/DashboardPage'));
 const ReservationManagementPage = React.lazy(() => import('./pages/admin/ReservationManagementPage'));
 const VehicleManagementPage = React.lazy(() => import('./pages/admin/VehicleManagementPage'));
+const SuppliersPage = React.lazy(() => import('./pages/admin/SuppliersPage'));
+const CustomersPage = React.lazy(() => import('./pages/admin/CustomersPage'));
 const HomePage = React.lazy(() => import('./pages/customer/HomePage'));
 const MyReservationPage = React.lazy(() => import('./pages/customer/MyReservationsPage'));
 const ReservationPage = React.lazy(() => import('./pages/customer/ReservationPage'));
@@ -60,6 +62,8 @@ const App = () => (
               <Route path="maintenance" element={<Navigate to="/admin/vehicle" replace />} />
               <Route path="reservation" element={<ReservationManagementPage />} />
               <Route path="vehicle" element={<VehicleManagementPage />} />
+              <Route path="suppliers" element={<SuppliersPage />} />
+              <Route path="customers" element={<CustomersPage />} />
             </Route>
 
             {/* Rutas protegidas CUSTOMER */}

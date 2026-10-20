@@ -120,6 +120,30 @@ retirados. El kilometraje se conserva como dato informativo. La migración autom
 convierte los estados anteriores y retira la tabla y columna de mantenimiento;
 conserva vehículos, usuarios y reservas. Ver [verificación](docs/VERIFICACION-DISPONIBILIDAD-2026-10-20.json).
 
+## Proveedores y clientes (v1.3.1)
+
+En **Proveedores** el administrador registra al propietario externo, sus datos de
+contacto y notas internas. Al crear o editar un vehículo puede elegir un proveedor;
+si lo deja vacío se considera **Propio**. La propiedad se combina con los filtros
+existentes de tipo, estado y fechas. Un proveedor con vehículos asignados debe
+reasignarlos antes de eliminarse. Estos datos solo se entregan a administradores.
+
+En **Clientes** se muestran las cuentas de clientes, fecha de creación, último
+acceso e historial completo de reservas al abrir una persona. Se ordenan primero
+los clientes con alquiler real activo, luego quienes tienen pago pendiente con su
+contador y después las demás cuentas. El mes inicial es el actual; las flechas o
+el selector permiten consultar meses anteriores y volver al actual.
+
+Las estadísticas mensuales cuentan clientes nuevos, clientes únicos que alquilaron
+y alquileres confirmados que coinciden con las fechas del mes. Los pagos de prueba
+no se incluyen. Las cifras de actividad y pagos pendientes corresponden al momento
+actual. Las fechas históricas de registro/acceso no disponibles aparecen como
+**No registrado**; desde esta versión se guardan al registrar/iniciar sesión.
+
+La migración agrega proveedores, una relación opcional en vehículos y fechas
+opcionales en usuarios; conserva los datos existentes. Detalles y comprobaciones
+en [cambios de administración](docs/CAMBIOS-PROVEEDORES-CLIENTES-2026-10-20.md).
+
 ## Releases y despliegue al homelab
 
 Cada cambio terminado se publica como un tag `vX.Y.Z` y se despliega con:

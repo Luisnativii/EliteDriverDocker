@@ -3,6 +3,7 @@
 import React from 'react';
 import { useVehicleForm } from '../../hooks/useVehicleForm';
 import { toast } from 'react-toastify';
+import SupplierSelect from './SupplierSelect';
 
 /**
  * Formulario para editar un vehículo.
@@ -14,7 +15,7 @@ import { toast } from 'react-toastify';
  * @param {boolean} submitLoading - Indicador de si el formulario está siendo procesado.
  */
 
-const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false }) => {
+const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false, suppliers = [], suppliersLoading = false, suppliersError }) => {
   const {
     formData,
     errors,
@@ -100,6 +101,7 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
       pricePerDay: parseFloat(formData.pricePerDay),
       kilometers: parseInt(formData.kilometers),
       insurancePhone: formData.insurancePhone.trim(),
+      supplierId: formData.supplierId || null,
 
       features: formData.featuresText
         ? formData.featuresText.split(",").map(f => f.trim()).filter(f => f)
@@ -334,6 +336,8 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
 
           </div>
         </div>
+
+        <SupplierSelect value={formData.supplierId} onChange={value => setFormData(prev => ({...prev,supplierId:value}))} suppliers={suppliers} loading={suppliersLoading} error={suppliersError} currentSupplier={vehicle.supplier} />
 
         {/* Campos editables */}
         <div>

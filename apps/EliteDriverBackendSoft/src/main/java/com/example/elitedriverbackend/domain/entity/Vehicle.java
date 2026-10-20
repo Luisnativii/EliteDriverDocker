@@ -16,8 +16,8 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"vehicleType"})
-@ToString(exclude = {"vehicleType"})
+@EqualsAndHashCode(exclude = {"vehicleType", "supplier"})
+@ToString(exclude = {"vehicleType", "supplier"})
 public class Vehicle {
 
     @Id
@@ -59,6 +59,10 @@ public class Vehicle {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_type_id", nullable = false)
     private VehicleType vehicleType;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "supplier_id")
+    private Supplier supplier;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

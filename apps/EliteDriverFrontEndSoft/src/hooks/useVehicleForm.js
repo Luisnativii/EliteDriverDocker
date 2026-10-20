@@ -12,6 +12,7 @@ export const useVehicleForm = (initialData = {}) => {
     pricePerDay: initialData.pricePerDay?.toString() || "",
     kilometers: initialData.kilometers?.toString() || "",
     insurancePhone: initialData.insurancePhone || "",
+    supplierId: initialData.supplier?.id || "",
 
     // Características
     features: Array.isArray(initialData.features) ? initialData.features : [],

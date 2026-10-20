@@ -23,5 +23,8 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
     Optional<Vehicle> findForReservation(@Param("id") UUID id);
 
     List<Vehicle> findByVehicleType(VehicleType vehicleType);
+    long countBySupplier_Id(UUID supplierId);
+    @Query("SELECT v.supplier.id, COUNT(v) FROM Vehicle v WHERE v.supplier IS NOT NULL GROUP BY v.supplier.id")
+    List<Object[]> countBySupplier();
 
 }

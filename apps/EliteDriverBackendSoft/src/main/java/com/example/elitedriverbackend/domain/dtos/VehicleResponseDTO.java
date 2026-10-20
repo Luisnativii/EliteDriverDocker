@@ -23,6 +23,9 @@ public class VehicleResponseDTO {
     private String mainImageUrl;
     private List<String> listImageUrls;
     private String insurancePhone;
+    private SupplierInfo supplier;
+
+    public record SupplierInfo(java.util.UUID id, String name) {}
 
     private List<VehicleUnavailabilityDTO> unavailablePeriods;
 

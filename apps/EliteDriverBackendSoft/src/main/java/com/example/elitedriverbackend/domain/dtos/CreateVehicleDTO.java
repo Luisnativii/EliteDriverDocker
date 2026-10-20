@@ -63,6 +63,7 @@ public class CreateVehicleDTO {
     private List<String> listImageUrls;
 
     private String insurancePhone;
+    private java.util.UUID supplierId;
 
     private com.example.elitedriverbackend.domain.entity.VehicleStatus status;
 

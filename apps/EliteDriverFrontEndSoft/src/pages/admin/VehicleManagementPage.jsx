@@ -16,7 +16,7 @@ export default function VehicleManagementPage() {
   const formRef = useDialogFocus(showForm, handleCloseForm);
   return <div className="min-h-screen bg-neutral-900 text-white pt-20 pb-8 px-4 sm:px-6">
     <div className="max-w-7xl mx-auto space-y-6">
-      <VehicleFilterForm searchTerm={state.searchTerm} setSearchTerm={state.setSearchTerm} filterType={state.filterType} setFilterType={state.setFilterType} uniqueTypes={state.uniqueTypes} hasAdminRole onAddVehicle={state.handleAddVehicle} onRefresh={handleRefresh}/>
+      <VehicleFilterForm searchTerm={state.searchTerm} setSearchTerm={state.setSearchTerm} filterType={state.filterType} setFilterType={state.setFilterType} uniqueTypes={state.uniqueTypes} ownershipFilter={state.ownershipFilter} setOwnershipFilter={state.setOwnershipFilter} suppliers={state.suppliers} hasAdminRole onAddVehicle={state.handleAddVehicle} onRefresh={handleRefresh}/>
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">Consultar desde<input type="date" value={state.reservationDateFrom} onChange={e => state.setReservationDateFrom(e.target.value)} className="block min-h-11 px-3 bg-neutral-800 border border-white/30 rounded-lg"/></label>
         <label className="text-sm">Hasta<input type="date" min={state.reservationDateFrom} value={state.reservationDateTo} onChange={e => state.setReservationDateTo(e.target.value)} className="block min-h-11 px-3 bg-neutral-800 border border-white/30 rounded-lg"/></label>
@@ -28,6 +28,7 @@ export default function VehicleManagementPage() {
           <span className="text-sm text-white/70">{status === 'all' ? 'Total' : vehicleStatusLabels[status]}</span><strong className="block text-2xl">{state.statusCounts[status === 'all' ? 'total' : status]}</strong>
         </button>)}
       </div>
+      {state.suppliersError && <p role="alert" className="text-amber-200">{state.suppliersError}</p>}
       {state.error && <p role="alert" className="p-4 rounded-xl bg-red-500/15 text-red-200">{state.error}</p>}
       {state.loading ? <LoadingSpinner/> : state.filteredVehicles.length === 0 ? <p className="py-8 text-white/70">No hay vehículos para estos filtros.</p> :
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">{state.filteredVehicles.map(v => <div key={v.id} className="min-w-0 space-y-3">
@@ -37,7 +38,7 @@ export default function VehicleManagementPage() {
       {showForm && <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
         <div ref={formRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={editingVehicle ? 'Editar vehículo' : 'Agregar vehículo'} className="bg-neutral-900 rounded-2xl border border-white/20 max-w-2xl w-full max-h-[90dvh] flex flex-col overflow-hidden">
           <div className="flex justify-between items-center p-4 border-b border-white/20"><h2 className="text-xl font-bold">{editingVehicle ? 'Editar vehículo' : 'Agregar vehículo'}</h2><button onClick={handleCloseForm} className="min-h-11 min-w-11" aria-label="Cerrar">✕</button></div>
-          <div className="p-4 min-h-0 overflow-y-auto">{editingVehicle ? <EditVehicleForm vehicle={editingVehicle} onSubmit={state.handleUpdateSubmit} onCancel={handleCloseForm} submitLoading={state.operationLoading}/> : <CreateVehicleForm onSubmit={state.handleCreateSubmit} onCancel={handleCloseForm} submitLoading={state.operationLoading}/>}</div>
+          <div className="p-4 min-h-0 overflow-y-auto">{editingVehicle ? <EditVehicleForm vehicle={editingVehicle} onSubmit={state.handleUpdateSubmit} onCancel={handleCloseForm} submitLoading={state.operationLoading} suppliers={state.suppliers} suppliersLoading={state.suppliersLoading} suppliersError={state.suppliersError}/> : <CreateVehicleForm onSubmit={state.handleCreateSubmit} onCancel={handleCloseForm} submitLoading={state.operationLoading} suppliers={state.suppliers} suppliersLoading={state.suppliersLoading} suppliersError={state.suppliersError}/>}</div>
         </div>
       </div>}
     </div>

@@ -32,4 +32,11 @@ public class User {
     private String password;
 
     private String role;
+    @Column(updatable = false)
+    private java.time.Instant createdAt;
+    private java.time.Instant lastLoginAt;
+
+    @PrePersist
+    void recordCreation() { if (createdAt == null) createdAt = java.time.Instant.now(); }
+
 }

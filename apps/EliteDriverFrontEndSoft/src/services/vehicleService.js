@@ -63,6 +63,7 @@ const transformVehicleData = (apiVehicle) => {
     listImageUrls: apiVehicle.listImageUrls || [],
     status: apiVehicle.status || 'active',
     insurancePhone: apiVehicle.insurancePhone || '',
+    supplier: apiVehicle.supplier || null,
     createdAt: apiVehicle.createdAt ? new Date(apiVehicle.createdAt) : null,
     updatedAt: apiVehicle.updatedAt ? new Date(apiVehicle.updatedAt) : null,
     unavailablePeriods: apiVehicle.unavailablePeriods || []
@@ -104,6 +105,7 @@ const transformVehicleForAPI = (vehicleData) => {
     pricePerDay,
     kilometers,
     insurancePhone,
+    supplierId: vehicleData.supplierId || null,
     features: processedFeatures,
     vehicleType: {
       type: vehicleType
@@ -167,6 +169,8 @@ const transformVehicleForUpdate = (vehicleData) => {
   }
 
   // Agregar estado si está presente
+  if (Object.hasOwn(vehicleData, 'supplierId')) updateData.supplierId = vehicleData.supplierId || null;
+
   if (vehicleData.hasOwnProperty('status')) {
     updateData.status = vehicleData.status;
   }

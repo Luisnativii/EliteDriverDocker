@@ -45,7 +45,9 @@ public class VehicleService {
     @Autowired private com.example.elitedriverbackend.repositories.ReservationRepository reservations;
     @Autowired private ReservationHoldService holds;
     @Autowired private Clock rentalClock;
+    @Autowired private SupplierService suppliers;
 
+    @Transactional
     public void addVehicle(CreateVehicleDTO dto) {
         Vehicle v = new Vehicle();
         v.setName(dto.getName());
@@ -56,6 +58,7 @@ public class VehicleService {
         v.setKilometers(dto.getKilometers());
         v.setFeatures(dto.getFeatures());
         v.setInsurancePhone(dto.getInsurancePhone());
+        v.setSupplier(dto.getSupplierId() == null ? null : suppliers.require(dto.getSupplierId()));
         v.setStatus(dto.getStatus() == null ? VehicleStatus.active : dto.getStatus());
         v.setMainImageUrl(requireImageUrl(dto.getMainImageUrl(), "mainImageUrl"));
 
@@ -75,6 +78,8 @@ public class VehicleService {
     public void updateVehicle(UpdateVehicleDTO dto, UUID id) {
         holds.expireNow(Instant.now(rentalClock));
         Vehicle v = availability.lock(id);
+
+        if (dto.isSupplierSpecified()) v.setSupplier(dto.getSupplierId() == null ? null : suppliers.require(dto.getSupplierId()));
 
         // Update simple fields
         if (dto.getPricePerDay() != null)        v.setPricePerDay(dto.getPricePerDay());
@@ -133,6 +138,7 @@ public class VehicleService {
                 .mainImageUrl(v.getMainImageUrl())
                 .listImageUrls(v.getListImageUrls())
                 .insurancePhone(v.getInsurancePhone())
+                .supplier(v.getSupplier() == null ? null : new VehicleResponseDTO.SupplierInfo(v.getSupplier().getId(),v.getSupplier().getName()))
                 .unavailablePeriods(periods.findByVehicle_IdOrderByStartDateAsc(v.getId()).stream().map(VehicleAvailabilityService::dto).toList())
                 .build();
     }

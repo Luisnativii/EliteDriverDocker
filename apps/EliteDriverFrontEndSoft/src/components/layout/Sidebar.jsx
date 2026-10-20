@@ -65,6 +65,8 @@ const Sidebar = ({ toggleSidebar, isMobile }) => {
       
       { name: "Gestión de Reservas", path: "/admin/reservation", icon: "Calendar" },
       { name: "Gestión de Vehículos", path: "/admin/vehicle", icon: "Car" },
+      { name: "Proveedores", path: "/admin/suppliers", icon: "Users" },
+      { name: "Clientes", path: "/admin/customers", icon: "Users" },
     ],
     USER: [
       { name: "Inicio", path: "/customer", icon: "Home" },

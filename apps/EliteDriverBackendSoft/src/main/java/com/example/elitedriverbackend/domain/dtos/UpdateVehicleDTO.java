@@ -29,4 +29,14 @@ public class UpdateVehicleDTO {
     private List<String> listImageUrls;
 
     private String insurancePhone;
+    private java.util.UUID supplierId;
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private boolean supplierSpecified;
+
+    @com.fasterxml.jackson.annotation.JsonSetter("supplierId")
+    public void setSupplierId(java.util.UUID id) {
+        supplierId = id;
+        supplierSpecified = true;
+    }
+
 }

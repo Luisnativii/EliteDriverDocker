@@ -8,6 +8,7 @@ const VehicleFilterForm = ({
   filterType,
   setFilterType,
   uniqueTypes,
+  ownershipFilter = 'all', setOwnershipFilter, suppliers = [],
   hasAdminRole,
   onAddVehicle,
   onRefresh
@@ -70,7 +71,7 @@ const handleRefreshClick = () => {
         </div>
       </div>
 
-      {/* Filtros y búsqueda con glassmorphism */}
+      {/* Filtros de flota */}
       <div className="px-8 py-4">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Barra de búsqueda */}
@@ -85,6 +86,13 @@ const handleRefreshClick = () => {
             />
           </div>
 
+          {hasAdminRole && setOwnershipFilter && <div>
+            <label className="sr-only" htmlFor="ownership-filter">Propiedad del vehículo</label>
+            <select id="ownership-filter" value={ownershipFilter} onChange={e => setOwnershipFilter(e.target.value)} className="w-full min-h-12 rounded-lg border border-white/20 bg-neutral-900 text-white px-3">
+              <option value="all">Todos: propios y proveedores</option><option value="own">Propios</option>
+              {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </div>}
           {/* Filtro por tipo */}
           <div className="relative">
             <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 w-4 h-4" />

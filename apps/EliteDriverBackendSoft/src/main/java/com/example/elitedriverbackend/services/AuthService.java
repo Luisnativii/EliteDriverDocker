@@ -31,6 +31,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
+    private final java.time.Clock rentalClock;
 
     /*
         Registra un nuevo usuario en el sistema.
@@ -78,6 +79,8 @@ public class AuthService {
                 .birthDate(request.getBirthDate())
                 .dui(request.getDui())
                 .phoneNumber(request.getPhoneNumber())
+                .createdAt(java.time.Instant.now(rentalClock))
+                .lastLoginAt(java.time.Instant.now(rentalClock))
                 .role("CUSTOMER") // Por defecto
                 .build();
 
@@ -113,6 +116,9 @@ public class AuthService {
         } catch (Exception e) {
             throw new EntityNotFoundException("Credenciales inválidas");
         }
+
+        user.setLastLoginAt(java.time.Instant.now(rentalClock));
+        userRepository.save(user);
 
         // Generar token JWT
         String token = jwtService.generateToken(user.getEmail());
