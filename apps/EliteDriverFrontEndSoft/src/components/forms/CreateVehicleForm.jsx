@@ -401,7 +401,7 @@ const CreateVehicleForm = ({ onSubmit, onCancel, submitLoading = false }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-200 mb-1">
-              Precio por Día ($) *
+              Precio por día ($, IVA incluido) *
             </label>
             <input
               type="number"

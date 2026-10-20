@@ -123,7 +123,7 @@ export default function ReservationPayment({ reservationId, initialStatus, initi
                     <p className="text-xs text-gray-400">Última verificación: {lastChecked.toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
                 )}
             </div>
-            {payment.amount != null && <p>Total: <strong>${Number(payment.amount).toFixed(2)} USD</strong></p>}
+            {payment.amount != null && <p>Total (IVA incluido): <strong>${Number(payment.amount).toFixed(2)} USD</strong></p>}
 
             {/* Ventana de pago: mientras corre, el auto está reservado a tu nombre. */}
             {restante !== null && status === 'PENDING' && !expirada && (

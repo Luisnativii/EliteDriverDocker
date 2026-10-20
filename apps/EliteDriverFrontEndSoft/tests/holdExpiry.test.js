@@ -15,15 +15,15 @@ test('el reloj se formatea con dos digitos', () => {
     assert.equal(formatCountdown(0, 7), '00:07');
 });
 
-test('la ventana de 30 minutos son 1800 segundos', () => {
-    assert.equal(Math.floor(1800 / 60), 30);
-    assert.equal(1800 % 60, 0);
-    assert.equal(formatCountdown(30, 0), '30:00');
+test('la ventana de 10 minutos son 600 segundos', () => {
+    assert.equal(Math.floor(600 / 60), 10);
+    assert.equal(600 % 60, 0);
+    assert.equal(formatCountdown(10, 0), '10:00');
 });
 
 test('el panel de vencida ofrece volver a reservar si el auto sigue libre', () => {
     const src = leer('../src/components/reservation/HoldExpiredPanel.jsx');
-    assert.match(src, /Volver a reservar por 30 minutos/);
+    assert.match(src, /Volver a reservar el vehículo/);
     assert.match(src, /alternatives/);
     assert.match(src, /ya lo tomó otra persona/);
 });

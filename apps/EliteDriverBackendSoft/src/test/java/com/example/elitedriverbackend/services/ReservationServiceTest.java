@@ -32,7 +32,7 @@ class ReservationServiceTest {
         Clock clock = Clock.fixed(Instant.parse(instant), RentalTimeConfiguration.RENTAL_ZONE);
         com.example.elitedriverbackend.config.ReservationHoldProperties holdProps =
                 new com.example.elitedriverbackend.config.ReservationHoldProperties();
-        holdProps.setHoldMinutes(30);
+        // Usar el plazo predeterminado de 10 minutos.
         return new ReservationService(reservations, users, vehicles, types, clock,
                 new ReservationHoldService(reservations, holdProps));
     }
@@ -53,8 +53,9 @@ class ReservationServiceTest {
         when(reservations.saveAndFlush(any())).thenAnswer(invocation -> invocation.getArgument(0));
         var saved = serviceAt("2026-10-16T15:00:00Z")
                 .addReservation(dates("2026-11-20", "2026-11-23"), auth);
-        assertEquals(new BigDecimal("101.67"), saved.getTotalPrice());
+        assertEquals(new BigDecimal("89.97"), saved.getTotalPrice());
         assertEquals(PaymentStatus.PENDING, saved.getPaymentStatus());
+        assertEquals(Instant.parse("2026-10-16T15:10:00Z"), saved.getHoldExpiresAt());
         var ordered = inOrder(vehicles, reservations);
         ordered.verify(vehicles).findForReservation(vehicleId);
         ordered.verify(reservations).findByVehicleIdAndDateOverlap(eq(vehicleId), any(), any());

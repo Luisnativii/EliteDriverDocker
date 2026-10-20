@@ -32,7 +32,7 @@ const HoldExpiredPanel = ({
         <div className="min-w-0">
           <h3 className="font-semibold text-amber-100">Tu reserva quedó en pausa</h3>
           <p className="text-sm text-amber-100/80 mt-0.5">
-            Pasaron los 30 minutos para pagar
+            Se agotó el tiempo para pagar
             {reservedName ? ` y liberamos ${reservedName}` : ''}.
           </p>
         </div>
@@ -52,7 +52,7 @@ const HoldExpiredPanel = ({
           disabled={loading}
           className="w-full min-h-12 cursor-pointer rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-60 text-white font-semibold inline-flex items-center justify-center gap-2 active:scale-[0.99] transition"
         >
-          {loading ? 'Comprobando disponibilidad…' : 'Volver a reservar por 30 minutos'}
+          {loading ? 'Comprobando disponibilidad…' : 'Volver a reservar el vehículo'}
         </button>
       )}
 
@@ -98,7 +98,7 @@ const HoldExpiredPanel = ({
                     </div>
                     <span className="shrink-0 text-sm whitespace-nowrap">
                       <strong>${Number(v.pricePerDay).toFixed(2)}</strong>
-                      <span className="text-white/50 text-xs">/día</span>
+                      <span className="text-white/50 text-xs">/día · IVA incluido</span>
                     </span>
                   </div>
                 </button>

@@ -49,7 +49,7 @@ try {
     $body = @{ vehicleId = $vehicle.id; userId = $login.Data.user.id; startDate = '2037-01-10'; endDate = '2037-01-13' }
     $reservation = Send-AuditRequest POST '/reservations' $body $authHeaders
     if ($reservation.Status -eq 201) { $created.Add([string]$reservation.Data.id) }
-    Record-Check 'Three days and 13 percent IVA total 101.67' $reservation ($reservation.Status -eq 201 -and $reservation.Data.totalPrice -eq 101.67) "Total: $($reservation.Data.totalPrice); status: $($reservation.Data.paymentStatus)"
+    Record-Check 'Three days with IVA included total 89.97' $reservation ($reservation.Status -eq 201 -and $reservation.Data.totalPrice -eq 89.97) "Total: $($reservation.Data.totalPrice); status: $($reservation.Data.paymentStatus)"
     $overlap = Send-AuditRequest POST '/reservations' $body $authHeaders
     Record-Check 'Duplicate overlapping reservation rejected' $overlap ($overlap.Status -eq 400) $overlap.Data.error
     if ($overlap.Status -eq 201) { $created.Add([string]$overlap.Data.id) }

@@ -66,7 +66,10 @@ test('el aviso legal menciona los dos registros obligatorios', () => {
 });
 
 test('los términos aclaran que el precio incluye IVA', () => {
-    assert.match(terminos, /IVA/);
+    assert.match(terminos, /IVA incluido, sin sumar IVA adicional/);
+    assert.doesNotMatch(terminos, /más IVA|sin IVA/);
+    assert.match(terminos, /durante 10 minutos/);
+    assert.doesNotMatch(terminos, /vehículo sigue\s+disponible para otra persona/);
     assert.match(terminos, /queda confirmada cuando el pago aparece como\s+aprobado/i,
         'debe quedar claro que sin pago aprobado no hay reserva confirmada');
 });

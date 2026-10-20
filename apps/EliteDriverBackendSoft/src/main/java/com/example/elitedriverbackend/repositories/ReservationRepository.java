@@ -39,7 +39,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
      * el vehículo. Se ordenan por vencimiento para no cargarlas todas.
      */
     @Query("SELECT r FROM Reservation r WHERE r.paymentStatus = com.example.elitedriverbackend.domain.entity.PaymentStatus.PENDING " +
-            "AND r.holdExpiresAt IS NOT NULL AND r.holdExpiresAt < :now ORDER BY r.holdExpiresAt ASC")
+            "AND r.holdExpiresAt IS NOT NULL AND r.holdExpiresAt <= :now ORDER BY r.holdExpiresAt ASC")
     List<Reservation> findExpiredHolds(@Param("now") Instant now, Pageable pageable);
 
 }

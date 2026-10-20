@@ -39,8 +39,8 @@ const VehicleFactDetail = ({ vehicle }) => {
 
                     <div className="border-t pt-3 mt-4">
                         <div className="flex justify-between">
-                            <span className="text-gray-600 font-medium">Precio por día:</span>
-                            <span className="text-2xl font-bold text-stone-900">${vehicle.price}</span>
+                            <span className="text-gray-600 font-medium">Precio por día (IVA incluido):</span>
+                            <span className="text-2xl font-bold text-stone-900">${Number(vehicle.pricePerDay ?? vehicle.price ?? 0).toFixed(2)}</span>
                         </div>
                     </div>
                 </div>

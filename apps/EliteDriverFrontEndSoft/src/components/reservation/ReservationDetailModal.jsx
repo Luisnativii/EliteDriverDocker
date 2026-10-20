@@ -40,7 +40,7 @@ const ReservationDetailModal = ({ isOpen, onClose, reservation, formatDate, form
           <p><strong>Capacidad:</strong> {reservation.vehicle.capacity} personas</p>
           <p><strong>Fecha de inicio:</strong> {formatDate(reservation.startDate)}</p>
           <p><strong>Fecha de fin:</strong> {formatDate(reservation.endDate)}</p>
-          <p><strong>Precio total:</strong> {formatPrice(reservation.totalPrice)}</p>
+          <p><strong>Precio total (IVA incluido):</strong> {formatPrice(reservation.totalPrice)}</p>
         </div>
       </div>
     </div>

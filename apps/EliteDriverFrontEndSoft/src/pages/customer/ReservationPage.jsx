@@ -46,7 +46,7 @@ const ReservationPage = () => {
                 </button>
                 <div className="mb-6">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Reservar Vehículo</h1>
-                    <p className="text-sm text-gray-600 mt-1">Elige fechas, revisa el total con IVA y paga en 1 clic con Wompi.</p>
+                    <p className="text-sm text-gray-600 mt-1">Elige fechas, revisa el total con IVA incluido y paga en 1 clic con Wompi.</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">

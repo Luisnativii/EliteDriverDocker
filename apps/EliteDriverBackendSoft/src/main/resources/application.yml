@@ -46,8 +46,8 @@ app:
   reservation:
     # Minutos que una reserva sin pago retiene el vehículo.
     # Pasado ese tiempo se libera sola y el auto vuelve al catálogo.
-    # Se ajusta en el .env del servidor: RESERVATION_HOLD_MINUTES=30
-    hold-minutes: ${RESERVATION_HOLD_MINUTES:30}
+    # Se ajusta en el .env del servidor: RESERVATION_HOLD_MINUTES=10
+    hold-minutes: ${RESERVATION_HOLD_MINUTES:10}
   bootstrap-admin:
     email: ${APP_BOOTSTRAP_ADMIN_EMAIL:}
     password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}

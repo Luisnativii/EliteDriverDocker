@@ -16,7 +16,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ReservationHoldProperties {
 
     /** Minutos que una reserva PENDING retiene el vehículo. 0 = sin expiración. */
-    private int holdMinutes = 30;
+    private int holdMinutes = 10;
 
     /** Cada cuánto revisan las reservas vencidas, en milisegundos. */
     private long sweepMillis = 60_000L;

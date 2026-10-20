@@ -90,6 +90,19 @@ docker compose down -v
 - `backend`: Spring Boot expone la API REST y conecta a PostgreSQL por la red interna de Docker.
 - `postgres`: PostgreSQL 16 Alpine con volumen persistente `postgres_data`.
 
+## Precios y retención de reservas
+
+La tarifa diaria publicada ya incluye IVA. El total de una reserva nueva es
+**días × tarifa diaria**, sin agregar IVA: $29.99 por 3 días = $89.97.
+El importe guardado al crear una reserva es el que se envía a Wompi; las reservas
+anteriores conservan su importe pactado.
+
+`RESERVATION_HOLD_MINUTES=10` define la ventana para completar el pago. Al vencer,
+la reserva pendiente se libera y el vehículo vuelve a estar disponible para esas
+fechas. El contador usa `holdExpiresAt`, que envía el servidor. Una renovación
+concede otros 10 minutos si el vehículo sigue libre. Un valor explícito en `.env`
+tiene prioridad sobre el predeterminado de Compose; `0` desactiva el vencimiento.
+
 ## Releases y despliegue al homelab
 
 Cada cambio terminado se publica como un tag `vX.Y.Z` y se despliega con:

@@ -73,6 +73,17 @@ class PaymentServiceTest {
     }
 
     @Test
+    void calculatesMissingAmountWithIvaAlreadyIncludedBeforeSendingToWompi() {
+        reservation.setTotalPrice(null);
+        reservation.getVehicle().setPricePerDay(new BigDecimal("29.99"));
+        var result = service.createLink(reservation.getId(), owner);
+        var captor = org.mockito.ArgumentCaptor.forClass(Map.class);
+        verify(client).createLink(captor.capture());
+        assertThat(captor.getValue().get("monto")).isEqualTo(new BigDecimal("89.97"));
+        assertThat(result.amount()).isEqualByComparingTo("89.97");
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     void returnUrlPreservesExistingParametersAndReplacesStaleReservation() {
         properties.setRedirectUrl("https://example.com/customer/my-reservations?source=wompi&reservation=old&payment_return=0");

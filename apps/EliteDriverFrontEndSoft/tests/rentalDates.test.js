@@ -28,7 +28,7 @@ test('fechas imposibles, incompletas o con hora devuelven errores sin lanzar exc
     }
 });
 
-test('duración de calendario e IVA se conservan en cambios de mes, año y bisiesto', () => {
+test('duración de calendario y tarifa con IVA incluido se conservan en cambios de mes, año y bisiesto', () => {
     for (const [start, end, days] of [
         ['2026-11-20', '2026-11-23', 3], ['2026-10-31', '2026-11-01', 1],
         ['2026-12-31', '2027-01-01', 1], ['2028-02-28', '2028-03-01', 2],
@@ -36,7 +36,7 @@ test('duración de calendario e IVA se conservan en cambios de mes, año y bisie
         assert.equal(rentalDays(start, end), days);
     }
     assert.deepEqual(ReservationService.calculateTotalPrice('2026-11-20', '2026-11-23', 29.99),
-        { days: 3, subtotal: 89.97, iva: 11.70, totalPrice: 101.67 });
+        { days: 3, subtotal: 89.97, totalPrice: 89.97 });
 });
 
 test('mismo día, rango invertido y fechas ausentes no son reservas válidas', () => {
@@ -44,5 +44,12 @@ test('mismo día, rango invertido y fechas ausentes no son reservas válidas', (
     for (const [startDate, endDate] of [['2026-11-20', '2026-11-20'], ['2026-11-23', '2026-11-20'], ['', ''], [null, null]]) {
         assert.equal(ReservationService.validateReservation({ vehicleId:'vehicle', startDate, endDate }, now).isValid, false);
         assert.equal(ReservationService.calculateTotalPrice(startDate, endDate, 29.99).days, 0);
+    }
+});
+
+test('la tarifa publicada es el precio final con IVA incluido para uno o varios días', () => {
+    for (const [end, days, totalPrice] of [['2026-11-21', 1, 29.99], ['2026-11-23', 3, 89.97], ['2026-11-27', 7, 209.93]]) {
+        assert.deepEqual(ReservationService.calculateTotalPrice('2026-11-20', end, 29.99),
+            { days, subtotal: totalPrice, totalPrice });
     }
 });

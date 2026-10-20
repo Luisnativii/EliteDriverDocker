@@ -21,7 +21,7 @@ const FacturationDetail = ({ vehicle }) => {
 
     const todayLocal = rentalToday;
     const errorRef = useRef(null);
-    const { days: totalDays, subtotal, iva, totalPrice } = ReservationService.calculateTotalPrice(startDate, endDate, vehicle?.pricePerDay ?? vehicle?.price);
+    const { days: totalDays, totalPrice } = ReservationService.calculateTotalPrice(startDate, endDate, vehicle?.pricePerDay ?? vehicle?.price);
     const validation = ReservationService.validateReservation({ vehicleId: vehicle?.id, startDate, endDate });
     const step = paymentLoading || isLoading ? 'Pagando' : validation.isValid ? 'Resumen' : 'Fechas';
     useEffect(() => {
@@ -39,7 +39,7 @@ const FacturationDetail = ({ vehicle }) => {
 
     const handleStartDateChange = value => { setErrors([]); setStartDate(value); };
     const handleEndDateChange = value => { setErrors([]); setEndDate(value); };
-    // Flujo en 1 clic: crea reserva (si no existe) y abre Wompi. Sin depósito, +IVA, 18+.
+    // Flujo en 1 clic: crea reserva (si no existe) y abre Wompi. Sin depósito, IVA incluido, 18+.
     const handleReservation = async () => {
         setErrors([]);
         if (!vehicle || !vehicle.id) {
@@ -163,20 +163,12 @@ const FacturationDetail = ({ vehicle }) => {
                                 <span className="font-medium">{totalDays} día{totalDays > 1 ? 's' : ''}</span>
                             </div>
                             <div className="flex flex-wrap justify-between gap-2">
-                                <span className="text-gray-600">Precio por día (sin IVA):</span>
+                                <span className="text-gray-600">Precio por día (IVA incluido):</span>
                                 <span className="font-medium">${Number(vehicle.pricePerDay ?? vehicle.price ?? 0).toFixed(2)}</span>
-                            </div>
-                            <div className="flex flex-wrap justify-between gap-2">
-                                <span className="text-gray-600">Subtotal:</span>
-                                <span className="font-medium">${Number(subtotal).toFixed(2)}</span>
-                            </div>
-                            <div className="flex flex-wrap justify-between gap-2">
-                                <span className="text-gray-600">IVA 13%:</span>
-                                <span className="font-medium">${Number(iva).toFixed(2)}</span>
                             </div>
                             <div className="border-t pt-2 mt-2">
                                 <div className="flex flex-wrap justify-between gap-2">
-                                    <span className="text-lg font-semibold text-gray-900">Total a pagar:</span>
+                                    <span className="text-lg font-semibold text-gray-900">Total a pagar (IVA incluido):</span>
                                     <span className="text-xl sm:text-2xl font-bold text-stone-900 whitespace-nowrap">${Number(totalPrice).toFixed(2)} USD</span>
                                 </div>
                                 <p className="text-xs text-gray-500 mt-1">Sin depósito en garantía. Mayores de 18 años con licencia vigente.</p>
@@ -204,6 +196,7 @@ const FacturationDetail = ({ vehicle }) => {
 
                 {/* Información adicional */}
                 <div className="text-sm text-gray-600 mt-4 space-y-1">
+                    <p>• Todos los precios incluyen IVA. No se agrega IVA al pagar.</p>
                     <p>• Pago 100% en línea con Wompi, confirmación inmediata.</p>
                     <p>• Tu reserva se confirma cuando Wompi aprueba el pago.</p>
                     <p>• Si algo falla, retoma el pago desde Mis reservas sin crear otra.</p>

@@ -79,7 +79,7 @@ public class ReservationHoldService {
     /** ¿Esta reserva perdió su bloqueo por tiempo? */
     public boolean isHoldExpired(Reservation reservation, Instant now) {
         return reservation.getHoldExpiresAt() != null
-                && reservation.getHoldExpiresAt().isBefore(now)
+                && !reservation.getHoldExpiresAt().isAfter(now)
                 && reservation.getPaymentStatus() == PaymentStatus.PENDING;
     }
 
@@ -91,6 +91,6 @@ public class ReservationHoldService {
     public boolean isRenewable(Reservation reservation, Instant now) {
         return reservation.getPaymentStatus() == PaymentStatus.CANCELLED
                 && reservation.getHoldExpiresAt() != null
-                && reservation.getHoldExpiresAt().isBefore(now);
+                && !reservation.getHoldExpiresAt().isAfter(now);
     }
 }

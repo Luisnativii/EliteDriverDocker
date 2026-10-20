@@ -218,12 +218,12 @@ const VehicleCard = ({ vehicle, isFiltered = false, isReserved = false }) => {
                     </p>
                     <p className="flex items-center gap-1.5 text-white/90">
                         <HandCoinsIcon className="w-5 h-5 shrink-0" aria-hidden="true" />
-                        <span className="font-bold">${vehicle.pricePerDay}</span> / día
+                        <span className="font-bold">${Number(vehicle.pricePerDay).toFixed(2)}</span> / día
                     </p>
                     {calculation && calculation.days > 0 && (
                         <p className="flex items-center gap-1.5 text-white/90">
                             <DollarSignIcon className="w-5 h-5 shrink-0" aria-hidden="true" />
-                            <span className="font-bold">${calculation.totalPrice}</span> /
+                            <span className="font-bold">${Number(calculation.totalPrice).toFixed(2)}</span> /
                             <span className="text-white/70">
                                 {calculation.days} día{calculation.days > 1 ? 's' : ''}
                             </span>
@@ -232,6 +232,7 @@ const VehicleCard = ({ vehicle, isFiltered = false, isReserved = false }) => {
                 </div>
             </div>
 
+            <p className="text-xs text-white/70">IVA incluido en todos los precios</p>
             <div className="w-full mt-3">
                 <button
                     onClick={handleReservationClick}

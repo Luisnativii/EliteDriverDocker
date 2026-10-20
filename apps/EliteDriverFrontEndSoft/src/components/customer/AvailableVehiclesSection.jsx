@@ -99,7 +99,7 @@ const AvailableVehiclesSection = () => {
         <p className="text-white/60 text-sm sm:text-base mb-6 sm:mb-10 max-w-2xl">
           {conFechas
             ? `Libres del ${startDate} al ${endDate} · ${precio?.days ?? 0} día(s). El precio ya incluye IVA.`
-            : 'Elegí tus fechas arriba para ver cuáles están libres y cuánto salen.'}
+            : 'Elegí tus fechas arriba para ver cuáles están libres y cuánto salen. Todos los precios incluyen IVA.'}
         </p>
 
         {availabilityError && (
@@ -128,7 +128,7 @@ const AvailableVehiclesSection = () => {
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {visibles.map(v => {
                 const ocupado = reservedIds.includes(v.id);
-                const total = conFechas ? (v.pricePerDay || 0) * (precio?.days ?? 0) * 1.13 : null;
+                const total = conFechas ? ReservationService.calculateTotalPrice(startDate, endDate, v.pricePerDay).totalPrice : null;
                 return (
                   <li key={v.id} className="flex flex-col rounded-2xl bg-white/5 border border-white/10 overflow-hidden">
                     <div className="aspect-[4/3] bg-neutral-900 overflow-hidden">
@@ -156,6 +156,7 @@ const AvailableVehiclesSection = () => {
                           <span className="text-xl font-semibold">${(v.pricePerDay ?? 0).toFixed(2)}</span>
                           <span className="text-white/50 text-sm"> / día</span>
                         </p>
+                        <p className="text-xs text-white/60 mt-1">IVA incluido</p>
                         {conFechas && !ocupado && (
                           <p className="text-sm text-white/60 mt-0.5">
                             Total {precio?.days} día(s): <span className="text-white">${total.toFixed(2)}</span>

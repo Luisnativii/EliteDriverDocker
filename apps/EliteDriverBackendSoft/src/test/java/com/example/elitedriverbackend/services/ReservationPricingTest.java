@@ -9,11 +9,20 @@ import static org.assertj.core.api.Assertions.*;
 class ReservationPricingTest {
     @Test
     void multipliesCalendarDaysWithoutFloatingPointErrors() {
-        // Precios base + IVA 13%: 19.99 x 3 = 59.97 subtotal, 67.77 total
+        // Tarifa con IVA incluido: 19.99 x 3 = 59.97 total, sin recargo
         assertThat(ReservationPricing.total(LocalDate.parse("2026-10-01"), LocalDate.parse("2026-10-04"), new BigDecimal("19.99")))
-                .isEqualTo(new BigDecimal("67.77"));
+                .isEqualTo(new BigDecimal("59.97"));
         assertThat(ReservationPricing.total(java.sql.Date.valueOf("2026-10-01"), java.sql.Date.valueOf("2026-10-04"), new BigDecimal("19.99")))
-                .isEqualTo(new BigDecimal("67.77"));
+                .isEqualTo(new BigDecimal("59.97"));
+    }
+
+    @Test
+    void publishedDailyPriceIsFinalForOneOrSeveralDays() {
+        LocalDate start = LocalDate.parse("2026-10-20");
+        BigDecimal price = new BigDecimal("29.99");
+        assertThat(ReservationPricing.total(start, start.plusDays(1), price)).isEqualTo(new BigDecimal("29.99"));
+        assertThat(ReservationPricing.total(start, start.plusDays(3), price)).isEqualTo(new BigDecimal("89.97"));
+        assertThat(ReservationPricing.total(start, start.plusDays(7), price)).isEqualTo(new BigDecimal("209.93"));
     }
 
     @Test

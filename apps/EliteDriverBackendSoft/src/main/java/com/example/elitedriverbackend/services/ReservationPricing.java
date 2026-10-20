@@ -13,8 +13,7 @@ import java.util.Date;
 public final class ReservationPricing {
     private ReservationPricing() {}
 
-    /** IVA El Salvador 13%. Precios publicados son base + IVA. */
-    public static final java.math.BigDecimal IVA_RATE = new java.math.BigDecimal("0.13");
+    // La tarifa publicada ya incluye IVA; no se agrega ningún recargo fiscal.
 
     public static BigDecimal total(LocalDate start, LocalDate end, BigDecimal pricePerDay) {
         long days = ChronoUnit.DAYS.between(start, end);
@@ -23,8 +22,7 @@ public final class ReservationPricing {
         if (pricePerDay == null || pricePerDay.signum() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El vehículo no tiene una tarifa válida.");
         }
-        BigDecimal subtotal = pricePerDay.multiply(BigDecimal.valueOf(days));
-        BigDecimal total = subtotal.multiply(java.math.BigDecimal.ONE.add(IVA_RATE)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal total = pricePerDay.multiply(BigDecimal.valueOf(days)).setScale(2, RoundingMode.HALF_UP);
         if (total.signum() <= 0 || total.precision() > 12) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El monto de la reserva no es válido.");
         }

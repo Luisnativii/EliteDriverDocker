@@ -298,7 +298,7 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
               </div>
               <span className="text-lg font-bold text-gray-900">
                 {formatPrice(vehicle.price)}
-                <span className="text-sm font-normal text-gray-500 ml-1">/ día</span>
+                <span className="text-sm font-normal text-gray-500 ml-1">/ día · IVA incluido</span>
               </span>
             </div>
           </div>

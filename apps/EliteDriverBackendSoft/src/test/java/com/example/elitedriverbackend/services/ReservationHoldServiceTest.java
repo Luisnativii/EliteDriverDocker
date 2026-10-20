@@ -41,7 +41,6 @@ class ReservationHoldServiceTest {
 
     @BeforeEach
     void setUp() {
-        properties.setHoldMinutes(30);
         properties.setSweepMillis(60_000L);
         org.springframework.test.util.ReflectionTestUtils.setField(service, "properties", properties);
     }
@@ -57,7 +56,7 @@ class ReservationHoldServiceTest {
     void unaReservaNuevaVenceEnLosMinutosConfigurados() {
         Instant ahora = Instant.parse("2026-10-16T12:00:00Z");
         Instant vence = service.newExpiry(ahora);
-        assertEquals(30, ChronoUnit.MINUTES.between(ahora, vence));
+        assertEquals(10, ChronoUnit.MINUTES.between(ahora, vence));
     }
 
     @Test
@@ -100,6 +99,18 @@ class ReservationHoldServiceTest {
         Instant ahora = Instant.now();
         assertTrue(service.isHoldExpired(pendiente(ahora.minus(5, ChronoUnit.MINUTES)), ahora));
         assertFalse(service.isHoldExpired(pendiente(ahora.plus(5, ChronoUnit.MINUTES)), ahora));
+    }
+
+    @Test
+    void venceExactamenteALosDiezMinutosYNoAntes() {
+        Instant inicio = Instant.parse("2026-10-20T12:00:00Z");
+        Instant vence = service.newExpiry(inicio);
+        Reservation reserva = pendiente(vence);
+        assertFalse(service.isHoldExpired(reserva, inicio.plusSeconds(599)));
+        assertTrue(service.isHoldExpired(reserva, inicio.plusSeconds(600)));
+        reserva.setPaymentStatus(PaymentStatus.CANCELLED);
+        assertTrue(service.isRenewable(reserva, vence));
+        assertEquals(vence.plusSeconds(600), service.newExpiry(vence));
     }
 
     @Test

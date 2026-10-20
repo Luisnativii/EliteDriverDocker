@@ -144,18 +144,15 @@ class ReservationService {
         };
     }
 
-    // Calcular precio total — base + IVA 13% (igual que backend ReservationPricing)
-    static IVA_RATE = 0.13;
+    // La tarifa diaria ya incluye IVA, igual que en ReservationPricing del backend.
     static calculateTotalPrice(startDate, endDate, pricePerDay) {
-        if (!startDate || !endDate || !pricePerDay) return { days: 0, subtotal: 0, iva: 0, totalPrice: 0 };
+        if (!startDate || !endDate || !pricePerDay) return { days: 0, subtotal: 0, totalPrice: 0 };
 
         const diffDays = rentalDays(startDate, endDate);
 
-        if (diffDays <= 0) return { days: 0, subtotal: 0, iva: 0, totalPrice: 0 };
+        if (diffDays <= 0) return { days: 0, subtotal: 0, totalPrice: 0 };
         const subtotal = Math.round((diffDays * pricePerDay + Number.EPSILON) * 100) / 100;
-        const iva = Math.round((subtotal * this.IVA_RATE + Number.EPSILON) * 100) / 100;
-        const totalPrice = Math.round((subtotal + iva + Number.EPSILON) * 100) / 100;
-        return { days: diffDays, subtotal, iva, totalPrice };
+        return { days: diffDays, subtotal, totalPrice: subtotal };
     }
 
     //obtener las reservaciones del usuario

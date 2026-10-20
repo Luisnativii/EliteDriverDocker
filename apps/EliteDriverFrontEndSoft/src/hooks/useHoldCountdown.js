@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
  * @param {number} fallbackMinutes - Valor por defecto si el servidor no lo envía.
  * @returns {{ restante: number|null, expirada: boolean, minutos: number, segundos: number }}
  */
-export function useHoldCountdown(expiresAt, fallbackMinutes = 30) {
+export function useHoldCountdown(expiresAt, fallbackMinutes = 10) {
     const [restante, setRestante] = useState(null);
 
     useEffect(() => {

@@ -38,21 +38,23 @@ const TerminosPage = () => (
     <ol>
       <li>Elegís la fecha de retiro y de devolución.</li>
       <li>Revisás los vehículos disponibles para esas fechas.</li>
-      <li>Seleccionás uno y el sistema calcula el precio: días × tarifa diaria, más IVA.</li>
+      <li>Seleccionás uno y el sistema calcula el precio: días × tarifa diaria con IVA incluido, sin sumar IVA adicional.</li>
       <li>Creás la cuenta y generás el enlace de pago.</li>
       <li>Completás el pago con Wompi.</li>
     </ol>
     <p>
       <strong>La reserva solo queda confirmada cuando el pago aparece como
-      aprobado.</strong> Mientras tanto queda pendiente y el vehículo sigue
-      disponible para otra persona.
+      aprobado.</strong> Mientras está pendiente de pago, retenemos el vehículo
+      durante 10 minutos. Si el pago no se aprueba dentro de ese plazo, se libera
+      para otras personas. El contador en <em>Mis reservas</em> muestra el tiempo
+      restante. Podés volver a reservarlo si sigue disponible.
     </p>
 
     <h2>4. Precio y pago</h2>
     <ul>
       <li>
         Los precios se muestran en dólares de El Salvador e <strong>incluyen el
-        IVA</strong> ya aplicado.
+        IVA</strong> en la tarifa diaria y en el total. No se agrega IVA al pagar.
       </li>
       <li>El precio se fija al crear la reserva y no cambia aunque luego varíe la tarifa.</li>
       <li>El pago se procesa en Wompi. {business.marca} no recibe el número de tu tarjeta.</li>

@@ -58,7 +58,8 @@ const LegalPage = () => (
     <h2>Moneda</h2>
     <p>
       Todos los precios se expresan en <strong>dólares de El Salvador (USD)</strong>
-      e incluyen el IVA correspondiente.
+      e incluyen el IVA correspondiente en la tarifa diaria y en el total de la
+      reserva. No se suma IVA adicional al precio publicado.
     </p>
 
     <h2>Documentos relacionados</h2>

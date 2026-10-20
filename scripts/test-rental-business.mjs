@@ -57,8 +57,8 @@ try {
     vehicleId = vehicle.id;
     const baseline = await book('2037-07-10', '2037-07-13');
     assert.equal(baseline.status, 201, 'Create isolated future test period');
-    await check('Three days still use server price plus 13 percent IVA', async () => {
-        assert.equal(baseline.data.totalPrice, 101.67);
+    await check('Three days use the published server price with IVA included', async () => {
+        assert.equal(baseline.data.totalPrice, Math.round(vehicle.pricePerDay * 3 * 100) / 100);
         assert.equal(baseline.data.paymentStatus, 'PENDING');
         return { total: baseline.data.totalPrice, status: baseline.data.paymentStatus };
     });
