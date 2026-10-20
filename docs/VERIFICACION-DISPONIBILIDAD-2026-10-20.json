@@ -1,0 +1,243 @@
+{
+  "version": "v1.3.0",
+  "checks": [
+    {
+      "name": "Create vehicle without maintenance fields",
+      "passed": true,
+      "observed": {
+        "httpStatus": 201
+      }
+    },
+    {
+      "name": "New vehicle defaults to active",
+      "passed": true
+    },
+    {
+      "name": "Anonymous cannot block vehicles",
+      "passed": true,
+      "observed": {
+        "httpStatus": 403
+      }
+    },
+    {
+      "name": "Customer cannot block vehicles",
+      "passed": true
+    },
+    {
+      "name": "Customer cannot change vehicle status",
+      "passed": true
+    },
+    {
+      "name": "Reject reversed period",
+      "passed": true
+    },
+    {
+      "name": "Validate maximum reason length",
+      "passed": true
+    },
+    {
+      "name": "Administrator creates scheduled period",
+      "passed": true,
+      "observed": {
+        "httpStatus": 201
+      }
+    },
+    {
+      "name": "Reject overlapping scheduled periods",
+      "passed": true
+    },
+    {
+      "name": "Public data has no internal reason or maintenance fields",
+      "passed": true
+    },
+    {
+      "name": "Scheduled block appears in public availability",
+      "passed": true
+    },
+    {
+      "name": "Reject reservation overlapping start day",
+      "passed": true,
+      "observed": {
+        "httpStatus": 409
+      }
+    },
+    {
+      "name": "Reject reservation overlapping end day",
+      "passed": true,
+      "observed": {
+        "httpStatus": 409
+      }
+    },
+    {
+      "name": "Reject reservation overlapping enclosing interval",
+      "passed": true,
+      "observed": {
+        "httpStatus": 409
+      }
+    },
+    {
+      "name": "Reject reservation overlapping inside interval",
+      "passed": true,
+      "observed": {
+        "httpStatus": 409
+      }
+    },
+    {
+      "name": "Accept reservation after blocked period",
+      "passed": true
+    },
+    {
+      "name": "IVA remains included and hold remains ten minutes",
+      "passed": true
+    },
+    {
+      "name": "Cannot block dates with a reservation",
+      "passed": true
+    },
+    {
+      "name": "Cannot deactivate vehicle with a future reservation",
+      "passed": true
+    },
+    {
+      "name": "Rejected change preserves active state",
+      "passed": true
+    },
+    {
+      "name": "Customer cannot remove period",
+      "passed": true
+    },
+    {
+      "name": "Administrator removes period",
+      "passed": true
+    },
+    {
+      "name": "Updating mileage has no maintenance side effects",
+      "passed": true
+    },
+    {
+      "name": "Mileage update keeps active state",
+      "passed": true
+    },
+    {
+      "name": "Removed period allows booking again",
+      "passed": true
+    },
+    {
+      "name": "Vehicle can be deactivated when reservations are resolved",
+      "passed": true
+    },
+    {
+      "name": "Inactive vehicle cannot be reserved",
+      "passed": true
+    },
+    {
+      "name": "Inactive vehicle cannot renew an expired hold",
+      "passed": true,
+      "observed": {
+        "httpStatus": 409,
+        "reply": {
+          "alternatives": [
+            {
+              "name": "JEEP GRAND CHEROKEE 2019",
+              "vehicleType": "SUV",
+              "mainImageUrl": "https://firebasestorage.googleapis.com/v0/b/carviapp-prod.firebasestorage.app/o/applicantsImages%2Ff57b5f3a-f170-41eb-884b-965fad539bc4.webp?alt=media&token=36319199-8989-4e38-92c5-ce412ee9f025",
+              "pricePerDay": 50.0,
+              "id": "2383faac-b236-435c-bd67-db6c5485c077",
+              "brand": "JEEP"
+            },
+            {
+              "name": "Nissan Rogue 4x4 2019",
+              "vehicleType": "SUV",
+              "mainImageUrl": "https://firebasestorage.googleapis.com/v0/b/carviapp-prod.firebasestorage.app/o/vehicles%2F80ce4a88b2fd6804d5b3a7405eb2792e3a45cc4373746113ffab2e1a041ffae7.webp?alt=media&token=a13e6685-aee5-4991-8cb1-3b336d3bfd02",
+              "pricePerDay": 40.0,
+              "id": "7467d072-331d-4ba7-8476-c2bc90aca744",
+              "brand": "Nissan"
+            },
+            {
+              "name": "Mitsubishi Outlander 2018",
+              "vehicleType": "SUV",
+              "mainImageUrl": "https://firebasestorage.googleapis.com/v0/b/carviapp-prod.firebasestorage.app/o/vehicles%2F8b2c8324-43f4-4edf-9a6f-6ba929c0a747.webp?alt=media&token=af172803-23f0-42bd-9376-53ad78bee33d",
+              "pricePerDay": 45.0,
+              "id": "8696dc39-14c4-4226-8160-b1fedf00a268",
+              "brand": "Mitsubishi"
+            },
+            {
+              "name": "Nissan Rogue Sport 2019",
+              "vehicleType": "SUV",
+              "mainImageUrl": "https://firebasestorage.googleapis.com/v0/b/carviapp-prod.firebasestorage.app/o/applicantsImages%2Ff8b634da13ac098acb26a227914c7ccb5565362be8fb3e207bf0ae683cf19119.webp?alt=media&token=8afb32b7-84ed-450f-bfbf-d44a002ce434",
+              "pricePerDay": 45.0,
+              "id": "b9f1edec-ce1a-4b82-8b53-e5c593500614",
+              "brand": "Nissan"
+            },
+            {
+              "name": "Kia Soul 2021",
+              "vehicleType": "SUV",
+              "mainImageUrl": "https://firebasestorage.googleapis.com/v0/b/carviapp-prod.firebasestorage.app/o/applicantsImages%2Fb77bfeee912c093fac0baf519ba23e4c35bc6aa7164272ea1e7aa2ecb438071c.webp?alt=media&token=6529f00c-f741-496f-93e8-ecefd463f93e",
+              "pricePerDay": 35.0,
+              "id": "333a1d05-7754-43cf-ad70-c7d746f2f8c9",
+              "brand": "Kia"
+            },
+            {
+              "name": "Mitsubishi Outlander 2020",
+              "vehicleType": "SUV",
+              "mainImageUrl": "https://firebasestorage.googleapis.com/v0/b/carviapp-prod.firebasestorage.app/o/applicantsImages%2F9fd1d642-b402-4c41-b4c6-d75de94f59dc.webp?alt=media&token=013a2217-d742-4f1d-9964-d83b14ff76c7",
+              "pricePerDay": 40.0,
+              "id": "4e9a3473-779e-4e38-82b9-5329bfe5ae3b",
+              "brand": "Mitsubishi"
+            }
+          ],
+          "reason": "El vehículo está fuera de servicio para las fechas seleccionadas.",
+          "renewed": false
+        }
+      }
+    },
+    {
+      "name": "Vehicle can be reactivated",
+      "passed": true
+    },
+    {
+      "name": "Active available vehicle can renew hold",
+      "passed": true
+    },
+    {
+      "name": "Concurrent reservation and block cannot both succeed",
+      "passed": true,
+      "observed": {
+        "httpStatuses": [
+          201,
+          409
+        ]
+      }
+    }
+  ],
+  "allPassed": true,
+  "externalPaymentAttempted": false,
+  "uiFixturePendingCleanup": false,
+  "preservation": {
+    "cleanup": true,
+    "preserved": true,
+    "snapshot": {
+      "users": [
+        11,
+        "93ba0a58854e2a78704a7a7c42f444ee"
+      ],
+      "vehicles": [
+        12,
+        "70709d020391a614bdc827316120b713"
+      ]
+    }
+  },
+  "unitTests": {
+    "backend": 76,
+    "frontend": 54,
+    "build": "success"
+  },
+  "browserChecks": [
+    "Dashboard sin alertas de mantenimiento",
+    "Menú sin módulo de mantenimiento",
+    "Crear y quitar período desde el panel",
+    "Cambiar vehículo a inactivo desde el selector",
+    "Formularios sin campos de mantenimiento",
+    "Ruta anterior redirige a Gestión de Vehículos"
+  ]
+}

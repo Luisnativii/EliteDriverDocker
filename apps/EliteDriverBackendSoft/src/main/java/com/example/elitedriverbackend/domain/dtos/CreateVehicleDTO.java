@@ -56,8 +56,6 @@ public class CreateVehicleDTO {
         private String type;
     }
 
-    @NotNull
-    private Integer kmForMaintenance;
 
     @NotBlank(message = "La URL de la imagen principal es requerida")
     private String mainImageUrl;
@@ -65,5 +63,7 @@ public class CreateVehicleDTO {
     private List<String> listImageUrls;
 
     private String insurancePhone;
+
+    private com.example.elitedriverbackend.domain.entity.VehicleStatus status;
 
 }

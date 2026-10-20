@@ -181,6 +181,9 @@ public class ReservationController {
                         .status(r.getPaymentStatus() == null ? PaymentStatus.PENDING.name() : r.getPaymentStatus().name())
                         .build())
                 .collect(Collectors.toList());
+        reservationService.getUnavailablePeriods(startDate, endDate).forEach(p -> dtos.add(ReservationAvailabilityDTO.builder()
+                .vehicleId(p.getVehicle().getId().toString()).startDate(java.sql.Date.valueOf(p.getStartDate()))
+                .endDate(java.sql.Date.valueOf(p.getEndDate())).status("OUT_OF_SERVICE").build()));
         return ResponseEntity.ok(dtos);
     }
 

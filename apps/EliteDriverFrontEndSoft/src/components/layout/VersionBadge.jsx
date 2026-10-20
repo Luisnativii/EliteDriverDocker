@@ -19,10 +19,10 @@ const VersionBadge = () => {
 
   useEffect(() => {
     let cancelled = false;
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
 
     const controller = new AbortController();
-    fetch(`${API_BASE_URL}/version`, {
+    const check = () => fetch(`${API_BASE_URL}/version`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       signal: controller.signal,
       cache: 'no-store',
@@ -31,7 +31,10 @@ const VersionBadge = () => {
       .then(data => { if (!cancelled) setBackend(data?.version || 'desconocida'); })
       .catch(() => { if (!cancelled) setBackend('sin /api/version'); });
 
-    return () => { cancelled = true; controller.abort(); };
+    check();
+    const interval = setInterval(check, 60000);
+    window.addEventListener('focus', check);
+    return () => { cancelled = true; controller.abort(); clearInterval(interval); window.removeEventListener('focus', check); };
   }, []);
 
   if (user?.routeRole !== 'admin') return null;
@@ -66,7 +69,11 @@ const VersionBadge = () => {
         <div className="absolute bottom-full right-0 mb-1 p-2 rounded-md bg-neutral-900/95 border border-white/15 text-white/80 space-y-0.5 shadow-lg">
           <div>frontend: {build}</div>
           <div>backend:&nbsp; {backend}</div>
-          {stale && <div className="text-amber-300 pt-0.5">revisa el despliegue</div>}
+          {stale && <div className="text-amber-300 pt-1 max-w-64 whitespace-normal">
+            <p>Hay una nueva versión o las versiones no coinciden.</p>
+            <button type="button" onClick={() => window.location.reload()} className="min-h-11 underline font-semibold">Recargar panel</button>
+            <p>Si el aviso continúa después de recargar, revisa el despliegue.</p>
+          </div>}
         </div>
       )}
     </div>

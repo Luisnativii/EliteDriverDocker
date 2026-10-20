@@ -22,6 +22,9 @@ public class ReservationIntegrityInitializer implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) throws IOException {
+        try (var stream = new ClassPathResource("db/vehicle-availability.sql").getInputStream()) {
+            jdbc.execute(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
+        }
         try (var stream = new ClassPathResource("db/reservation-integrity.sql").getInputStream()) {
             // Send the complete script: its DO block contains SQL semicolons.
             jdbc.execute(new String(stream.readAllBytes(), StandardCharsets.UTF_8));

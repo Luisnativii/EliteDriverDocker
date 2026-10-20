@@ -2,14 +2,18 @@ package com.example.elitedriverbackend.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.example.elitedriverbackend.domain.dtos.CreateVehicleDTO;
-import com.example.elitedriverbackend.domain.dtos.MaintenanceRecordDTO;
 import com.example.elitedriverbackend.domain.dtos.UpdateVehicleDTO;
 import com.example.elitedriverbackend.domain.dtos.VehicleResponseDTO;
-import com.example.elitedriverbackend.domain.entity.MaintenanceRecord;
 import com.example.elitedriverbackend.domain.entity.Vehicle;
 import com.example.elitedriverbackend.domain.entity.VehicleStatus;
 import com.example.elitedriverbackend.domain.entity.VehicleType;
-import com.example.elitedriverbackend.repositories.MaintenanceRecordRepository;
+import com.example.elitedriverbackend.repositories.VehicleUnavailabilityRepository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.Instant;
 import com.example.elitedriverbackend.repositories.VehicleRepository;
 import com.example.elitedriverbackend.repositories.VehicleTypeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +39,12 @@ public class VehicleService {
     private VehicleTypeRepository vehicleTypeRepository;
 
     @Autowired
-    private MaintenanceRecordRepository maintenanceRecordRepository;
+    private VehicleUnavailabilityRepository periods;
+
+    @Autowired private VehicleAvailabilityService availability;
+    @Autowired private com.example.elitedriverbackend.repositories.ReservationRepository reservations;
+    @Autowired private ReservationHoldService holds;
+    @Autowired private Clock rentalClock;
 
     public void addVehicle(CreateVehicleDTO dto) {
         Vehicle v = new Vehicle();
@@ -47,8 +56,7 @@ public class VehicleService {
         v.setKilometers(dto.getKilometers());
         v.setFeatures(dto.getFeatures());
         v.setInsurancePhone(dto.getInsurancePhone());
-        v.setKmForMaintenance(dto.getKmForMaintenance());
-        v.setStatus(VehicleStatus.maintenanceCompleted);
+        v.setStatus(dto.getStatus() == null ? VehicleStatus.active : dto.getStatus());
         v.setMainImageUrl(requireImageUrl(dto.getMainImageUrl(), "mainImageUrl"));
 
         if (dto.getListImageUrls() != null) {
@@ -63,56 +71,35 @@ public class VehicleService {
         vehicleRepository.save(v);
     }
 
+    @Transactional
     public void updateVehicle(UpdateVehicleDTO dto, UUID id) {
-        Vehicle v = vehicleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vehicle con id " + id + " no encontrado"));
-        Integer prevKm = v.getKilometers();
+        holds.expireNow(Instant.now(rentalClock));
+        Vehicle v = availability.lock(id);
 
         // Update simple fields
         if (dto.getPricePerDay() != null)        v.setPricePerDay(dto.getPricePerDay());
         if (dto.getKilometers() != null)         v.setKilometers(dto.getKilometers());
         if (dto.getFeatures() != null)           v.setFeatures(dto.getFeatures());
         if (dto.getInsurancePhone() != null)     v.setInsurancePhone(dto.getInsurancePhone());
-        if (dto.getKmForMaintenance() != null)   v.setKmForMaintenance(dto.getKmForMaintenance());
         if (dto.getMainImageUrl() != null)       v.setMainImageUrl(requireImageUrl(dto.getMainImageUrl(), "mainImageUrl"));
         if (dto.getListImageUrls() != null)      v.setListImageUrls(normalizeImageUrls(dto.getListImageUrls()));
 
-        // Maintenance logic: record date+km when crossing a maintenance interval
-        if (dto.getKilometers() != null && v.getKmForMaintenance() != null) {
-            int currKm      = dto.getKilometers();
-            int interval    = v.getKmForMaintenance();
-            int prevCycles  = prevKm / interval;
-            int currCycles  = currKm / interval;
-
-            log.info("🔧 Checking maintenance for '{}' ({}→{} km), interval {}",
-                    v.getName(), prevKm, currKm, interval);
-
-            if (currCycles > prevCycles) {
-                // Persist maintenance record
-                MaintenanceRecord record = MaintenanceRecord.builder()
-                        .vehicle(v)
-                        .maintenanceDate(LocalDateTime.now())
-                        .kmAtMaintenance(currKm)
-                        .build();
-                maintenanceRecordRepository.save(record);
-
-                v.setStatus(VehicleStatus.maintenanceRequired);
-                log.info("⚠️ '{}' now requires maintenance", v.getName());
+        if (dto.getStatus() != null) {
+            if (dto.getStatus() == VehicleStatus.outOfService && !reservations.findByVehicleIdAndDateOverlap(
+                    id, java.sql.Date.valueOf(LocalDate.now(rentalClock)), java.sql.Date.valueOf(LocalDate.of(9999, 12, 31))).isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "El vehículo tiene reservas pendientes o futuras. Usa un período libre o resuelve las reservas antes de desactivarlo.");
             }
-            else if (dto.getStatus() != null) {
-                v.setStatus(dto.getStatus());
-            }
-        }
-        else if (dto.getStatus() != null) {
             v.setStatus(dto.getStatus());
         }
 
         vehicleRepository.save(v);
     }
 
+    @Transactional
     public void deleteVehicle(UUID id) {
         Vehicle v = vehicleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Vehicle con id " + id + " no encontrado"));
+        periods.deleteAll(periods.findByVehicle_IdOrderByStartDateAsc(id));
         vehicleRepository.delete(v);
     }
 
@@ -128,20 +115,7 @@ public class VehicleService {
         return toResponseDTO(v);
     }
 
-    // —————— Helper: map Vehicle + its MaintenanceRecords → DTO ——————
     private VehicleResponseDTO toResponseDTO(Vehicle v) {
-        List<MaintenanceRecordDTO> hist = maintenanceRecordRepository
-                .findByVehicleIdOrderByMaintenanceDateDesc(v.getId())
-                .stream()
-                .map(r -> MaintenanceRecordDTO.builder()
-                        .id(r.getId())
-                        .maintenanceDate(r.getMaintenanceDate())
-                        .kmAtMaintenance(r.getKmAtMaintenance())
-                        .createdAt(r.getCreatedAt())
-                        .updatedAt(r.getUpdatedAt())
-                        .build())
-                .collect(Collectors.toList());
-
         return VehicleResponseDTO.builder()
                 .id(v.getId().toString())
                 .name(v.getName())
@@ -155,12 +129,11 @@ public class VehicleService {
                         .id(v.getVehicleType().getId().toString())
                         .type(v.getVehicleType().getType())
                         .build())
-                .kmForMaintenance(v.getKmForMaintenance())
                 .status(v.getStatus())
                 .mainImageUrl(v.getMainImageUrl())
                 .listImageUrls(v.getListImageUrls())
                 .insurancePhone(v.getInsurancePhone())
-                .maintenanceRecords(hist)
+                .unavailablePeriods(periods.findByVehicle_IdOrderByStartDateAsc(v.getId()).stream().map(VehicleAvailabilityService::dto).toList())
                 .build();
     }
 

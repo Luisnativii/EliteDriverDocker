@@ -16,8 +16,8 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"vehicleType", "maintenanceRecords"})
-@ToString(exclude = {"vehicleType", "maintenanceRecords"})
+@EqualsAndHashCode(exclude = {"vehicleType"})
+@ToString(exclude = {"vehicleType"})
 public class Vehicle {
 
     @Id
@@ -60,9 +60,6 @@ public class Vehicle {
     @JoinColumn(name = "vehicle_type_id", nullable = false)
     private VehicleType vehicleType;
 
-    @Column(name = "km_for_maintenance")
-    private Integer kmForMaintenance;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private VehicleStatus status;
@@ -78,13 +75,5 @@ public class Vehicle {
     )
     @Column(name = "image")
     private List<String> listImageUrls = new ArrayList<>();
-
-    @OneToMany(
-            mappedBy = "vehicle",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    private Set<MaintenanceRecord> maintenanceRecords = new HashSet<>();
 
 }

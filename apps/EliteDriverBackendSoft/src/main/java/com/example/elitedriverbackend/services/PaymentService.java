@@ -36,6 +36,7 @@ public class PaymentService {
     private final WompiClient wompi;
     private final WompiProperties properties;
     private final ObjectMapper mapper;
+    private final VehicleAvailabilityService vehicleAvailability;
 
     @Transactional
     public PaymentLinkResponseDTO createLink(UUID id, Authentication authentication) {
@@ -47,6 +48,8 @@ public class PaymentService {
         if (reservation.getPaymentStatus() == PaymentStatus.PAID || reservation.getPaymentStatus() == PaymentStatus.PAID_TEST) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Esta reserva ya tiene un pago registrado.");
         }
+        vehicleAvailability.requireAvailable(reservation.getVehicle(), java.time.Instant.ofEpochMilli(reservation.getStartDate().getTime()).atZone(java.time.ZoneOffset.UTC).toLocalDate(),
+                java.time.Instant.ofEpochMilli(reservation.getEndDate().getTime()).atZone(java.time.ZoneOffset.UTC).toLocalDate());
         wompi.checkConfiguration();
         WompiClient.Environment environment = wompi.checkEnvironment();
         if (reservation.getWompiLinkId() != null) {

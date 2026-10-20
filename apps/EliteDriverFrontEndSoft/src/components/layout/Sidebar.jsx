@@ -13,7 +13,6 @@ import {
   User, 
   LogOut,
   Users,
-  Wrench,
   Clock,
   BookOpen,
   Crown,
@@ -42,7 +41,6 @@ const iconMap = {
   Settings,
   User,
   Users,
-  Wrench,
   Clock,
   BookOpen,
   LogOut
@@ -67,7 +65,6 @@ const Sidebar = ({ toggleSidebar, isMobile }) => {
       
       { name: "Gestión de Reservas", path: "/admin/reservation", icon: "Calendar" },
       { name: "Gestión de Vehículos", path: "/admin/vehicle", icon: "Car" },
-      { name: "Mantenimiento", path: "/admin/maintenance", icon: "Wrench" },
     ],
     USER: [
       { name: "Inicio", path: "/customer", icon: "Home" },

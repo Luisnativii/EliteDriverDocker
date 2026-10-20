@@ -5,7 +5,6 @@ import { DateProvider } from './context/DateContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Layout from './components/layout/Layout';
 const DashboardPage = React.lazy(() => import('./pages/admin/DashboardPage'));
-const MaintenancePage = React.lazy(() => import('./pages/admin/MaintenancePage'));
 const ReservationManagementPage = React.lazy(() => import('./pages/admin/ReservationManagementPage'));
 const VehicleManagementPage = React.lazy(() => import('./pages/admin/VehicleManagementPage'));
 const HomePage = React.lazy(() => import('./pages/customer/HomePage'));
@@ -58,7 +57,7 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route index element={<DashboardPage />} />
-              <Route path="maintenance" element={<MaintenancePage />} />
+              <Route path="maintenance" element={<Navigate to="/admin/vehicle" replace />} />
               <Route path="reservation" element={<ReservationManagementPage />} />
               <Route path="vehicle" element={<VehicleManagementPage />} />
             </Route>

@@ -34,7 +34,7 @@ class ReservationServiceTest {
                 new com.example.elitedriverbackend.config.ReservationHoldProperties();
         // Usar el plazo predeterminado de 10 minutos.
         return new ReservationService(reservations, users, vehicles, types, clock,
-                new ReservationHoldService(reservations, holdProps));
+                new ReservationHoldService(reservations, holdProps), mock(VehicleAvailabilityService.class), mock(VehicleUnavailabilityRepository.class));
     }
 
     private CreateReservationDTO dates(String start, String end) {

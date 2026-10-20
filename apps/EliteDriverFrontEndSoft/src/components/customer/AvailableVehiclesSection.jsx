@@ -5,6 +5,8 @@ import { useDateContext } from '../../context/DateContext';
 import { getAllVehicles } from '../../services/vehicleService';
 import ReservationService from '../../services/reservationService';
 import { useAuth } from '../../hooks/useAuth';
+import { vehicleAvailabilityStatus } from '../../utils/vehicleAvailability.js';
+import { rentalToday } from '../../utils/rentalDates.js';
 import { goToReservation } from '../../utils/reservationNavigation.js';
 
 /**
@@ -74,7 +76,9 @@ const AvailableVehiclesSection = () => {
   }, [conFechas, startDate, endDate]);
 
   const disponibles = useMemo(() => {
-    const aptos = vehicles.filter(v => (v.status || 'maintenanceCompleted') === 'maintenanceCompleted');
+    const from = conFechas ? startDate : rentalToday();
+    const to = conFechas ? endDate : from;
+    const aptos = vehicles.filter(v => vehicleAvailabilityStatus(v, from, to) === 'active');
     const libres = aptos.filter(v => !reservedIds.includes(v.id));
     // Con rango elegido mostramos los que se pueden reservar ya; sin fechas,
     // priorizamos los que no están ocupados para no perder interest.
@@ -82,7 +86,7 @@ const AvailableVehiclesSection = () => {
       (a, b) => (reservedIds.includes(a.id) ? 1 : 0) - (reservedIds.includes(b.id) ? 1 : 0)
     );
     return lista;
-  }, [vehicles, reservedIds, conFechas]);
+  }, [vehicles, reservedIds, conFechas, startDate, endDate]);
 
   const visibles = disponibles.slice(0, 6);
 

@@ -19,13 +19,12 @@ public class VehicleResponseDTO {
     private Integer kilometers;
     private List<String> features;
     private VehicleTypeInfo vehicleType;
-    private Integer kmForMaintenance;
     private VehicleStatus status;
     private String mainImageUrl;
     private List<String> listImageUrls;
     private String insurancePhone;
 
-    private List<MaintenanceRecordDTO> maintenanceRecords;
+    private List<VehicleUnavailabilityDTO> unavailablePeriods;
 
     @Data
     @Builder

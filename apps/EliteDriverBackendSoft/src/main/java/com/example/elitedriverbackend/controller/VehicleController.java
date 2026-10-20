@@ -4,6 +4,9 @@ import com.example.elitedriverbackend.domain.dtos.CreateVehicleDTO;
 import com.example.elitedriverbackend.domain.dtos.UpdateVehicleDTO;
 import com.example.elitedriverbackend.domain.dtos.VehicleResponseDTO;
 import com.example.elitedriverbackend.services.VehicleService;
+import com.example.elitedriverbackend.services.VehicleAvailabilityService;
+import com.example.elitedriverbackend.domain.dtos.VehicleUnavailabilityDTO;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -24,12 +27,14 @@ public class VehicleController {
     @Autowired
     private VehicleService vehicleService;
 
+    @Autowired private VehicleAvailabilityService availability;
+
     /*
         Endpoint para agregar un nuevo vehículo.
         Recibe un objeto CreateVehicleDTO en el cuerpo de la solicitud.
      */
     @PostMapping
-    public ResponseEntity<Void> addVehicle(@RequestBody CreateVehicleDTO dto) {
+    public ResponseEntity<Void> addVehicle(@Valid @RequestBody CreateVehicleDTO dto) {
         vehicleService.addVehicle(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -41,7 +46,7 @@ public class VehicleController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateVehicle(
             @PathVariable String id,
-            @RequestBody UpdateVehicleDTO dto) {
+            @Valid @RequestBody UpdateVehicleDTO dto) {
 
         vehicleService.updateVehicle(dto, UUID.fromString(id));
         return ResponseEntity.ok().build();
@@ -78,6 +83,17 @@ public class VehicleController {
         return ResponseEntity.ok(toPublicIfNeeded(dto, authentication));
     }
 
+    @PostMapping("/{id}/unavailability")
+    public ResponseEntity<VehicleUnavailabilityDTO> addPeriod(@PathVariable UUID id, @Valid @RequestBody VehicleUnavailabilityDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(availability.add(id, dto));
+    }
+
+    @DeleteMapping("/{id}/unavailability/{periodId}")
+    public ResponseEntity<Void> removePeriod(@PathVariable UUID id, @PathVariable UUID periodId) {
+        availability.remove(id, periodId);
+        return ResponseEntity.noContent().build();
+    }
+
     private boolean isAdmin(org.springframework.security.core.Authentication authentication) {
         return authentication != null && authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -86,7 +102,7 @@ public class VehicleController {
     private VehicleResponseDTO toPublicIfNeeded(VehicleResponseDTO dto, org.springframework.security.core.Authentication authentication) {
         if (isAdmin(authentication)) return dto;
         dto.setInsurancePhone(null);
-        dto.setMaintenanceRecords(null);
+        if (dto.getUnavailablePeriods() != null) dto.getUnavailablePeriods().forEach(p -> p.setReason(null));
         return dto;
     }
 
@@ -94,7 +110,7 @@ public class VehicleController {
         if (isAdmin(authentication)) return list;
         list.forEach(dto -> {
             dto.setInsurancePhone(null);
-            dto.setMaintenanceRecords(null);
+            if (dto.getUnavailablePeriods() != null) dto.getUnavailablePeriods().forEach(p -> p.setReason(null));
         });
         return list;
     }

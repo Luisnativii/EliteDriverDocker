@@ -135,7 +135,6 @@ const CreateVehicleForm = ({ onSubmit, onCancel, submitLoading = false }) => {
       capacity: parseInt(formData.capacity),
       pricePerDay: parseFloat(formData.pricePerDay),
       kilometers: parseInt(formData.kilometers),
-      kmForMaintenance: parseInt(formData.kmForMaintenance),
       insurancePhone: formData.insurancePhone.trim(),
 
       features: formData.featuresText
@@ -434,22 +433,7 @@ const CreateVehicleForm = ({ onSubmit, onCancel, submitLoading = false }) => {
             {errors.kilometers && <p className="text-red-500 text-sm mt-1">{errors.kilometers}</p>}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">
-              Kilómetros para Mantenimiento *
-            </label>
-            <input
-              type="number"
-              name="kmForMaintenance"
-              value={formData.kmForMaintenance}
-              onChange={handleChange}
-              min="0"
-              className={`w-full px-3 py-2 border rounded-md text-white/80 bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.kmForMaintenance ? 'border-red-500' : 'border-gray-300'
-                }`}
-              placeholder="Ej: 20000"
-            />
-            {errors.kmForMaintenance && <p className="text-red-500 text-sm mt-1">{errors.kmForMaintenance}</p>}
-          </div>
+
         </div>
 
         {/* Características */}

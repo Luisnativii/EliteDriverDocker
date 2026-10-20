@@ -42,6 +42,8 @@ public class ReservationService {
     private final VehicleTypeRepository vehicleTypeRepository;
     private final Clock rentalClock;
     private final ReservationHoldService holdService;
+    private final VehicleAvailabilityService vehicleAvailability;
+    private final com.example.elitedriverbackend.repositories.VehicleUnavailabilityRepository unavailablePeriods;
 
     /*
         Crea una nueva reserva si el vehículo no está ya reservado en el rango de fechas especificado.
@@ -74,6 +76,7 @@ public class ReservationService {
         // Lock before reading availability, including the first reservation.
         Vehicle vehicle = vehicleRepository.findForReservation(UUID.fromString(createReservationDTO.getVehicleId()))
                 .orElseThrow(() -> new RuntimeException("Vehiculo no encontrado"));
+        vehicleAvailability.requireAvailable(vehicle, start, end);
         var totalPrice = ReservationPricing.total(start, end, vehicle.getPricePerDay());
 
         Date startDate = java.sql.Date.valueOf(start);
@@ -140,6 +143,8 @@ public class ReservationService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Esta reserva fue cancelada y no se puede reactivar.");
         }
+        Vehicle vehicle = vehicleAvailability.lock(reservation.getVehicle().getId());
+        vehicleAvailability.requireAvailable(vehicle, toLocalDate(reservation.getStartDate()), toLocalDate(reservation.getEndDate()));
         Instant expiry = holdService.newExpiry(now);
         if (expiry == null) {
             // Expiración desactivada: la persona conserva la reserva tal cual.
@@ -165,15 +170,20 @@ public class ReservationService {
         List<UUID> ocupados = reservationRepository.findOverlapping(inicio, fin)
                 .stream().map(r -> r.getVehicle().getId()).toList();
         return mismoTipo.stream()
-                .filter(v -> v.getStatus() == VehicleStatus.maintenanceCompleted)
+                .filter(v -> v.getStatus() == VehicleStatus.active)
                 .filter(v -> !v.getId().equals(reservation.getVehicle().getId()))
                 .filter(v -> !ocupados.contains(v.getId()))
+                .filter(v -> !unavailablePeriods.overlaps(v.getId(), toLocalDate(inicio), toLocalDate(fin)))
                 .toList();
     }
 
     private static LocalDate toLocalDate(Date value) {
         return value instanceof java.sql.Date sqlDate ? sqlDate.toLocalDate()
                 : Instant.ofEpochMilli(value.getTime()).atZone(ZoneOffset.UTC).toLocalDate();
+    }
+
+    public List<com.example.elitedriverbackend.domain.entity.VehicleUnavailability> getUnavailablePeriods(Date startDate, Date endDate) {
+        return unavailablePeriods.findOverlapping(toLocalDate(startDate), toLocalDate(endDate));
     }
 
     public List<Reservation> getReservationsForAvailability(Date startDate, Date endDate) {

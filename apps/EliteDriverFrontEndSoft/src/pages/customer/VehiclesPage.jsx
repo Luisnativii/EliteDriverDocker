@@ -1,3 +1,5 @@
+import { vehicleAvailabilityStatus } from '../../utils/vehicleAvailability.js';
+import { rentalToday } from '../../utils/rentalDates.js';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useVehicles } from '../../hooks/useVehicles';
@@ -314,14 +316,13 @@ const VehiclesPage = () => {
 
     // Filtrar vehículos disponibles
     let filteredVehicles = vehicles.filter(vehicle => {
-        // Solo mostrar vehículos con estado "maintenanceCompleted" o sin estado definido
-        const vehicleStatus = vehicle.status || 'maintenanceCompleted';
-        const isMaintenanceCompleted = vehicleStatus === 'maintenanceCompleted';
+        // Solo mostrar vehículos activos.
+        const isActive = vehicleAvailabilityStatus(vehicle, startDate || rentalToday(), endDate || startDate || rentalToday()) === 'active';
 
         // Filtrar por tipo si no es 'all'
         const typeMatch = filteredType === 'all' || vehicle.type === filteredType;
 
-        return isMaintenanceCompleted && typeMatch;
+        return isActive && typeMatch;
     });
 
     // Separar vehículos disponibles y reservados

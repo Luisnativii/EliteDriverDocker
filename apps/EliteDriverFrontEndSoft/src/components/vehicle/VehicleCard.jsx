@@ -10,7 +10,6 @@ import {
   Car,
   AlertTriangle,
   CheckCircle,
-  Wrench,
   ChevronLeft,
   ChevronRight,
   Sparkles
@@ -126,27 +125,10 @@ const VehicleCard = ({ vehicle, onEdit, onRefresh, isAdmin = false }) => {
           iconColor: 'text-white',
           icon: Users,
         };
-      case 'underMaintenance':
-        return {
-          text: 'En mantenimiento',
-          className: 'bg-yellow-500 text-white',
-          iconColor: 'text-white',
-          icon: Wrench,
-        };
-      case 'maintenanceRequired':
-        return {
-          text: 'Requiere mantenimiento',
-          className: 'bg-orange-500  text-white',
-          iconColor: 'text-white',
-          icon: AlertTriangle,
-        };
-      case 'maintenanceCompleted':
-        return {
-          text: 'Mantenimiento al día',
-          className: 'bg-emerald-500 text-white',
-          iconColor: 'text-white',
-          icon: CheckCircle,
-        };
+      case 'active':
+        return { text: 'Disponible', className: 'bg-green-500 text-white', iconColor: 'text-white', icon: CheckCircle };
+      case 'inactive':
+        return { text: 'Inactivo', className: 'bg-gray-600 text-white', iconColor: 'text-white', icon: Car };
       case 'outOfService':
         return {
           text: 'Fuera de Servicio',

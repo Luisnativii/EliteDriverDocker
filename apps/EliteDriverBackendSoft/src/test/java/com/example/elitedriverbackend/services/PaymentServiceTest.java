@@ -36,7 +36,7 @@ class PaymentServiceTest {
         properties.setApiSecret("test-secret-for-signatures");
         properties.setWebhookUrl("https://example.com/api/payments/wompi/webhook");
         properties.setRedirectUrl("https://example.com/customer/my-reservations");
-        service = new PaymentService(repository, client, properties, mapper);
+        service = new PaymentService(repository, client, properties, mapper, mock(VehicleAvailabilityService.class));
         reservation = Reservation.builder().id(UUID.randomUUID())
                 .startDate(java.sql.Date.valueOf("2026-10-01")).endDate(java.sql.Date.valueOf("2026-10-04"))
                 .user(User.builder().email(owner.getName()).build())

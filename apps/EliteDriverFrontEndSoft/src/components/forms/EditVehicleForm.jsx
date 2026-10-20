@@ -331,16 +331,7 @@ const EditVehicleForm = ({ vehicle, onSubmit, onCancel, submitLoading = false })
               </p>
             </div>
 
-            {vehicle.kmForMaintenance && (
-              <div>
-                <label className="block text-sm font-medium text-gray-200 mb-1">
-                  Kilómetros para Mantenimiento
-                </label>
-                <p className="text-gray-200 px-0 py-2 font-bold border-none">
-                  {vehicle.kmForMaintenance}
-                </p>
-              </div>
-            )}
+
           </div>
         </div>
 

@@ -11,7 +11,6 @@ export const useVehicleForm = (initialData = {}) => {
     vehicleType: initialData.vehicleType || initialData.type || "",
     pricePerDay: initialData.pricePerDay?.toString() || "",
     kilometers: initialData.kilometers?.toString() || "",
-    kmForMaintenance: initialData.kmForMaintenance?.toString() || "",
     insurancePhone: initialData.insurancePhone || "",
 
     // Características
@@ -27,7 +26,7 @@ export const useVehicleForm = (initialData = {}) => {
       ? initialData.listImageUrls
       : [],
 
-    status: initialData.status || "maintenanceCompleted",
+    status: initialData.status || "active",
   });
 
   const [formData, setFormData] = useState(getInitialFormData);
@@ -42,8 +41,7 @@ export const useVehicleForm = (initialData = {}) => {
 
       if (
         name === "capacity" ||
-        name === "kilometers" ||
-        name === "kmForMaintenance"
+        name === "kilometers"
       ) {
         const numericValue = value.replace(/\D/g, "");
         setFormData((prev) => ({ ...prev, [name]: numericValue }));
@@ -92,9 +90,6 @@ export const useVehicleForm = (initialData = {}) => {
 
     if (!formData.kilometers)
       newErrors.kilometers = "Los kilómetros son requeridos";
-
-    if (!formData.kmForMaintenance)
-      newErrors.kmForMaintenance = "Los KM para mantenimiento son requeridos";
 
     if (!formData.featuresText.trim())
       newErrors.features = "Debes incluir al menos una característica";

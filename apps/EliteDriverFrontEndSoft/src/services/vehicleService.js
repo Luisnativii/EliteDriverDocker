@@ -58,15 +58,14 @@ const transformVehicleData = (apiVehicle) => {
     price: parseFloat(apiVehicle.pricePerDay),
     pricePerDay: parseFloat(apiVehicle.pricePerDay),
     kilometers: apiVehicle.kilometers,
-    kmForMaintenance: apiVehicle.kmForMaintenance || null,
     features: apiVehicle.features || [],
     mainImageUrl: apiVehicle.mainImageUrl || null,
     listImageUrls: apiVehicle.listImageUrls || [],
-    status: apiVehicle.status || 'maintenanceCompleted',
+    status: apiVehicle.status || 'active',
     insurancePhone: apiVehicle.insurancePhone || '',
     createdAt: apiVehicle.createdAt ? new Date(apiVehicle.createdAt) : null,
     updatedAt: apiVehicle.updatedAt ? new Date(apiVehicle.updatedAt) : null,
-    maintenanceRecords: apiVehicle.maintenanceRecords || []
+    unavailablePeriods: apiVehicle.unavailablePeriods || []
   };
 };
 
@@ -105,7 +104,6 @@ const transformVehicleForAPI = (vehicleData) => {
     pricePerDay,
     kilometers,
     insurancePhone,
-    kmForMaintenance: parseInt(vehicleData.kmForMaintenance),
     features: processedFeatures,
     vehicleType: {
       type: vehicleType
@@ -115,7 +113,7 @@ const transformVehicleForAPI = (vehicleData) => {
       ? vehicleData.listImageUrls
       : [],
 
-    status: 'maintenanceCompleted'  // Asignar estado por defecto
+    status: vehicleData.status || 'active'
   };
 
   return apiData;
@@ -150,12 +148,7 @@ const transformVehicleForUpdate = (vehicleData) => {
     }
   }
 
-  if (vehicleData.hasOwnProperty('kmForMaintenance')) {
-    const kmForMaintenance = parseInt(vehicleData.kmForMaintenance);
-    if (!isNaN(kmForMaintenance)) {
-      updateData.kmForMaintenance = kmForMaintenance;
-    }
-  }
+
 
   // Agregar features si están presentes
   if (vehicleData.hasOwnProperty('features')) {
@@ -226,7 +219,7 @@ export const getAllVehicles = async () => {
           errorMessage = 'Error interno del servidor. Intenta más tarde.';
           break;
         default:
-          errorMessage = data?.message || `Error del servidor (${status}).`;
+          errorMessage = data?.message || data?.error || `Error del servidor (${status}).`;
       }
     } else if (error.request) {
       errorMessage = 'No se pudo conectar con el servidor. Verifica que esté ejecutándose.';
@@ -307,7 +300,7 @@ export const createVehicle = async (vehicleData) => {
           errorMessage = 'Error interno del servidor. Intenta más tarde.';
           break;
         default:
-          errorMessage = data?.message || `Error del servidor (${status}).`;
+          errorMessage = data?.message || data?.error || `Error del servidor (${status}).`;
       }
     } else if (error.request) {
       errorMessage = 'No se pudo conectar con el servidor. Verifica que esté ejecutándose.';
@@ -353,7 +346,7 @@ export const updateVehicle = async (id, updateData) => {
           errorMessage = 'Error interno del servidor. Intenta más tarde.';
           break;
         default:
-          errorMessage = data?.message || `Error del servidor (${status}).`;
+          errorMessage = data?.message || data?.error || `Error del servidor (${status}).`;
       }
     } else if (error.request) {
       errorMessage = 'No se pudo conectar con el servidor.';
@@ -395,7 +388,7 @@ export const deleteVehicle = async (id) => {
           errorMessage = 'Error interno del servidor. Intenta más tarde.';
           break;
         default:
-          errorMessage = data?.message || `Error del servidor (${status}).`;
+          errorMessage = data?.message || data?.error || `Error del servidor (${status}).`;
       }
     } else if (error.request) {
       errorMessage = 'No se pudo conectar con el servidor.';
@@ -422,4 +415,13 @@ export const isAuthenticated = () => {
 export const hasAdminRole = () => {
   const user = getCurrentUser();
   return user && (user.role === 'ADMIN' || user.roles?.includes('ADMIN'));
+};
+export const addVehicleUnavailability = async (id, period) => {
+  try { return (await vehicleApi.post(`/vehicles/${id}/unavailability`, period)).data; }
+  catch (error) { throw new Error(error.response?.data?.message || error.response?.data?.error || 'No se pudo guardar el período fuera de servicio.'); }
+};
+
+export const removeVehicleUnavailability = async (id, periodId) => {
+  try { await vehicleApi.delete(`/vehicles/${id}/unavailability/${periodId}`); }
+  catch (error) { throw new Error(error.response?.data?.message || error.response?.data?.error || 'No se pudo quitar el período.'); }
 };

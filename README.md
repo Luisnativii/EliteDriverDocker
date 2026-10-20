@@ -103,6 +103,23 @@ fechas. El contador usa `holdExpiresAt`, que envía el servidor. Una renovación
 concede otros 10 minutos si el vehículo sigue libre. Un valor explícito en `.env`
 tiene prioridad sobre el predeterminado de Compose; `0` desactiva el vencimiento.
 
+## Estado de vehículos y períodos fuera de servicio
+
+En **Gestión de Vehículos** cada auto puede estar **Activo** o **Inactivo**.
+Un vehículo activo también puede tener varios períodos fuera de servicio por fechas,
+con motivo interno opcional. Los días de inicio y fin están incluidos. Al terminar
+un período, vuelve a estar disponible si está activo y no tiene otra ocupación.
+
+Los bloqueos no pueden solaparse entre sí ni con reservas pendientes o pagadas.
+Para desactivar un auto con reservas vigentes hay que resolver esas reservas primero.
+Crear una reserva, renovar su ventana de pago y guardar un bloqueo comprueban la
+disponibilidad en el servidor; reserva y bloqueo usan el mismo bloqueo de concurrencia.
+
+El módulo de mantenimiento, sus alertas, historial y cálculo por kilómetros fueron
+retirados. El kilometraje se conserva como dato informativo. La migración automática
+convierte los estados anteriores y retira la tabla y columna de mantenimiento;
+conserva vehículos, usuarios y reservas. Ver [verificación](docs/VERIFICACION-DISPONIBILIDAD-2026-10-20.json).
+
 ## Releases y despliegue al homelab
 
 Cada cambio terminado se publica como un tag `vX.Y.Z` y se despliega con:

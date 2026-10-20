@@ -55,7 +55,7 @@ public class SecurityConfig {
                         // Validación de token
                         .requestMatchers("/api/auth/validate").authenticated()
                         // Operaciones de administración sobre vehículos
-                        .requestMatchers(HttpMethod.POST,   "/api/vehicles").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,   "/api/vehicles", "/api/vehicles/*/unavailability").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/vehicles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/vehicles/**").hasRole("ADMIN")
                         // Listado global de reservas solo ADMIN (antes era público y filtraba DUI)
